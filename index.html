@@ -389,7 +389,48 @@
     font-size: 14px; cursor: pointer;
   }
 
-  /* --- SLIDER STYLES --- */
+  /* --- TOOLTIP STYLES --- */
+  .tooltip-container { position: relative; width: 100%; }
+  
+  .tooltip-container .tooltip-text {
+    visibility: hidden; 
+    width: max-content;
+    max-width: 300px;
+    background-color: #333; 
+    color: #fff;
+    text-align: center; 
+    border-radius: 6px; 
+    padding: 6px 10px;
+    position: absolute; 
+    z-index: 100; 
+    bottom: 125%; 
+    left: 50%; 
+    transform: translateX(-50%);
+    opacity: 0; 
+    transition: opacity 0.3s; 
+    font-size: 12px; 
+    pointer-events: none; 
+    border: 1px solid #505050;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .tooltip-container.show-tooltip:hover .tooltip-text { 
+    visibility: visible; 
+    opacity: 1; 
+  }
+
+  .tooltip-container .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+
+  /* --- SLIDER STYLES (Blue Theme) --- */
   .slider-group { display: flex; align-items: center; gap: 6px; width: 100%; transition: opacity 0.2s; }
   .slider-group.disabled-slider { opacity: 0.3; pointer-events: none; }
 
@@ -402,12 +443,28 @@
   input[type="range"].custom-slider::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
     width: 16px; height: 16px; border-radius: 50%;
-    background: #b1b2b5; cursor: pointer; border: 2px solid #101010;
+    background: #325fe9; 
+    cursor: pointer; 
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px rgba(50, 95, 233, 0.6);
+    transition: transform 0.1s;
+  }
+  
+  input[type="range"].custom-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
   }
 
   input[type="range"].custom-slider::-moz-range-thumb {
     width: 16px; height: 16px; border-radius: 50%;
-    background: #b1b2b5; cursor: pointer; border: 2px solid #101010;
+    background: #325fe9; 
+    cursor: pointer; 
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px rgba(50, 95, 233, 0.6);
+    transition: transform 0.1s;
+  }
+  
+  input[type="range"].custom-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
   }
 
   .slider-value { min-width: 30px; text-align: right; font-size: 14px; color: #fff; }
@@ -501,6 +558,128 @@
   .btn-confirm:hover { background: #4a74ff; }
   
   .turbo-warning-text { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+
+  /* --- SHARED ADVANCED MODAL STYLES (Video & Audio) --- */
+  .shared-adv-modal {
+    width: 750px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .adv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 12px;
+  }
+
+  .adv-layout {
+    display: flex;
+    gap: 20px;
+    height: 450px; 
+  }
+
+  .adv-sidebar {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    border-right: 1px solid #333;
+    padding-right: 12px;
+  }
+
+  .adv-tab-btn {
+    background: transparent;
+    border: none;
+    color: #b2b2b2;
+    text-align: left;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .adv-tab-btn:hover {
+    background: #252525;
+    color: #fff;
+  }
+
+  .adv-tab-btn.active {
+    background: #325fe9;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .adv-tab-btn .edit-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #e74c3c; 
+    border-radius: 50%;
+    display: none;
+  }
+  
+  .adv-tab-btn.has-edits .edit-dot {
+    display: block;
+  }
+
+  .adv-main {
+    flex: 1;
+    padding-left: 10px;
+    overflow-y: auto;
+  }
+
+  .adv-panel {
+    display: none;
+  }
+  
+  .adv-panel.active {
+    display: block;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .panel-header h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+  }
+
+  /* Edit Indicator Badge */
+  .edit-indicator {
+    color: #e74c3c;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(231, 76, 60, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    margin-left: 12px;
+  }
+
+  /* Custom Scrollbar for Sidebar and Main */
+  .adv-sidebar::-webkit-scrollbar,
+  .adv-main::-webkit-scrollbar { width: 8px; }
+  .adv-sidebar::-webkit-scrollbar-track,
+  .adv-main::-webkit-scrollbar-track { background: #101010; border-radius: 4px; }
+  .adv-sidebar::-webkit-scrollbar-thumb,
+  .adv-main::-webkit-scrollbar-thumb { background: #404040; border-radius: 4px; }
+  .adv-sidebar::-webkit-scrollbar-thumb:hover,
+  .adv-main::-webkit-scrollbar-thumb:hover { background: #505050; }
 
   /* --- INFO MODAL SPECIFIC STYLES --- */
   .info-modal-content { width: 650px; padding: 20px; }
@@ -607,7 +786,7 @@
           </div>
           <div class="header-buttons">
             <input type="checkbox" class="toggle-enable" id="enable-video" checked onchange="toggleSection('box-video', this)">
-            <button class="btn-advanced" onclick="openAdvancedModal()">Advanced</button>
+            <button class="btn-advanced" onclick="openVideoAdvancedModal()">Advanced</button>
           </div>
         </div>
         
@@ -642,15 +821,6 @@
                 <option value="ffv1">FFV1 (ffv1)</option>
               </optgroup>
             </select>
-            
-            <div class="checkbox-group-row">
-              <label class="custom-checkbox-label">
-                <input type="checkbox" id="dyn-multipass"> Multi-pass
-              </label>
-              <label class="custom-checkbox-label">
-                <input type="checkbox" id="dyn-turbo" onchange="handleTurboToggle(this)"> Turbo
-              </label>
-            </div>
           </div>
         </div>
 
@@ -667,6 +837,7 @@
               <option value="29.97">29.97 fps</option>
               <option value="30">30 fps</option>
               <option value="60">60 fps</option>
+              <option value="120">120 fps</option>
             </select>
             <input type="text" id="fps-custom" placeholder="e.g. 45">
           </div>
@@ -677,6 +848,8 @@
           <div class="combo-group">
             <select id="res-select">
               <option value="Same as source" selected>Same as source</option>
+              <option value="3840x2160">4K (2160p)</option>
+              <option value="2560x1440">1440p</option>
               <option value="1920x1080">1080p</option>
               <option value="1280x720">720p</option>
               <option value="854x480">480p</option>
@@ -694,33 +867,46 @@
           </div>
           <div class="header-buttons">
             <input type="checkbox" class="toggle-enable" id="enable-audio" checked onchange="toggleSection('box-audio', this)">
-            <button class="btn-advanced">Advanced</button>
+            <button class="btn-advanced" onclick="openAudioAdvancedModal()">Advanced</button>
           </div>
         </div>
         
         <div class="setting-row">
           <label>Codec</label>
           <select id="audio-codec" onchange="updateAudioOptions()">
-            <option value="libopus">Opus (libopus)</option>
-            <option value="libfdk_aac">AAC (libfdk_aac)</option>
-            <option value="libmp3lame">MP3 (libmp3lame)</option>
-            <option value="libvorbis">Vorbis (libvorbis)</option>
-            <option value="flac">FLAC (flac)</option>
+            <option value="libopus">Opus (libopus) [lossy]</option>
+            <option value="libfdk_aac">AAC (libfdk_aac) [lossy]</option>
+            <option value="libmp3lame">MP3 (libmp3lame) [lossy]</option>
+            <option value="libvorbis">Vorbis (libvorbis) [lossy]</option>
+            <option value="flac">FLAC (flac) [lossless]</option>
+            <option value="alac">ALAC (alac) [lossless]</option>
+            <option value="ape">Monkey's Audio (ape) [lossless]</option>
+            <option value="wavpack">WavPack (wavpack) [lossless]</option>
+            <option value="wav">WAV (wav) [uncompressed]</option>
+            <option value="pcm">PCM (pcm) [uncompressed]</option>
           </select>
         </div>
         
-        <div class="setting-row">
+        <!-- Bitrate Row (Hidden for Lossless) -->
+        <div class="setting-row" id="row-bitrate">
           <label>Bitrate</label>
-          <div class="combo-group">
-            <div class="slider-group" id="audio-bitrate-container">
-              <input type="range" class="custom-slider" id="bitrate-slider" min="16" max="512" step="16" value="192">
-              <span class="slider-value" id="bitrate-value">192k</span>
-            </div>
-            <input type="text" id="audio-bitrate-custom" placeholder="Kbps (e.g. 320)">
+          <div class="slider-group" id="audio-bitrate-container">
+            <input type="range" class="custom-slider" id="bitrate-slider" min="16" max="512" step="16" value="192">
+            <span class="slider-value" id="bitrate-value">192k</span>
           </div>
         </div>
 
-        <div class="setting-row">
+        <!-- Compression Level Row (Shown only for Lossless with adjustable compression) -->
+        <div class="setting-row" id="row-compression">
+          <label>Compression Level</label>
+          <div class="slider-group" id="compression-slider-container">
+            <input type="range" class="custom-slider" id="compression-slider" min="0" max="12" step="1" value="5">
+            <span class="slider-value" id="compression-value">5</span>
+          </div>
+        </div>
+
+        <!-- Bit Depth Row (Hidden for Lossy) -->
+        <div class="setting-row" id="row-bit-depth">
           <label>Bit Depth</label>
           <select id="audio-bit-depth">
             <option value="Same as source" selected>Same as source</option>
@@ -732,21 +918,29 @@
 
         <div class="setting-row">
           <label>Sample Rate</label>
-          <select>
-            <option>Same as source</option>
-            <option>44100 Hz</option>
-            <option>48000 Hz</option>
-            <option>96000 Hz</option>
-          </select>
+          <div class="tooltip-container" id="sample-rate-tooltip">
+            <span class="tooltip-text">Opus always resamples to 48kHz internally</span>
+            <select id="sample-rate-select">
+              <option value="Same as source" selected>Same as source</option>
+              <option value="44100">44100 Hz</option>
+              <option value="48000">48000 Hz</option>
+              <option value="96000">96000 Hz</option>
+              <option value="192000">192000 Hz</option>
+            </select>
+          </div>
         </div>
 
         <div class="setting-row">
           <label>Channels</label>
-          <select>
-            <option>Same as source</option>
-            <option>Mono (1.0)</option>
-            <option>Stereo (2.0)</option>
-            <option>Surround (5.1)</option>
+          <select id="audio-channels">
+            <option value="Same as source" selected>Same as source</option>
+            <option value="Mono (1.0)">Mono</option>
+            <option value="Stereo (2.0)">Stereo</option>
+            <option value="Quadraphonic (4.0)">Quadraphonic</option>
+            <option value="Surround (5.0)">5.0 surround</option>
+            <option value="Surround (5.1)">5.1 surround</option>
+            <option value="Surround (6.1)">6.1 surround</option>
+            <option value="Surround (7.1)">7.1 surround</option>
           </select>
         </div>
       </div>
@@ -790,18 +984,59 @@
 
 </div>
 
-<!-- ADVANCED SETTINGS MODAL -->
+<!-- VIDEO ADVANCED SETTINGS MODAL -->
 <div class="modal-overlay" id="advancedModal">
-  <div class="modal-content">
-    <div class="modal-title" id="modal-codec-title">Advanced Settings</div>
-    <div class="modal-body" id="modal-dynamic-content"></div>
-    <div style="margin-top: 16px;">
-      <label style="display: block; font-size: 14px; color: #b2b2b2; margin-bottom: 6px;">Custom FFmpeg Options</label>
-      <textarea class="custom-args-box" id="custom-ffmpeg-args" placeholder="e.g. -x264-params keyint=120:min-keyint=120"></textarea>
+  <div class="modal-content shared-adv-modal">
+    <div class="adv-header">
+      <div class="modal-title" style="border: none; margin: 0; padding: 0;">Advanced Video Settings</div>
+      <button class="btn-cancel" style="padding: 4px 12px;" onclick="closeVideoAdvancedModal()">Close</button>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeAdvancedModal()">Cancel</button>
-      <button class="btn-confirm" onclick="applyAdvancedModal()">Apply</button>
+    
+    <div class="adv-layout">
+      <!-- Sidebar Tabs -->
+      <div class="adv-sidebar" id="video-adv-tabs">
+        <!-- Tabs will be generated here by JS -->
+      </div>
+      
+      <!-- Main Settings Area -->
+      <div class="adv-main">
+        <div id="video-adv-settings-container">
+            <!-- Panels will be generated here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="justify-content: space-between; border-top: 1px solid #333; padding-top: 16px; margin-top: 10px;">
+      <button class="btn-cancel" onclick="resetAllVideoAdvancedSettings()" style="color: #e74c3c; border-color: rgba(231,76,60,0.4);">Reset All to Default</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-cancel" onclick="closeVideoAdvancedModal()">Cancel</button>
+        <button class="btn-confirm" onclick="applyVideoAdvancedSettings()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIO ADVANCED SETTINGS MODAL -->
+<div class="modal-overlay" id="audioAdvancedModal">
+  <div class="modal-content shared-adv-modal">
+    <div class="adv-header">
+      <div class="modal-title" style="border: none; margin: 0; padding: 0;">Advanced Audio Settings</div>
+      <button class="btn-cancel" style="padding: 4px 12px;" onclick="closeAudioAdvancedModal()">Close</button>
+    </div>
+    
+    <div class="adv-layout">
+      <div class="adv-sidebar" id="audio-adv-tabs"></div>
+      <div class="adv-main">
+        <div id="audio-adv-settings-container"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="justify-content: space-between; border-top: 1px solid #333; padding-top: 16px; margin-top: 10px;">
+      <button class="btn-cancel" onclick="resetAudioAdvancedSettings()">Reset to Default</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-cancel" onclick="closeAudioAdvancedModal()">Cancel</button>
+        <button class="btn-confirm" onclick="applyAudioAdvancedSettings()">Apply</button>
+      </div>
     </div>
   </div>
 </div>
@@ -825,7 +1060,6 @@
 <div class="modal-overlay" id="infoModal">
   <div class="modal-content info-modal-content">
     <div class="info-modal-header">
-      <!-- Added Prev/Next controls here -->
       <div style="display: flex; align-items: center; gap: 12px;">
         <button id="btn-prev-file" class="btn-cancel" onclick="navigateFile(-1)" style="padding: 4px 8px;">&lt; Prev</button>
         <div class="info-modal-title" id="info-modal-title">Media Information</div>
@@ -976,7 +1210,6 @@
     }
   };
 
-  // Define the order of files for navigation
   const fileOrder = ['file1', 'file2', 'file3'];
   let selectedFileId = null;
 
@@ -1029,7 +1262,6 @@
       videoTabBtn.classList.add('hidden-tab');
     }
 
-    // Update Nav Button States
     const currentIndex = fileOrder.indexOf(selectedFileId);
     document.getElementById('btn-prev-file').disabled = (currentIndex === 0);
     document.getElementById('btn-next-file').disabled = (currentIndex === fileOrder.length - 1);
@@ -1060,12 +1292,10 @@
     if (newIndex >= 0 && newIndex < fileOrder.length) {
       const newFileId = fileOrder[newIndex];
       
-      // Update Sidebar UI
       document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
       const newEl = document.querySelector(`.media-item[data-id="${newFileId}"]`);
       if (newEl) newEl.classList.add('active');
 
-      // Update State & Render
       selectedFileId = newFileId;
       renderQuickStats(newFileId);
       updateInfoModalContent();
@@ -1076,54 +1306,216 @@
     if (e.target === infoModal) closeInfoModal();
   });
 
-  // --- Slider Logic for Audio & Custom Bitrate ---
+  // --- Slider Logic for Audio ---
   const bitrateSlider = document.getElementById('bitrate-slider');
   const bitrateValue = document.getElementById('bitrate-value');
-  const audioBitrateCustom = document.getElementById('audio-bitrate-custom');
   const audioBitrateContainer = document.getElementById('audio-bitrate-container');
-  const audioBitDepthSelect = document.getElementById('audio-bit-depth');
+  
+  const compressionSlider = document.getElementById('compression-slider');
+  const compressionValue = document.getElementById('compression-value');
+
   const audioCodecSelect = document.getElementById('audio-codec');
+  const audioBitDepthSelect = document.getElementById('audio-bit-depth');
+  const sampleRateSelect = document.getElementById('sample-rate-select');
+  const audioChannelsSelect = document.getElementById('audio-channels');
+  const sampleRateTooltip = document.getElementById('sample-rate-tooltip');
+
+  // Store default options to restore later
+  const defaultSampleRates = sampleRateSelect.innerHTML;
+
+  // New Channel Lists
+  const defaultChannels = `
+    <option value="Same as source" selected>Same as source</option>
+    <option value="Mono (1.0)">Mono</option>
+    <option value="Stereo (2.0)">Stereo</option>
+    <option value="Quadraphonic (4.0)">Quadraphonic</option>
+    <option value="Surround (5.0)">5.0 surround</option>
+    <option value="Surround (5.1)">5.1 surround</option>
+    <option value="Surround (6.1)">6.1 surround</option>
+    <option value="Surround (7.1)">7.1 surround</option>
+  `;
+
+  const mp3Channels = `
+    <option value="Same as source" selected>Same as source</option>
+    <option value="Mono (1.0)">Mono</option>
+    <option value="Stereo (2.0)">Stereo</option>
+  `;
 
   bitrateSlider.addEventListener('input', (e) => {
     bitrateValue.textContent = e.target.value + 'k';
   });
 
-  audioBitrateCustom.addEventListener('input', () => {
-    const val = audioBitrateCustom.value.trim();
-    if (val !== "") {
-      audioBitrateContainer.classList.add('disabled-slider');
-      audioBitrateCustom.classList.toggle('is-invalid', !/^\d+$/.test(val));
-    } else {
-      audioBitrateContainer.classList.remove('disabled-slider');
-      audioBitrateCustom.classList.remove('is-invalid');
-    }
+  compressionSlider.addEventListener('input', (e) => {
+    compressionValue.textContent = e.target.value;
   });
 
+  // Specific Codec Lists
+  const aacSampleRates = [
+    { val: "8000", label: "8,000 Hz" }, { val: "11025", label: "11,025 Hz" },
+    { val: "12000", label: "12,000 Hz" }, { val: "16000", label: "16,000 Hz" },
+    { val: "22050", label: "22,050 Hz" }, { val: "24000", label: "24,000 Hz" },
+    { val: "32000", label: "32,000 Hz" }, { val: "44100", label: "44,100 Hz" },
+    { val: "48000", label: "48,000 Hz" }, { val: "64000", label: "64,000 Hz" },
+    { val: "88200", label: "88,200 Hz" }, { val: "96000", label: "96,000 Hz" }
+  ];
+
+  const mp3SampleRates = [
+    { val: "32000", label: "32kHz" }, { val: "44100", label: "44.1kHz" },
+    { val: "48000", label: "48kHz" }
+  ];
+
   function updateAudioOptions() {
-    const isLossless = (audioCodecSelect.value === 'flac');
-    audioBitDepthSelect.disabled = !isLossless;
-    audioBitDepthSelect.style.opacity = isLossless ? '1' : '0.4';
-    
+    const codec = audioCodecSelect.value;
+    const isLossless = ['flac', 'alac', 'ape', 'wav', 'wavpack', 'pcm'].includes(codec);
+    const isOpus = (codec === 'libopus');
+    const isAAC = (codec === 'libfdk_aac');
+    const isMP3 = (codec === 'libmp3lame');
+    const isVorbis = (codec === 'libvorbis');
+
+    // --- Bitrate Row Visibility ---
+    const bitrateRow = document.getElementById('row-bitrate');
     if (isLossless) {
-      audioBitrateContainer.classList.add('disabled-slider');
-      audioBitrateCustom.disabled = true;
-      audioBitrateCustom.style.opacity = '0.4';
+      bitrateRow.style.display = 'none';
     } else {
-      if (audioBitrateCustom.value.trim() === "") {
-        audioBitrateContainer.classList.remove('disabled-slider');
+      bitrateRow.style.display = 'grid';
+      
+      // --- Bitrate Slider Limits for Lossy ---
+      if (isMP3) {
+        bitrateSlider.min = '8';
+        bitrateSlider.max = '320';
+        bitrateSlider.step = '8';
+      } else if (isAAC) {
+        bitrateSlider.min = '16';
+        bitrateSlider.max = '512';
+        bitrateSlider.step = '16';
+      } else if (isOpus) {
+        bitrateSlider.min = '6';
+        bitrateSlider.max = '510';
+        bitrateSlider.step = '2';
+      } else {
+        bitrateSlider.min = '16';
+        bitrateSlider.max = '512';
+        bitrateSlider.step = '16';
       }
-      audioBitrateCustom.disabled = false;
-      audioBitrateCustom.style.opacity = '1';
+
+      // Ensure current value is within new bounds
+      let currentVal = parseInt(bitrateSlider.value);
+      if (currentVal < parseInt(bitrateSlider.min)) bitrateSlider.value = bitrateSlider.min;
+      if (currentVal > parseInt(bitrateSlider.max)) bitrateSlider.value = bitrateSlider.max;
+      bitrateValue.textContent = bitrateSlider.value + 'k';
+    }
+
+    // --- Compression Level Row ---
+    const compressionRow = document.getElementById('row-compression');
+    if (isLossless && codec !== 'wav' && codec !== 'pcm') {
+      compressionRow.style.display = 'grid';
+      
+      if (codec === 'flac') {
+        compressionSlider.min = '0';
+        compressionSlider.max = '12';
+        compressionSlider.step = '1';
+        compressionSlider.value = '5'; // default
+        compressionValue.textContent = '5';
+      } else if (codec === 'alac') {
+        compressionSlider.min = '0';
+        compressionSlider.max = '3';
+        compressionSlider.step = '1';
+        compressionSlider.value = '3';
+        compressionValue.textContent = '3';
+      } else if (codec === 'wavpack') {
+        compressionSlider.min = '0';
+        compressionSlider.max = '8';
+        compressionSlider.step = '1';
+        compressionSlider.value = '1'; // normal default
+        compressionValue.textContent = '1';
+      } else if (codec === 'ape') {
+        compressionSlider.min = '0';
+        compressionSlider.max = '5';
+        compressionSlider.step = '1';
+        compressionSlider.value = '2'; // normal default
+        compressionValue.textContent = '2';
+      } else {
+        // Default fallback
+        compressionSlider.min = '0';
+        compressionSlider.max = '12';
+        compressionSlider.step = '1';
+        compressionSlider.value = '5';
+        compressionValue.textContent = '5';
+      }
+    } else {
+      compressionRow.style.display = 'none';
+    }
+
+    // --- Bit Depth Row Visibility ---
+    const bitDepthRow = document.getElementById('row-bit-depth');
+    if (isLossless) {
+      bitDepthRow.style.display = 'grid';
+      audioBitDepthSelect.disabled = false;
+      audioBitDepthSelect.style.opacity = '1';
+    } else {
+      bitDepthRow.style.display = 'none';
+    }
+
+    // --- Sample Rate Logic ---
+    if (isOpus) {
+      sampleRateSelect.innerHTML = defaultSampleRates;
+      sampleRateSelect.value = '48000';
+      sampleRateSelect.disabled = true;
+      sampleRateSelect.style.opacity = '0.4';
+      sampleRateTooltip.classList.add('show-tooltip');
+    } else if (isAAC) {
+      let optionsHTML = '<option value="Same as source">Same as source</option>';
+      aacSampleRates.forEach(rate => {
+        optionsHTML += `<option value="${rate.val}">${rate.label}</option>`;
+      });
+      sampleRateSelect.innerHTML = optionsHTML;
+      sampleRateSelect.value = '48000';
+      sampleRateSelect.disabled = false;
+      sampleRateSelect.style.opacity = '1';
+      sampleRateTooltip.classList.remove('show-tooltip');
+    } else if (isMP3) {
+      let optionsHTML = '<option value="Same as source">Same as source</option>';
+      mp3SampleRates.forEach(rate => {
+        optionsHTML += `<option value="${rate.val}">${rate.label}</option>`;
+      });
+      sampleRateSelect.innerHTML = optionsHTML;
+      sampleRateSelect.value = '48000';
+      sampleRateSelect.disabled = false;
+      sampleRateSelect.style.opacity = '1';
+      sampleRateTooltip.classList.remove('show-tooltip');
+    } else if (isVorbis) {
+      sampleRateSelect.innerHTML = defaultSampleRates;
+      sampleRateSelect.value = '48000';
+      sampleRateSelect.disabled = false;
+      sampleRateSelect.style.opacity = '1';
+      sampleRateTooltip.classList.remove('show-tooltip');
+    } else {
+      sampleRateSelect.innerHTML = defaultSampleRates;
+      sampleRateSelect.value = 'Same as source';
+      sampleRateSelect.disabled = false;
+      sampleRateSelect.style.opacity = '1';
+      sampleRateTooltip.classList.remove('show-tooltip');
+    }
+
+    // --- Channels Logic ---
+    if (isMP3) {
+      audioChannelsSelect.innerHTML = mp3Channels;
+    } else {
+      audioChannelsSelect.innerHTML = defaultChannels;
     }
   }
 
-  // --- Combo Group Logic ---
+  // --- Combo Group Logic (For Video only now) ---
   function setupCombo(selectId, inputId, regex) {
     const select = document.getElementById(selectId);
     const input = document.getElementById(inputId);
+    
     select.addEventListener('change', () => {
-      input.value = ""; input.classList.remove('is-invalid'); select.disabled = false;
+      input.value = ""; 
+      input.classList.remove('is-invalid'); 
+      select.disabled = false;
     });
+    
     input.addEventListener('input', () => {
       const val = input.value.trim();
       if (val !== "") {
@@ -1173,34 +1565,224 @@
   const videoCodecSelect = document.getElementById('video-codec');
 
   const codecCapabilities = {
-    'h264_nvenc': { quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'hevc_nvenc': { quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'av1_nvenc': { quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, profile: { options: ['auto', 'main'], default: 'auto' }, level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'h264_amf': { quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'hevc_amf': { quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'av1_amf': { quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, profile: { options: ['auto', 'main'], default: 'auto' }, level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'h264_qsv': { quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'hevc_qsv': { quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'av1_qsv': { quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, profile: { options: ['auto', 'main'], default: 'auto' }, level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'libx264': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 5, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, tune: { options: ['none', 'film', 'animation', 'grain'], default: 'none' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' }, fastDecode: true },
-    'libx265': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 51, default: 28, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 5, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, tune: { options: ['none', 'psnr', 'ssim', 'grain'], default: 'none' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' }, fastDecode: true },
-    'libaom-av1': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 30, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'libsvtav1': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 30, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'libvpx-vp9': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 31, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
-    'prores': { quality: { label: 'Profile', type: 'select', options: ['proxy', 'lt', 'standard', 'hq', '4444', '4444xq'], default: 'hq' } },
-    'dnxhd': {}, 'rawvideo': {}, 'ffv1': {}
+    'h264_nvenc': { 
+        quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, 
+        tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, 
+        profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['constqp', 'vbr', 'cbr'], default: 'constqp' },
+        bFrames: { type: 'slider', label: 'B-Frames', min: 0, max: 5, default: 0, step: 1 },
+        bRefMode: { options: ['disabled', 'each', 'middle'], default: 'disabled' },
+        spatialAQ: { type: 'checkbox', label: 'Spatial AQ', default: false },
+        temporalAQ: { type: 'checkbox', label: 'Temporal AQ', default: false },
+        aqStrength: { type: 'slider', label: 'AQ Strength', min: 1, max: 15, default: 8, step: 1 },
+        lookahead: { type: 'slider', label: 'Lookahead', min: 0, max: 64, default: 0, step: 1 }
+    },
+    'hevc_nvenc': { 
+        quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, 
+        tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, 
+        profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['constqp', 'vbr', 'cbr'], default: 'constqp' },
+        bFrames: { type: 'slider', label: 'B-Frames', min: 0, max: 5, default: 0, step: 1 },
+        bRefMode: { options: ['disabled', 'each', 'middle'], default: 'disabled' },
+        spatialAQ: { type: 'checkbox', label: 'Spatial AQ', default: false },
+        temporalAQ: { type: 'checkbox', label: 'Temporal AQ', default: false },
+        aqStrength: { type: 'slider', label: 'AQ Strength', min: 1, max: 15, default: 8, step: 1 },
+        lookahead: { type: 'slider', label: 'Lookahead', min: 0, max: 64, default: 0, step: 1 }
+    },
+    'av1_nvenc': { 
+        quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, 
+        tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, 
+        profile: { options: ['auto', 'main'], default: 'auto' }, 
+        level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['constqp', 'vbr', 'cbr'], default: 'constqp' },
+        bFrames: { type: 'slider', label: 'B-Frames', min: 0, max: 5, default: 0, step: 1 },
+        bRefMode: { options: ['disabled', 'each', 'middle'], default: 'disabled' },
+        spatialAQ: { type: 'checkbox', label: 'Spatial AQ', default: false },
+        temporalAQ: { type: 'checkbox', label: 'Temporal AQ', default: false },
+        aqStrength: { type: 'slider', label: 'AQ Strength', min: 1, max: 15, default: 8, step: 1 },
+        lookahead: { type: 'slider', label: 'Lookahead', min: 0, max: 64, default: 0, step: 1 }
+    },
+    'h264_amf': { 
+        quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, 
+        profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['cqp', 'qvbr', 'vbr_peak', 'vbr_latency', 'cbr'], default: 'cqp' },
+        usage: { options: ['transcoding', 'ultralowlatency', 'lowlatency', 'webcam', 'high_quality'], default: 'transcoding' },
+        preencode: { type: 'checkbox', label: 'Pre-encode', default: false }
+    },
+    'hevc_amf': { 
+        quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, 
+        profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['cqp', 'qvbr', 'vbr_peak', 'vbr_latency', 'cbr'], default: 'cqp' },
+        usage: { options: ['transcoding', 'ultralowlatency', 'lowlatency', 'webcam', 'high_quality'], default: 'transcoding' },
+        preencode: { type: 'checkbox', label: 'Pre-encode', default: false }
+    },
+    'av1_amf': { 
+        quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, 
+        profile: { options: ['auto', 'main'], default: 'auto' }, 
+        level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['cqp', 'qvbr', 'vbr_peak', 'vbr_latency', 'cbr'], default: 'cqp' },
+        usage: { options: ['transcoding', 'ultralowlatency', 'lowlatency', 'webcam', 'high_quality'], default: 'transcoding' },
+        preencode: { type: 'checkbox', label: 'Pre-encode', default: false }
+    },
+    'h264_qsv': { 
+        quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, 
+        profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['icq', 'cqp', 'vbr', 'cbr'], default: 'icq' },
+        extbrc: { type: 'checkbox', label: 'Extended BRC', default: false },
+        lookAheadDepth: { type: 'slider', label: 'Lookahead Depth', min: 0, max: 100, default: 0, step: 1 },
+        asyncDepth: { type: 'slider', label: 'Async Depth', min: 1, max: 64, default: 4, step: 1 }
+    },
+    'hevc_qsv': { 
+        quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, 
+        profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['icq', 'cqp', 'vbr', 'cbr'], default: 'icq' },
+        extbrc: { type: 'checkbox', label: 'Extended BRC', default: false },
+        lookAheadDepth: { type: 'slider', label: 'Lookahead Depth', min: 0, max: 100, default: 0, step: 1 },
+        asyncDepth: { type: 'slider', label: 'Async Depth', min: 1, max: 64, default: 4, step: 1 }
+    },
+    'av1_qsv': { 
+        quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, 
+        profile: { options: ['auto', 'main'], default: 'auto' }, 
+        level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' },
+        rateControl: { options: ['icq', 'cqp', 'vbr', 'cbr'], default: 'icq' },
+        extbrc: { type: 'checkbox', label: 'Extended BRC', default: false },
+        lookAheadDepth: { type: 'slider', label: 'Lookahead Depth', min: 0, max: 100, default: 0, step: 1 },
+        asyncDepth: { type: 'slider', label: 'Async Depth', min: 1, max: 64, default: 4, step: 1 }
+    },
+    'libx264': { 
+        quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, 
+        preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 5, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, 
+        tune: { options: ['none', 'film', 'animation', 'grain'], default: 'none' }, 
+        profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' }, 
+        fastDecode: true,
+        x264Params: { type: 'text', label: 'x264 Params', placeholder: 'e.g. keyint=120:min-keyint=120' }
+    },
+    'libx265': { 
+        quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 51, default: 28, step: 1 }, 
+        preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 5, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, 
+        tune: { options: ['none', 'psnr', 'ssim', 'grain'], default: 'none' }, 
+        profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, 
+        level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, 
+        colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' }, 
+        fastDecode: true,
+        x265Params: { type: 'text', label: 'x265 Params', placeholder: 'e.g. keyint=240:min-keyint=24' }
+    },
+    'libaom-av1': { 
+        quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 30, step: 1 }, 
+        preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] },
+        cpuUsed: { type: 'slider', label: 'CPU Used', min: 0, max: 8, default: 1, step: 1 },
+        rowMt: { type: 'checkbox', label: 'Row Multi-threading', default: false },
+        tileColumns: { type: 'slider', label: 'Tile Columns', min: 0, max: 6, default: 0, step: 1 },
+        aqMode: { type: 'slider', label: 'AQ Mode', min: 0, max: 3, default: 0, step: 1 }
+    },
+    'libsvtav1': { 
+        quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 30, step: 1 }, 
+        preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 13, default: 8, step: 1, valueLabels: ['0 (slowest)', '13 (fastest)'] },
+        tune: { options: ['0 (psnr)', '1 (subjective)', '2 (vq)', '3 (ssim)', '4 (ms-ssim)', '5 (vmaf)', '6 (film grain)'], default: '1 (subjective)' },
+        filmGrain: { type: 'slider', label: 'Film Grain', min: 0, max: 50, default: 0, step: 1 },
+        fastDecode: { type: 'checkbox', label: 'Fast Decode', default: false }
+    },
+    'libvpx-vp9': { 
+        quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 31, step: 1 }, 
+        preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] },
+        deadline: { options: ['best', 'good', 'realtime'], default: 'good' },
+        cpuUsed: { type: 'slider', label: 'CPU Used', min: 0, max: 8, default: 0, step: 1 },
+        rowMt: { type: 'checkbox', label: 'Row Multi-threading', default: false },
+        tileColumns: { type: 'slider', label: 'Tile Columns', min: 0, max: 6, default: 0, step: 1 },
+        aqMode: { type: 'slider', label: 'AQ Mode', min: 0, max: 3, default: 0, step: 1 }
+    },
+    'prores': { 
+        quality: { label: 'Profile', type: 'select', options: ['proxy', 'lt', 'standard', 'hq', '4444', '4444xq'], default: 'hq' },
+        vendor: { options: ['auto', 'apl0', 'fmpg'], default: 'auto' }
+    },
+    'dnxhd': {
+        profile: { options: ['dnxhr_lb', 'dnxhr_sq', 'dnxhr_hq', 'dnxhr_hqx', 'dnxhr_444'], default: 'dnxhr_hq' },
+        bitDepth: { options: ['8', '10', '12'], default: '10' }
+    },
+    'rawvideo': {
+        pixelFormat: { options: ['yuv420p', 'yuv422p', 'yuv444p', 'rgb24'], default: 'yuv420p' }
+    },
+    'ffv1': {
+        level: { options: ['1', '3'], default: '3' },
+        coder: { options: ['range', 'golomb'], default: 'range' },
+        context: { options: ['small', 'large'], default: 'small' },
+        sliceCrc: { type: 'checkbox', label: 'Slice CRC', default: false }
+    }
   };
 
-  function getSliderLabel(value, cap) {
-      if (cap.valueLabels) {
-          if (value == cap.min) return cap.valueLabels[0];
-          if (value == cap.max) return cap.valueLabels[1];
+  // Init Advanced State
+  const defaultVideoAdvanced = {};
+  const videoCodecKeys = Object.keys(codecCapabilities);
+  
+  videoCodecKeys.forEach(codec => {
+      const caps = codecCapabilities[codec];
+      defaultVideoAdvanced[codec] = {};
+      for (const key in caps) {
+          if (key === 'quality' || key === 'preset' || key === 'tune' || key === 'profile' || key === 'level' || key === 'colorRange' || key === 'fastDecode') continue; 
+          const setting = caps[key];
+          if (setting.type === 'checkbox') {
+              defaultVideoAdvanced[codec][key] = setting.default;
+          } else if (setting.type === 'text') {
+              defaultVideoAdvanced[codec][key] = "";
+          } else if (setting.type === 'slider') {
+              defaultVideoAdvanced[codec][key] = setting.default;
+          } else if (setting.options) {
+              defaultVideoAdvanced[codec][key] = setting.default;
+          }
       }
-      return value;
-  }
+      if (caps.tune) defaultVideoAdvanced[codec].tune = caps.tune.default;
+      if (caps.profile) defaultVideoAdvanced[codec].profile = caps.profile.default;
+      if (caps.level) defaultVideoAdvanced[codec].level = caps.level.default;
+      if (caps.colorRange) defaultVideoAdvanced[codec].colorRange = caps.colorRange.default;
+      if (caps.fastDecode) defaultVideoAdvanced[codec].fastDecode = false;
+      
+      defaultVideoAdvanced[codec].customArgs = "";
+  });
+
+  let currentVideoAdvanced = JSON.parse(JSON.stringify(defaultVideoAdvanced));
+
+  const qualityRcOptions = ['constqp', 'cqp', 'icq', 'qvbr'];
+  const bitrateRcOptions = ['vbr', 'cbr', 'vbr_peak', 'vbr_latency'];
 
   function updateVideoOptions() {
-    const caps = codecCapabilities[videoCodecSelect.value];
+    const codec = videoCodecSelect.value;
+    const caps = codecCapabilities[codec];
+    const advSettings = currentVideoAdvanced[codec];
+    
+    let isVbr = false, isCbr = false;
+    if (advSettings && advSettings.rateControl) {
+        if (advSettings.rateControl === 'vbr' || advSettings.rateControl === 'vbr_peak' || advSettings.rateControl === 'vbr_latency') isVbr = true;
+        if (advSettings.rateControl === 'cbr') isCbr = true;
+    }
+    
+    const isBitrateMode = isVbr || isCbr;
+
     videoControls.innerHTML = '';
     if (!caps) return; 
 
@@ -1212,36 +1794,53 @@
         let optionsHTML = q.options.map(opt => `<option value="${opt}" ${opt === q.default ? 'selected' : ''}>${opt}</option>`).join('');
         qRow.innerHTML = `<label>${q.label}</label><select id="dyn-quality">${optionsHTML}</select>`;
       } else {
-        qRow.innerHTML = `
-          <label>${q.label}</label>
-          <div class="combo-group">
-            <div class="slider-group" id="cq-slider-container">
-              <input type="range" class="custom-slider" id="dyn-quality" min="${q.min}" max="${q.max}" value="${q.default}" step="${q.step}">
-              <span class="slider-value" id="dyn-quality-val">${q.default}</span>
-            </div>
-            <input type="text" id="bitrate-limit" placeholder="Kbps limit (e.g. 6000)">
-          </div>
-        `;
+        let labelText = q.label;
+        if (isCbr) labelText = 'CBR bitrate';
+        else if (isVbr) labelText = 'VBR bitrate';
+        
+        if (isBitrateMode) {
+            // Bitrate mode UI (Input + Checkboxes)
+            qRow.innerHTML = `
+              <label id="dyn-quality-label">${labelText}</label>
+              <div class="combo-group">
+                <input type="text" id="bitrate-limit" placeholder="Kbps limit (e.g. 6000)">
+                <div class="checkbox-group-row" style="justify-content: flex-start;">
+                  <label class="custom-checkbox-label">
+                    <input type="checkbox" id="dyn-multipass"> Multi-pass
+                  </label>
+                  <label class="custom-checkbox-label">
+                    <input type="checkbox" id="dyn-turbo" onchange="handleTurboToggle(this)"> Turbo
+                  </label>
+                </div>
+              </div>
+            `;
+        } else {
+            // Quality mode UI (Slider only)
+            qRow.innerHTML = `
+              <label id="dyn-quality-label">${labelText}</label>
+              <div class="combo-group" style="grid-template-columns: 1fr;">
+                <div class="slider-group" id="cq-slider-container">
+                  <input type="range" class="custom-slider" id="dyn-quality" min="${q.min}" max="${q.max}" value="${q.default}" step="${q.step}">
+                  <span class="slider-value" id="dyn-quality-val">${q.default}</span>
+                </div>
+              </div>
+            `;
+        }
       }
       videoControls.appendChild(qRow);
 
       if (q.type !== 'select') {
         const slider = qRow.querySelector('#dyn-quality');
         const valDisplay = qRow.querySelector('#dyn-quality-val');
-        const sliderContainer = qRow.querySelector('#cq-slider-container');
         const bitrateInput = qRow.querySelector('#bitrate-limit');
 
-        slider.addEventListener('input', (e) => { valDisplay.textContent = e.target.value; });
-        bitrateInput.addEventListener('input', () => {
-            const val = bitrateInput.value.trim();
-            if (val !== "") {
-                bitrateInput.classList.toggle('is-invalid', !/^\d+$/.test(val));
-                sliderContainer.classList.add('disabled-slider');
-            } else {
-                bitrateInput.classList.remove('is-invalid');
-                sliderContainer.classList.remove('disabled-slider');
-            }
-        });
+        if (isBitrateMode && bitrateInput && bitrateInput.value === '') {
+            bitrateInput.value = '6000';
+        }
+
+        if (slider && valDisplay) {
+            slider.addEventListener('input', (e) => { valDisplay.textContent = e.target.value; });
+        }
       }
     }
 
@@ -1271,46 +1870,444 @@
     }
   }
 
-  // --- ADVANCED MODAL LOGIC ---
-  const modal = document.getElementById('advancedModal');
-  const modalTitle = document.getElementById('modal-codec-title');
-  const modalContent = document.getElementById('modal-dynamic-content');
 
-  function openAdvancedModal() {
-    const caps = codecCapabilities[videoCodecSelect.value] || {};
-    const codecName = videoCodecSelect.options[videoCodecSelect.selectedIndex].text;
-    modalTitle.textContent = `Advanced Settings: ${codecName}`;
-    modalContent.innerHTML = '';
-    
-    function addRow(label, id, options, defaultVal) {
-      const row = document.createElement('div');
-      row.className = 'modal-row';
-      row.innerHTML = `<label>${label}</label><select id="${id}">${options.map(opt => `<option value="${opt}" ${opt === defaultVal ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
-      modalContent.appendChild(row);
-    }
+  // --- VIDEO ADVANCED SETTINGS MODAL LOGIC ---
+  const videoAdvancedModal = document.getElementById('advancedModal');
+  const videoAdvSidebar = document.getElementById('video-adv-tabs');
+  const videoAdvMain = document.getElementById('video-adv-settings-container');
+  let activeVideoTab = 'h264_nvenc';
 
-    if (caps.tune) addRow('Tune', 'adv-tune', caps.tune.options, caps.tune.default);
-    if (caps.profile) addRow('Profile', 'adv-profile', caps.profile.options, caps.profile.default);
-    if (caps.level) addRow('Level', 'adv-level', caps.level.options, caps.level.default);
-    if (caps.colorRange) addRow('Color Range', 'adv-color', caps.colorRange.options, caps.colorRange.default);
-    
-    if (caps.fastDecode) {
-      const row = document.createElement('div');
-      row.className = 'modal-row';
-      row.innerHTML = `<label>Fast Decode</label><div><input type="checkbox" id="adv-fastdecode" style="width: 16px; height: 16px; cursor: pointer;"></div>`;
-      modalContent.appendChild(row);
-    }
-
-    if (modalContent.innerHTML === '') {
-      modalContent.innerHTML = '<p style="color: #666; font-size: 14px; margin-bottom: 16px;">No extra preset options available for this codec.</p>';
-    }
-    modal.classList.add('active');
+  function isVideoEdited(codec) {
+      return JSON.stringify(currentVideoAdvanced[codec]) !== JSON.stringify(defaultVideoAdvanced[codec]);
   }
 
-  function closeAdvancedModal() { modal.classList.remove('active'); }
-  function applyAdvancedModal() { modal.classList.remove('active'); }
+  function buildVideoAdvancedUI() {
+      videoAdvSidebar.innerHTML = '';
+      
+      const vendors = {
+          'NVIDIA (NVENC)': ['h264_nvenc', 'hevc_nvenc', 'av1_nvenc'],
+          'AMD (AMF)': ['h264_amf', 'hevc_amf', 'av1_amf'],
+          'Intel (QSV)': ['h264_qsv', 'hevc_qsv', 'av1_qsv'],
+          'CPU': ['libx264', 'libx265', 'libaom-av1', 'libsvtav1', 'libvpx-vp9', 'prores', 'dnxhd', 'rawvideo', 'ffv1']
+      };
 
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeAdvancedModal(); });
+      for (const vendor in vendors) {
+          const header = document.createElement('div');
+          header.style.cssText = 'font-size: 11px; text-transform: uppercase; color: #666; margin: 12px 0 4px 8px; font-weight: 700; letter-spacing: 0.5px;';
+          header.textContent = vendor;
+          if (videoAdvSidebar.children.length > 0) {
+              header.style.marginTop = '16px';
+          } else {
+              header.style.marginTop = '0px';
+          }
+          videoAdvSidebar.appendChild(header);
+
+          vendors[vendor].forEach(codec => {
+              const caps = codecCapabilities[codec];
+              if (!caps) return;
+              
+              const btn = document.createElement('button');
+              btn.className = 'adv-tab-btn';
+              btn.dataset.codec = codec;
+              
+              const optionEl = videoCodecSelect.querySelector(`option[value="${codec}"]`);
+              const displayName = optionEl ? optionEl.text : codec;
+
+              btn.innerHTML = `
+                  <span>${displayName}</span>
+                  <div class="edit-dot" id="vid-edit-dot-${codec}"></div>
+              `;
+              btn.onclick = () => switchVideoTab(codec);
+              videoAdvSidebar.appendChild(btn);
+          });
+      }
+
+      videoAdvMain.innerHTML = '';
+      videoCodecKeys.forEach(codec => {
+          const caps = codecCapabilities[codec];
+          if (!caps) return;
+          
+          const optionEl = videoCodecSelect.querySelector(`option[value="${codec}"]`);
+          const displayName = optionEl ? optionEl.text : codec;
+
+          const panel = document.createElement('div');
+          panel.className = 'adv-panel';
+          panel.id = `vid-panel-${codec}`;
+          
+          let html = `
+              <div class="panel-header">
+                  <h3>${displayName} Settings</h3>
+                  <span id="vid-panel-edit-${codec}" class="edit-indicator" style="display: none;">Edited</span>
+              </div>
+          `;
+
+          if (caps.tune) {
+              html += `
+                  <div class="setting-row">
+                      <label>Tune</label>
+                      <select id="vid-tune-${codec}" onchange="markVideoEdited('${codec}')">
+                          ${caps.tune.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                      </select>
+                  </div>
+              `;
+          }
+
+          if (caps.profile) {
+              html += `
+                  <div class="setting-row">
+                      <label>Profile</label>
+                      <select id="vid-profile-${codec}" onchange="markVideoEdited('${codec}')">
+                          ${caps.profile.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                      </select>
+                  </div>
+              `;
+          }
+
+          if (caps.level) {
+              html += `
+                  <div class="setting-row">
+                      <label>Level</label>
+                      <select id="vid-level-${codec}" onchange="markVideoEdited('${codec}')">
+                          ${caps.level.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                      </select>
+                  </div>
+              `;
+          }
+
+          if (caps.colorRange) {
+              html += `
+                  <div class="setting-row">
+                      <label>Color Range</label>
+                      <select id="vid-color-${codec}" onchange="markVideoEdited('${codec}')">
+                          ${caps.colorRange.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                      </select>
+                  </div>
+              `;
+          }
+
+          for (const key in caps) {
+              if (['quality', 'preset', 'tune', 'profile', 'level', 'colorRange', 'fastDecode'].includes(key)) continue;
+              const setting = caps[key];
+              
+              if (setting.type === 'checkbox') {
+                  html += `
+                      <div class="setting-row">
+                          <label>${setting.label}</label>
+                          <div>
+                              <label class="custom-checkbox-label">
+                                  <input type="checkbox" id="vid-${key}-${codec}" onchange="markVideoEdited('${codec}')">
+                                  <span>Enable</span>
+                              </label>
+                          </div>
+                      </div>
+                  `;
+              } else if (setting.type === 'slider') {
+                  html += `
+                      <div class="setting-row">
+                          <label>${setting.label}</label>
+                          <div class="slider-group">
+                              <input type="range" class="custom-slider" id="vid-${key}-${codec}" min="${setting.min}" max="${setting.max}" value="${setting.default}" step="${setting.step}" oninput="markVideoEdited('${codec}')">
+                              <span class="slider-value" id="vid-${key}-val-${codec}">${setting.default}</span>
+                          </div>
+                      </div>
+                  `;
+              } else if (setting.type === 'text') {
+                  html += `
+                      <div class="setting-row">
+                          <label>${setting.label}</label>
+                          <input type="text" id="vid-${key}-${codec}" placeholder="${setting.placeholder}" oninput="markVideoEdited('${codec}')">
+                      </div>
+                  `;
+              } else if (setting.options) {
+                  html += `
+                      <div class="setting-row">
+                          <label>${setting.label || key}</label>
+                          <select id="vid-${key}-${codec}" onchange="markVideoEdited('${codec}')">
+                              ${setting.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                          </select>
+                      </div>
+                  `;
+              }
+          }
+
+          html += `
+              <div style="margin-top: 16px;">
+                  <label style="display: block; font-size: 14px; color: #b2b2b2; margin-bottom: 6px;">Custom FFmpeg Options</label>
+                  <textarea class="custom-args-box" id="vid-args-${codec}" oninput="markVideoEdited('${codec}')" placeholder="e.g. -x264-params keyint=120"></textarea>
+              </div>
+              
+              <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 16px; display: flex; justify-content: flex-end;">
+                  <button class="btn-cancel" onclick="resetSpecificVideoSettings('${codec}')">Reset ${displayName} to Default</button>
+              </div>
+          `;
+
+          panel.innerHTML = html;
+          videoAdvMain.appendChild(panel);
+      });
+  }
+
+  function openVideoAdvancedModal() {
+      const currentCodec = videoCodecSelect.value;
+      buildVideoAdvancedUI();
+      switchVideoTab(currentCodec);
+      updateVideoAdvancedIndicators();
+      videoAdvancedModal.classList.add('active');
+  }
+
+  function closeVideoAdvancedModal() {
+      videoAdvancedModal.classList.remove('active');
+  }
+
+  function switchVideoTab(codec) {
+      activeVideoTab = codec;
+      
+      document.querySelectorAll('#video-adv-tabs .adv-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.codec === codec);
+      });
+
+      document.querySelectorAll('#video-adv-settings-container .adv-panel').forEach(panel => {
+          panel.classList.toggle('active', panel.id === `vid-panel-${codec}`);
+      });
+
+      const settings = currentVideoAdvanced[codec];
+      
+      if (settings.tune !== undefined) document.getElementById(`vid-tune-${codec}`).value = settings.tune;
+      if (settings.profile !== undefined) document.getElementById(`vid-profile-${codec}`).value = settings.profile;
+      if (settings.level !== undefined) document.getElementById(`vid-level-${codec}`).value = settings.level;
+      if (settings.colorRange !== undefined) document.getElementById(`vid-color-${codec}`).value = settings.colorRange;
+      if (settings.fastDecode !== undefined) document.getElementById(`vid-fastdecode-${codec}`).checked = settings.fastDecode;
+
+      const caps = codecCapabilities[codec];
+      for (const key in caps) {
+          if (['quality', 'preset', 'tune', 'profile', 'level', 'colorRange', 'fastDecode'].includes(key)) continue;
+          const setting = caps[key];
+          if (setting.type === 'checkbox') {
+              document.getElementById(`vid-${key}-${codec}`).checked = settings[key];
+          } else if (setting.type === 'slider') {
+              document.getElementById(`vid-${key}-${codec}`).value = settings[key];
+              document.getElementById(`vid-${key}-val-${codec}`).textContent = settings[key];
+          } else if (setting.type === 'text') {
+              document.getElementById(`vid-${key}-${codec}`).value = settings[key];
+          } else if (setting.options) {
+              document.getElementById(`vid-${key}-${codec}`).value = settings[key];
+          }
+      }
+
+      document.getElementById(`vid-args-${codec}`).value = settings.customArgs;
+
+      const isEdited = isVideoEdited(codec);
+      document.getElementById(`vid-panel-edit-${codec}`).style.display = isEdited ? 'inline-block' : 'none';
+  }
+
+  function updateVideoAdvancedIndicators() {
+      videoCodecKeys.forEach(codec => {
+          const isEdited = isVideoEdited(codec);
+          
+          const dot = document.getElementById(`vid-edit-dot-${codec}`);
+          if (dot) {
+              dot.style.display = isEdited ? 'block' : 'none';
+              const btn = dot.closest('.adv-tab-btn');
+              if (btn) btn.classList.toggle('has-edits', isEdited);
+          }
+
+          if (codec === activeVideoTab) {
+              document.getElementById(`vid-panel-edit-${codec}`).style.display = isEdited ? 'inline-block' : 'none';
+          }
+      });
+  }
+
+  function markVideoEdited(codec) {
+      const caps = codecCapabilities[codec];
+      const settings = currentVideoAdvanced[codec];
+
+      if (settings.tune !== undefined) settings.tune = document.getElementById(`vid-tune-${codec}`).value;
+      if (settings.profile !== undefined) settings.profile = document.getElementById(`vid-profile-${codec}`).value;
+      if (settings.level !== undefined) settings.level = document.getElementById(`vid-level-${codec}`).value;
+      if (settings.colorRange !== undefined) settings.colorRange = document.getElementById(`vid-color-${codec}`).value;
+      if (settings.fastDecode !== undefined) settings.fastDecode = document.getElementById(`vid-fastdecode-${codec}`).checked;
+
+      for (const key in caps) {
+          if (['quality', 'preset', 'tune', 'profile', 'level', 'colorRange', 'fastDecode'].includes(key)) continue;
+          const setting = caps[key];
+          if (setting.type === 'checkbox') {
+              settings[key] = document.getElementById(`vid-${key}-${codec}`).checked;
+          } else if (setting.type === 'slider') {
+              settings[key] = document.getElementById(`vid-${key}-${codec}`).value;
+              document.getElementById(`vid-${key}-val-${codec}`).textContent = settings[key];
+          } else if (setting.type === 'text') {
+              settings[key] = document.getElementById(`vid-${key}-${codec}`).value;
+          } else if (setting.options) {
+              settings[key] = document.getElementById(`vid-${key}-${codec}`).value;
+          }
+      }
+
+      settings.customArgs = document.getElementById(`vid-args-${codec}`).value;
+
+      updateVideoAdvancedIndicators();
+  }
+
+  function resetSpecificVideoSettings(codec) {
+      currentVideoAdvanced[codec] = JSON.parse(JSON.stringify(defaultVideoAdvanced[codec]));
+      switchVideoTab(codec); 
+      updateVideoAdvancedIndicators();
+  }
+
+  function resetAllVideoAdvancedSettings() {
+      currentVideoAdvanced = JSON.parse(JSON.stringify(defaultVideoAdvanced));
+      buildVideoAdvancedUI();
+      switchVideoTab(activeVideoTab);
+      updateVideoAdvancedIndicators();
+      updateVideoOptions();
+  }
+
+  function applyVideoAdvancedSettings() {
+      const codec = activeVideoTab;
+      const caps = codecCapabilities[codec];
+      const settings = currentVideoAdvanced[codec];
+      
+      if (caps && caps.rateControl && settings.rateControl) {
+          const rc = settings.rateControl;
+          const isBitrateMode = bitrateRcOptions.includes(rc);
+          
+          const mainBitrateInput = document.getElementById('bitrate-limit');
+          if (isBitrateMode && mainBitrateInput && mainBitrateInput.value.trim() === "") {
+              mainBitrateInput.value = "6000"; 
+          }
+      }
+      
+      closeVideoAdvancedModal();
+      updateVideoOptions();
+  }
+
+  videoAdvancedModal.addEventListener('click', (e) => { if (e.target === videoAdvancedModal) closeVideoAdvancedModal(); });
+
+
+  // --- AUDIO ADVANCED SETTINGS STATE & MODAL LOGIC ---
+  const defaultAudioAdvanced = {
+      'libopus': { preserveMetadata: true },
+      'libfdk_aac': { preserveMetadata: true },
+      'libmp3lame': { preserveMetadata: true },
+      'libvorbis': { preserveMetadata: true },
+      'flac': { preserveMetadata: true },
+      'alac': { preserveMetadata: true },
+      'ape': { preserveMetadata: true },
+      'wavpack': { preserveMetadata: true },
+      'wav': { preserveMetadata: true },
+      'pcm': { preserveMetadata: true }
+  };
+  let currentAudioAdvanced = JSON.parse(JSON.stringify(defaultAudioAdvanced));
+  const audioAdvancedModal = document.getElementById('audioAdvancedModal');
+  const audioAdvSidebar = document.getElementById('audio-adv-tabs');
+  const audioAdvMain = document.getElementById('audio-adv-settings-container');
+  let activeAudioTab = 'libopus';
+
+  const audioCodecNames = {
+      'libopus': 'Opus', 'libfdk_aac': 'AAC', 'libmp3lame': 'MP3', 'libvorbis': 'Vorbis',
+      'flac': 'FLAC', 'alac': 'ALAC', 'ape': 'Monkey\'s Audio', 'wavpack': 'WavPack',
+      'wav': 'WAV', 'pcm': 'PCM'
+  };
+
+  function buildAudioAdvancedUI() {
+      audioAdvSidebar.innerHTML = '';
+      for (const codec in currentAudioAdvanced) {
+          const btn = document.createElement('button');
+          btn.className = 'adv-tab-btn';
+          btn.dataset.codec = codec;
+          btn.innerHTML = `
+              <span>${audioCodecNames[codec]}</span>
+              <div class="edit-dot" id="aud-edit-dot-${codec}"></div>
+          `;
+          btn.onclick = () => switchAudioTab(codec);
+          audioAdvSidebar.appendChild(btn);
+      }
+
+      audioAdvMain.innerHTML = '';
+      for (const codec in currentAudioAdvanced) {
+          const panel = document.createElement('div');
+          panel.className = 'adv-panel';
+          panel.id = `aud-panel-${codec}`;
+          panel.innerHTML = `
+              <div class="panel-header">
+                  <h3>${audioCodecNames[codec]} Settings</h3>
+                  <span id="aud-panel-edit-${codec}" class="edit-indicator" style="display: none;">Edited</span>
+              </div>
+              
+              <div class="setting-row" style="grid-template-columns: 140px 1fr;">
+                  <label>Metadata</label>
+                  <label class="custom-checkbox-label">
+                      <input type="checkbox" id="aud-meta-${codec}" onchange="markAudioAdvancedEdited('${codec}')">
+                      <span style="color: #ccc;">Preserve metadata (title, artist, etc.)</span>
+                  </label>
+              </div>
+          `;
+          audioAdvMain.appendChild(panel);
+      }
+  }
+
+  function openAudioAdvancedModal() {
+      const currentCodec = document.getElementById('audio-codec').value;
+      buildAudioAdvancedUI();
+      switchAudioTab(currentCodec);
+      updateAudioAdvancedIndicators();
+      audioAdvancedModal.classList.add('active');
+  }
+
+  function closeAudioAdvancedModal() {
+      audioAdvancedModal.classList.remove('active');
+  }
+
+  function switchAudioTab(codec) {
+      activeAudioTab = codec;
+      
+      document.querySelectorAll('#audio-adv-tabs .adv-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.codec === codec);
+      });
+
+      document.querySelectorAll('#audio-adv-settings-container .adv-panel').forEach(panel => {
+          panel.classList.toggle('active', panel.id === `aud-panel-${codec}`);
+      });
+
+      const settings = currentAudioAdvanced[codec];
+      document.getElementById(`aud-meta-${codec}`).checked = settings.preserveMetadata;
+      
+      const isEdited = settings.preserveMetadata !== defaultAudioAdvanced[codec].preserveMetadata;
+      document.getElementById(`aud-panel-edit-${codec}`).style.display = isEdited ? 'inline-block' : 'none';
+  }
+
+  function updateAudioAdvancedIndicators() {
+      for (const codec in currentAudioAdvanced) {
+          const isEdited = currentAudioAdvanced[codec].preserveMetadata !== defaultAudioAdvanced[codec].preserveMetadata;
+          
+          const dot = document.getElementById(`aud-edit-dot-${codec}`);
+          if (dot) {
+              dot.style.display = isEdited ? 'block' : 'none';
+              const btn = dot.closest('.adv-tab-btn');
+              if (btn) btn.classList.toggle('has-edits', isEdited);
+          }
+
+          if (codec === activeAudioTab) {
+              document.getElementById(`aud-panel-edit-${codec}`).style.display = isEdited ? 'inline-block' : 'none';
+          }
+      }
+  }
+
+  function markAudioAdvancedEdited(codec) {
+      currentAudioAdvanced[codec].preserveMetadata = document.getElementById(`aud-meta-${codec}`).checked;
+      updateAudioAdvancedIndicators();
+  }
+
+  function resetAudioAdvancedSettings() {
+      currentAudioAdvanced[activeAudioTab] = JSON.parse(JSON.stringify(defaultAudioAdvanced[activeAudioTab]));
+      switchAudioTab(activeAudioTab);
+      updateAudioAdvancedIndicators();
+  }
+
+  function applyAudioAdvancedSettings() {
+      closeAudioAdvancedModal();
+  }
+  
+  audioAdvancedModal.addEventListener('click', (e) => { if (e.target === audioAdvancedModal) closeAudioAdvancedModal(); });
+
 
   // Initialize the UI on load (No files selected)
   window.addEventListener('DOMContentLoaded', () => {
