@@ -1706,7 +1706,7 @@
         preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 13, default: 8, step: 1, valueLabels: ['0 (slowest)', '13 (fastest)'] },
         tune: { options: ['0 (psnr)', '1 (subjective)', '2 (vq)', '3 (ssim)', '4 (ms-ssim)', '5 (vmaf)', '6 (film grain)'], default: '1 (subjective)' },
         filmGrain: { type: 'slider', label: 'Film Grain', min: 0, max: 50, default: 0, step: 1 },
-        fastDecode: { type: 'checkbox', label: 'Fast Decode', default: false }
+        fastDecode: true
     },
     'libvpx-vp9': { 
         quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 31, step: 1 }, 
@@ -1985,6 +1985,20 @@
               `;
           }
 
+          if (caps.fastDecode) {
+              html += `
+                  <div class="setting-row">
+                      <label>Fast Decode</label>
+                      <div>
+                          <label class="custom-checkbox-label">
+                              <input type="checkbox" id="vid-fastdecode-${codec}" onchange="markVideoEdited('${codec}')">
+                              <span>Enable</span>
+                          </label>
+                      </div>
+                  </div>
+              `;
+          }
+
           for (const key in caps) {
               if (['quality', 'preset', 'tune', 'profile', 'level', 'colorRange', 'fastDecode'].includes(key)) continue;
               const setting = caps[key];
@@ -2071,32 +2085,39 @@
 
       const settings = currentVideoAdvanced[codec];
       
-      if (settings.tune !== undefined) document.getElementById(`vid-tune-${codec}`).value = settings.tune;
-      if (settings.profile !== undefined) document.getElementById(`vid-profile-${codec}`).value = settings.profile;
-      if (settings.level !== undefined) document.getElementById(`vid-level-${codec}`).value = settings.level;
-      if (settings.colorRange !== undefined) document.getElementById(`vid-color-${codec}`).value = settings.colorRange;
-      if (settings.fastDecode !== undefined) document.getElementById(`vid-fastdecode-${codec}`).checked = settings.fastDecode;
+      const setVal = (id, val, prop='value') => {
+          const el = document.getElementById(id);
+          if (el) el[prop] = val;
+      };
+      
+      if (settings.tune !== undefined) setVal(`vid-tune-${codec}`, settings.tune);
+      if (settings.profile !== undefined) setVal(`vid-profile-${codec}`, settings.profile);
+      if (settings.level !== undefined) setVal(`vid-level-${codec}`, settings.level);
+      if (settings.colorRange !== undefined) setVal(`vid-color-${codec}`, settings.colorRange);
+      if (settings.fastDecode !== undefined) setVal(`vid-fastdecode-${codec}`, settings.fastDecode, 'checked');
 
       const caps = codecCapabilities[codec];
       for (const key in caps) {
           if (['quality', 'preset', 'tune', 'profile', 'level', 'colorRange', 'fastDecode'].includes(key)) continue;
           const setting = caps[key];
           if (setting.type === 'checkbox') {
-              document.getElementById(`vid-${key}-${codec}`).checked = settings[key];
+              setVal(`vid-${key}-${codec}`, settings[key], 'checked');
           } else if (setting.type === 'slider') {
-              document.getElementById(`vid-${key}-${codec}`).value = settings[key];
-              document.getElementById(`vid-${key}-val-${codec}`).textContent = settings[key];
+              setVal(`vid-${key}-${codec}`, settings[key]);
+              const valEl = document.getElementById(`vid-${key}-val-${codec}`);
+              if (valEl) valEl.textContent = settings[key];
           } else if (setting.type === 'text') {
-              document.getElementById(`vid-${key}-${codec}`).value = settings[key];
+              setVal(`vid-${key}-${codec}`, settings[key]);
           } else if (setting.options) {
-              document.getElementById(`vid-${key}-${codec}`).value = settings[key];
+              setVal(`vid-${key}-${codec}`, settings[key]);
           }
       }
 
-      document.getElementById(`vid-args-${codec}`).value = settings.customArgs;
+      setVal(`vid-args-${codec}`, settings.customArgs);
 
       const isEdited = isVideoEdited(codec);
-      document.getElementById(`vid-panel-edit-${codec}`).style.display = isEdited ? 'inline-block' : 'none';
+      const editBadge = document.getElementById(`vid-panel-edit-${codec}`);
+      if (editBadge) editBadge.style.display = isEdited ? 'inline-block' : 'none';
   }
 
   function updateVideoAdvancedIndicators() {
@@ -2111,7 +2132,8 @@
           }
 
           if (codec === activeVideoTab) {
-              document.getElementById(`vid-panel-edit-${codec}`).style.display = isEdited ? 'inline-block' : 'none';
+              const editBadge = document.getElementById(`vid-panel-edit-${codec}`);
+              if (editBadge) editBadge.style.display = isEdited ? 'inline-block' : 'none';
           }
       });
   }
@@ -2120,28 +2142,34 @@
       const caps = codecCapabilities[codec];
       const settings = currentVideoAdvanced[codec];
 
-      if (settings.tune !== undefined) settings.tune = document.getElementById(`vid-tune-${codec}`).value;
-      if (settings.profile !== undefined) settings.profile = document.getElementById(`vid-profile-${codec}`).value;
-      if (settings.level !== undefined) settings.level = document.getElementById(`vid-level-${codec}`).value;
-      if (settings.colorRange !== undefined) settings.colorRange = document.getElementById(`vid-color-${codec}`).value;
-      if (settings.fastDecode !== undefined) settings.fastDecode = document.getElementById(`vid-fastdecode-${codec}`).checked;
+      const getVal = (id, prop='value') => {
+          const el = document.getElementById(id);
+          return el ? el[prop] : undefined;
+      };
+
+      if (settings.tune !== undefined) settings.tune = getVal(`vid-tune-${codec}`);
+      if (settings.profile !== undefined) settings.profile = getVal(`vid-profile-${codec}`);
+      if (settings.level !== undefined) settings.level = getVal(`vid-level-${codec}`);
+      if (settings.colorRange !== undefined) settings.colorRange = getVal(`vid-color-${codec}`);
+      if (settings.fastDecode !== undefined) settings.fastDecode = getVal(`vid-fastdecode-${codec}`, 'checked');
 
       for (const key in caps) {
           if (['quality', 'preset', 'tune', 'profile', 'level', 'colorRange', 'fastDecode'].includes(key)) continue;
           const setting = caps[key];
           if (setting.type === 'checkbox') {
-              settings[key] = document.getElementById(`vid-${key}-${codec}`).checked;
+              settings[key] = getVal(`vid-${key}-${codec}`, 'checked');
           } else if (setting.type === 'slider') {
-              settings[key] = document.getElementById(`vid-${key}-${codec}`).value;
-              document.getElementById(`vid-${key}-val-${codec}`).textContent = settings[key];
+              settings[key] = getVal(`vid-${key}-${codec}`);
+              const valEl = document.getElementById(`vid-${key}-val-${codec}`);
+              if (valEl) valEl.textContent = settings[key];
           } else if (setting.type === 'text') {
-              settings[key] = document.getElementById(`vid-${key}-${codec}`).value;
+              settings[key] = getVal(`vid-${key}-${codec}`);
           } else if (setting.options) {
-              settings[key] = document.getElementById(`vid-${key}-${codec}`).value;
+              settings[key] = getVal(`vid-${key}-${codec}`);
           }
       }
 
-      settings.customArgs = document.getElementById(`vid-args-${codec}`).value;
+      settings.customArgs = getVal(`vid-args-${codec}`);
 
       updateVideoAdvancedIndicators();
   }
