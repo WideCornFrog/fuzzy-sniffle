@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APE - All Purpose Encoder</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* --- Base & Reset --- */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Source Sans 3", sans-serif;
+  }
+
+  body {
+    background: #080808;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #fff;
+  }
+
+  /* --- Main Container --- */
+  .app-container {
+    position: relative;
+    width: 1000px;
+    height: 1000px;
+    background: #101010;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  /* --- Header --- */
+  .header {
+    height: 42px;
+    background: #0e0e0e;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    position: relative;
+  }
+  
+  .logo-square {
+    width: 27px;
+    height: 25px;
+    background: #315ee3;
+    border-radius: 10px;
+    margin-right: 16px;
+  }
+
+  .header-title { display: flex; flex-direction: column; }
+  .header-title .title { font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .header-title .subtitle { font-size: 14px; color: #b2b2b2; line-height: 1.2; }
+
+  .window-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 15px;
+    color: #b2b2b2;
+    font-size: 20px;
+    align-items: center;
+  }
+  .window-controls span { cursor: pointer; }
+  .window-controls span:hover { color: #fff; }
+
+  /* --- Main Content Area --- */
+  .main-content {
+    display: flex;
+    flex: 1;
+    padding: 22px;
+    gap: 16px;
+    height: calc(100% - 42px - 60px); 
+  }
+
+  /* --- Left Panel (Media Window) --- */
+  .left-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .drop-zone {
+    height: 78px;
+    background: #202020;
+    border: 1px solid #50505066;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .drop-zone:hover { background: #252525; }
+  .drop-zone .primary-text { font-size: 20px; font-weight: 500; }
+  .drop-zone .secondary-text { font-size: 16px; color: #b2b2b2; margin-top: 4px; }
+
+  .media-list {
+    background: #0e0e0e;
+    border: 1px solid #50505066;
+    border-radius: 5px;
+    flex: 1;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .media-item {
+    background: #202020;
+    border: 1px solid #50505080;
+    border-radius: 5px;
+    padding: 8px 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .media-item.active {
+    background: #2a2a2a;
+    border-color: #325fe9;
+  }
+  
+  .media-item .filename { font-size: 16px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  
+  .progress-bg {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 5px;
+    background: #b1b2b5;
+  }
+  .progress-fill {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 5px;
+    background: #325fe9;
+  }
+
+  /* --- Right Panel (Encoder Settings) --- */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* --- QUICK STATS BAR --- */
+  .quick-stats-bar {
+    background: #1a1a1a;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    min-height: 46px;
+  }
+
+  .stats-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .empty-text {
+    color: #666;
+    font-style: italic;
+  }
+
+  .stat-badge {
+    background: #252525;
+    border: 1px solid #505050;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .stat-badge span.label {
+    color: #888;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-details {
+    background: transparent;
+    border: 1px solid #325fe9;
+    color: #325fe9;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+
+  .btn-details:hover:not(:disabled) {
+    background: #325fe9;
+    color: #fff;
+  }
+
+  .btn-details:disabled {
+    border-color: #444;
+    color: #444;
+    cursor: not-allowed;
+  }
+
+  /* Generic Settings Box */
+  .settings-box {
+    background: transparent;
+    border: 1px solid #50505066;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.3s, filter 0.3s;
+  }
+
+  .settings-box.disabled-box {
+    opacity: 0.3;
+    filter: grayscale(100%);
+  }
+
+  .settings-box.disabled-box .setting-row { pointer-events: none; }
+  .settings-box.disabled-box .btn-advanced { pointer-events: none; }
+
+  .box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .box-header-left { display: flex; align-items: center; gap: 8px; }
+
+  .box-title { font-size: 20px; font-weight: 400; color: #fff; }
+
+  .header-buttons { display: flex; align-items: center; gap: 12px; }
+
+  .btn-advanced {
+    background: transparent;
+    border: 1px solid #505050;
+    color: #b2b2b2;
+    font-size: 12px;
+    padding: 0 10px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Source Sans 3", sans-serif;
+  }
+  
+  .btn-advanced:hover {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #808080;
+  }
+
+  .toggle-enable {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #505050;
+    border-radius: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    transition: all 0.2s ease;
+    margin: 0;
+  }
+
+  .toggle-enable:checked { background-color: #325fe9; border-color: #325fe9; }
+
+  .toggle-enable:checked::after {
+    content: '';
+    position: absolute;
+    left: 6px; top: 2px;
+    width: 5px; height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .setting-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .setting-row label { font-size: 14px; color: #b2b2b2; }
+
+  .setting-row input[type="text"],
+  .setting-row input[type="number"],
+  .setting-row select {
+    background: #1a1a1a;
+    border: 1px solid #404040;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, opacity 0.2s;
+    width: 100%;
+    appearance: none; 
+  }
+
+  option, optgroup { background-color: #1a1a1a; color: #fff; }
+
+  .setting-row select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b2b2b2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    padding-right: 30px;
+    cursor: pointer;
+  }
+
+  .setting-row select:disabled { opacity: 0.4; cursor: not-allowed; background-image: none; }
+
+  .setting-row input:focus, .setting-row select:focus { border-color: #325fe9; }
+
+  .setting-row input.is-invalid {
+    border-color: #e74c3c !important;
+    outline: 1px solid #e74c3c;
+  }
+
+  .combo-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .combo-group select, .combo-group input, .combo-group .slider-group { width: 100%; min-width: 0; }
+
+  .checkbox-group-row { display: flex; gap: 16px; align-items: center; }
+
+  .custom-checkbox-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #b2b2b2; cursor: pointer;
+  }
+
+  .custom-checkbox-label input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border: 2px solid #505050; border-radius: 3px;
+    background-color: transparent; cursor: pointer;
+    position: relative; outline: none;
+  }
+
+  .custom-checkbox-label input[type="checkbox"]:checked { background-color: #325fe9; border-color: #325fe9; }
+
+  .custom-checkbox-label input[type="checkbox"]:checked::after {
+    content: ''; position: absolute;
+    left: 3px; top: 0px;
+    width: 5px; height: 9px;
+    border: solid white; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .path-input-group { display: flex; gap: 8px; }
+
+  .btn-browse {
+    background: #1a1a1a; border: 1px solid #404040;
+    color: #fff; padding: 0 12px; border-radius: 4px;
+    font-size: 14px; cursor: pointer;
+  }
+
+  /* --- SLIDER STYLES --- */
+  .slider-group { display: flex; align-items: center; gap: 6px; width: 100%; transition: opacity 0.2s; }
+  .slider-group.disabled-slider { opacity: 0.3; pointer-events: none; }
+
+  input[type="range"].custom-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; background: #404040;
+    border-radius: 3px; outline: none; flex: 1;
+  }
+
+  input[type="range"].custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #b1b2b5; cursor: pointer; border: 2px solid #101010;
+  }
+
+  input[type="range"].custom-slider::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #b1b2b5; cursor: pointer; border: 2px solid #101010;
+  }
+
+  .slider-value { min-width: 30px; text-align: right; font-size: 14px; color: #fff; }
+
+  /* Adjusted Heights to perfectly fill the 1000px window */
+  .video-settings { height: 295px; }
+  .audio-settings { height: 295px; }
+  .output-settings { height: 170px; }
+
+  /* --- Bottom Bar --- */
+  .bottom-bar {
+    height: 60px; padding: 0 16px; display: flex; align-items: center;
+    gap: 12px; background: #101010;
+  }
+
+  .ffmpeg-input {
+    flex: 1; height: 36px; background: #0e0e0e;
+    border: 1px solid #50505066; border-radius: 5px;
+    color: #fff; padding: 0 12px; font-size: 16px; font-family: monospace; outline: none;
+  }
+
+  .btn {
+    height: 36px; background: #0e0e0e; border: 1px solid #50505066;
+    border-radius: 5px; color: #fff; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; font-size: 16px; transition: background 0.2s;
+  }
+  .btn:hover { background: #1a1a1a; }
+
+  .btn-encode { width: 112px; }
+  .btn-settings { width: 36px; }
+  
+  .btn-settings .gear-icon { width: 26px; height: 26px; background: #b1b2b5; border-radius: 50%; }
+
+  /* --- MODALS --- */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); display: none; 
+    align-items: center; justify-content: center; z-index: 1000;
+    backdrop-filter: blur(2px);
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal-content {
+    background: #1a1a1a; border: 1px solid #505050; border-radius: 8px;
+    padding: 24px; width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  }
+
+  .modal-title {
+    font-size: 20px; font-weight: 500; margin-bottom: 16px;
+    color: #fff; border-bottom: 1px solid #333; padding-bottom: 12px;
+  }
+
+  .modal-body { max-height: 400px; overflow-y: auto; padding-right: 10px; }
+
+  .modal-row {
+    display: grid; grid-template-columns: 120px 1fr;
+    align-items: center; margin-bottom: 12px;
+  }
+  .modal-row label { font-size: 14px; color: #b2b2b2; }
+  .modal-row select {
+    background: #101010; border: 1px solid #404040;
+    color: #fff; padding: 6px 10px; border-radius: 4px;
+    font-size: 14px; width: 100%; outline: none;
+  }
+  
+  .custom-args-box {
+    width: 100%; background: #101010; border: 1px solid #404040;
+    color: #fff; padding: 10px; border-radius: 4px;
+    font-family: monospace; font-size: 14px;
+    resize: vertical; min-height: 60px; outline: none;
+  }
+  .custom-args-box:focus { border-color: #325fe9; }
+
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;
+  }
+
+  .btn-cancel {
+    background: transparent; border: 1px solid #505050;
+    color: #b2b2b2; padding: 8px 16px; border-radius: 4px; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-cancel:hover:not(:disabled) { background: #2a2a2a; color: #fff; }
+  .btn-cancel:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .btn-confirm {
+    background: #325fe9; border: 1px solid #325fe9;
+    color: #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer;
+  }
+  .btn-confirm:hover { background: #4a74ff; }
+  
+  .turbo-warning-text { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+
+  /* --- INFO MODAL SPECIFIC STYLES --- */
+  .info-modal-content { width: 650px; padding: 20px; }
+  
+  .info-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 12px;
+  }
+
+  .info-modal-title { font-size: 20px; font-weight: 500; }
+
+  .info-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+
+  .info-tab-btn {
+    background: transparent; border: 1px solid #505050;
+    color: #b2b2b2; padding: 6px 16px; border-radius: 4px;
+    cursor: pointer; font-size: 14px; transition: all 0.2s;
+  }
+  .info-tab-btn:hover { background: #2a2a2a; color: #fff; }
+  .info-tab-btn.active { background: #325fe9; border-color: #325fe9; color: #fff; }
+  
+  .info-tab-btn.hidden-tab { display: none; }
+
+  .info-tab-content {
+    display: none; background: #101010; border: 1px solid #404040;
+    border-radius: 6px; padding: 16px; height: 350px; overflow-y: auto;
+  }
+  .info-tab-content.active { display: block; }
+
+  .info-grid {
+    display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px;
+    font-size: 14px;
+  }
+  .info-grid dt { color: #888; }
+  .info-grid dd { color: #fff; word-break: break-word; text-align: right; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-square"></div>
+    <div class="header-title">
+      <span class="title">APE</span>
+      <span class="subtitle">All Purpose Encoder</span>
+    </div>
+    <div class="window-controls">
+      <span>_</span>
+      <span>o</span>
+      <span>X</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    
+    <!-- Left Side (Media List) -->
+    <div class="left-panel">
+      <div class="drop-zone">
+        <span class="primary-text">Drop media here</span>
+        <span class="secondary-text">or click to browse</span>
+      </div>
+      
+      <div class="media-list">
+        <!-- File 1: FLAC -->
+        <div class="media-item" data-id="file1" onclick="selectMediaItem(this, 'file1')">
+          <div class="filename">My_Audio_Track.flac</div>
+          <div class="progress-bg"></div>
+          <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+        <!-- File 2: AAC -->
+        <div class="media-item" data-id="file2" onclick="selectMediaItem(this, 'file2')">
+          <div class="filename">Podcast_Episode.m4a</div>
+          <div class="progress-bg"></div>
+          <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+        <!-- File 3: Video + AAC -->
+        <div class="media-item" data-id="file3" onclick="selectMediaItem(this, 'file3')">
+          <div class="filename">Vacation_Video.mkv</div>
+          <div class="progress-bg"></div>
+          <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side (Settings + Quick Stats) -->
+    <div class="right-panel">
+      
+      <!-- Quick Stats Bar -->
+      <div class="quick-stats-bar">
+        <div class="stats-badges" id="stats-container">
+          <span class="empty-text">Select a file to view statistics</span>
+        </div>
+        <button class="btn-details" id="btn-view-details" onclick="openInfoModal()" disabled>Full Details</button>
+      </div>
+
+      <!-- VIDEO SETTINGS -->
+      <div class="settings-box video-settings" id="box-video">
+        <div class="box-header">
+          <div class="box-header-left">
+            <div class="box-title">Video settings</div>
+          </div>
+          <div class="header-buttons">
+            <input type="checkbox" class="toggle-enable" id="enable-video" checked onchange="toggleSection('box-video', this)">
+            <button class="btn-advanced" onclick="openAdvancedModal()">Advanced</button>
+          </div>
+        </div>
+        
+        <div class="setting-row">
+          <label>Codec</label>
+          <div class="combo-group">
+            <select id="video-codec" onchange="updateVideoOptions()">
+              <optgroup label="NVIDIA (NVENC)">
+                <option value="h264_nvenc">H.264 (h264_nvenc)</option>
+                <option value="hevc_nvenc">H.265 (hevc_nvenc)</option>
+                <option value="av1_nvenc">AV1 (av1_nvenc)</option>
+              </optgroup>
+              <optgroup label="AMD (AMF)">
+                <option value="h264_amf">H.264 (h264_amf)</option>
+                <option value="hevc_amf">H.265 (hevc_amf)</option>
+                <option value="av1_amf">AV1 (av1_amf)</option>
+              </optgroup>
+              <optgroup label="Intel (QSV)">
+                <option value="h264_qsv">H.264 (h264_qsv)</option>
+                <option value="hevc_qsv">H.265 (hevc_qsv)</option>
+                <option value="av1_qsv">AV1 (av1_qsv)</option>
+              </optgroup>
+              <optgroup label="CPU">
+                <option value="libx264">H.264 (libx264)</option>
+                <option value="libx265">H.265 (libx265)</option>
+                <option value="libaom-av1">AV1 (libaom-av1) slower</option>
+                <option value="libsvtav1">AV1 (libsvtav1) faster</option>
+                <option value="libvpx-vp9">VP9 (libvpx-vp9)</option>
+                <option value="prores">Apple ProRes (prores)</option>
+                <option value="dnxhd">DNxHD (dnxhd)</option>
+                <option value="rawvideo">Raw video (rawvideo)</option>
+                <option value="ffv1">FFV1 (ffv1)</option>
+              </optgroup>
+            </select>
+            
+            <div class="checkbox-group-row">
+              <label class="custom-checkbox-label">
+                <input type="checkbox" id="dyn-multipass"> Multi-pass
+              </label>
+              <label class="custom-checkbox-label">
+                <input type="checkbox" id="dyn-turbo" onchange="handleTurboToggle(this)"> Turbo
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="video-dynamic-controls"></div>
+
+        <div class="setting-row">
+          <label>Framerate</label>
+          <div class="combo-group">
+            <select id="fps-select">
+              <option value="Same as source" selected>Same as source</option>
+              <option value="23.976">23.976 fps</option>
+              <option value="24">24 fps</option>
+              <option value="25">25 fps</option>
+              <option value="29.97">29.97 fps</option>
+              <option value="30">30 fps</option>
+              <option value="60">60 fps</option>
+            </select>
+            <input type="text" id="fps-custom" placeholder="e.g. 45">
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>Resolution</label>
+          <div class="combo-group">
+            <select id="res-select">
+              <option value="Same as source" selected>Same as source</option>
+              <option value="1920x1080">1080p</option>
+              <option value="1280x720">720p</option>
+              <option value="854x480">480p</option>
+            </select>
+            <input type="text" id="res-custom" placeholder="e.g. 2560x1440">
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIO SETTINGS -->
+      <div class="settings-box audio-settings" id="box-audio">
+        <div class="box-header">
+          <div class="box-header-left">
+            <div class="box-title">Audio settings</div>
+          </div>
+          <div class="header-buttons">
+            <input type="checkbox" class="toggle-enable" id="enable-audio" checked onchange="toggleSection('box-audio', this)">
+            <button class="btn-advanced">Advanced</button>
+          </div>
+        </div>
+        
+        <div class="setting-row">
+          <label>Codec</label>
+          <select id="audio-codec" onchange="updateAudioOptions()">
+            <option value="libopus">Opus (libopus)</option>
+            <option value="libfdk_aac">AAC (libfdk_aac)</option>
+            <option value="libmp3lame">MP3 (libmp3lame)</option>
+            <option value="libvorbis">Vorbis (libvorbis)</option>
+            <option value="flac">FLAC (flac)</option>
+          </select>
+        </div>
+        
+        <div class="setting-row">
+          <label>Bitrate</label>
+          <div class="combo-group">
+            <div class="slider-group" id="audio-bitrate-container">
+              <input type="range" class="custom-slider" id="bitrate-slider" min="16" max="512" step="16" value="192">
+              <span class="slider-value" id="bitrate-value">192k</span>
+            </div>
+            <input type="text" id="audio-bitrate-custom" placeholder="Kbps (e.g. 320)">
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>Bit Depth</label>
+          <select id="audio-bit-depth">
+            <option value="Same as source" selected>Same as source</option>
+            <option value="16-bit">16-bit</option>
+            <option value="24-bit">24-bit</option>
+            <option value="32-bit Float">32-bit Float</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label>Sample Rate</label>
+          <select>
+            <option>Same as source</option>
+            <option>44100 Hz</option>
+            <option>48000 Hz</option>
+            <option>96000 Hz</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label>Channels</label>
+          <select>
+            <option>Same as source</option>
+            <option>Mono (1.0)</option>
+            <option>Stereo (2.0)</option>
+            <option>Surround (5.1)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- OUTPUT SETTINGS -->
+      <div class="settings-box output-settings">
+        <div class="box-header">
+          <div class="box-header-left">
+            <div class="box-title">Output settings</div>
+          </div>
+        </div>
+        
+        <div class="setting-row">
+          <label>Format</label>
+          <select>
+            <option>MKV (Matroska)</option>
+            <option>MP4</option>
+            <option>WebM</option>
+            <option>MOV</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label>Location</label>
+          <div class="path-input-group">
+            <input type="text" value="/Users/Username/Videos/Output" readonly>
+            <button class="btn-browse">Browse</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <input type="text" class="ffmpeg-input" value="ffmpeg -i input.mkv -c:v libx265 -preset medium -crf 23 -c:a libopus ......" readonly>
+    <button class="btn btn-encode">start encode</button>
+    <button class="btn btn-settings"><div class="gear-icon"></div></button>
+  </div>
+
+</div>
+
+<!-- ADVANCED SETTINGS MODAL -->
+<div class="modal-overlay" id="advancedModal">
+  <div class="modal-content">
+    <div class="modal-title" id="modal-codec-title">Advanced Settings</div>
+    <div class="modal-body" id="modal-dynamic-content"></div>
+    <div style="margin-top: 16px;">
+      <label style="display: block; font-size: 14px; color: #b2b2b2; margin-bottom: 6px;">Custom FFmpeg Options</label>
+      <textarea class="custom-args-box" id="custom-ffmpeg-args" placeholder="e.g. -x264-params keyint=120:min-keyint=120"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAdvancedModal()">Cancel</button>
+      <button class="btn-confirm" onclick="applyAdvancedModal()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- TURBO CONFIRM MODAL -->
+<div class="modal-overlay" id="turboModal">
+  <div class="modal-content">
+    <div class="modal-title">Enable Turbo First Pass?</div>
+    <p class="turbo-warning-text">
+      Turbo mode speeds up the first analysis pass of multi-pass encoding significantly. However, it may result in a slightly lower quality output compared to a standard first pass.<br><br>
+      Do you want to proceed?
+    </p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="cancelTurbo()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmTurbo()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEDIA INFO MODAL -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-content info-modal-content">
+    <div class="info-modal-header">
+      <!-- Added Prev/Next controls here -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="btn-prev-file" class="btn-cancel" onclick="navigateFile(-1)" style="padding: 4px 8px;">&lt; Prev</button>
+        <div class="info-modal-title" id="info-modal-title">Media Information</div>
+        <button id="btn-next-file" class="btn-cancel" onclick="navigateFile(1)" style="padding: 4px 8px;">Next &gt;</button>
+      </div>
+      <button class="btn-cancel" style="padding: 4px 12px;" onclick="closeInfoModal()">Close</button>
+    </div>
+
+    <div class="info-tabs">
+      <button class="info-tab-btn active" id="tab-btn-general" onclick="switchInfoTab('general', this)">General</button>
+      <button class="info-tab-btn" id="tab-btn-video" onclick="switchInfoTab('video', this)">Video</button>
+      <button class="info-tab-btn" id="tab-btn-audio" onclick="switchInfoTab('audio', this)">Audio</button>
+      <button class="info-tab-btn" id="tab-btn-tags" onclick="switchInfoTab('tags', this)">Tags</button>
+    </div>
+
+    <!-- General Tab -->
+    <div class="info-tab-content active" id="tab-content-general">
+      <dl class="info-grid" id="list-general"></dl>
+    </div>
+
+    <!-- Video Tab -->
+    <div class="info-tab-content" id="tab-content-video">
+      <dl class="info-grid" id="list-video"></dl>
+    </div>
+
+    <!-- Audio Tab -->
+    <div class="info-tab-content" id="tab-content-audio">
+      <dl class="info-grid" id="list-audio"></dl>
+    </div>
+
+    <!-- Tags Tab -->
+    <div class="info-tab-content" id="tab-content-tags">
+      <dl class="info-grid" id="list-tags"></dl>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- FILE DATA DICTIONARY ---
+  const filesData = {
+    'file1': {
+      name: 'My_Audio_Track.flac',
+      type: 'audio',
+      stats: [
+        { label: 'Codec', value: 'FLAC' },
+        { label: 'Size', value: '45.2 MB' },
+        { label: 'Length', value: '05:30' },
+        { label: 'Audio Format', value: '24-bit / 96 kHz' } 
+      ],
+      details: {
+        general: [
+          ['Format:', 'FLAC'],
+          ['File size:', '45.2 MiB'],
+          ['Duration:', '5 min 30 s'],
+          ['Overall bit rate:', '1 148 kb/s']
+        ],
+        audio: [
+          ['Format:', 'FLAC'],
+          ['Format/Info:', 'Free Lossless Audio Codec'],
+          ['Duration:', '5 min 30 s'],
+          ['Bit rate mode:', 'Variable'],
+          ['Channel(s):', '2 channels'],
+          ['Sampling rate:', '96.0 kHz'],
+          ['Bit depth:', '24 bits'],
+          ['Compression mode:', 'Lossless']
+        ],
+        tags: [
+          ['ARTIST:', 'Various Artists'],
+          ['ALBUM:', 'Greatest Hits'],
+          ['DATE:', '2023']
+        ]
+      }
+    },
+    'file2': {
+      name: 'Podcast_Episode.m4a',
+      type: 'audio',
+      stats: [
+        { label: 'Audio', value: 'AAC / 128 kbps' }, 
+        { label: 'Size', value: '12.5 MB' },
+        { label: 'Length', value: '25:14' }
+      ],
+      details: {
+        general: [
+          ['Format:', 'MPEG-4'],
+          ['Format profile:', 'Apple audio with iTunes info'],
+          ['File size:', '12.5 MiB'],
+          ['Duration:', '25 min 14 s'],
+          ['Overall bit rate:', '132 kb/s']
+        ],
+        audio: [
+          ['Format:', 'AAC'],
+          ['Format/Info:', 'Advanced Audio Codec'],
+          ['Duration:', '25 min 14 s'],
+          ['Bit rate mode:', 'Constant'],
+          ['Bit rate:', '128 kb/s'],
+          ['Channel(s):', '2 channels'],
+          ['Sampling rate:', '44.1 kHz'],
+          ['Compression mode:', 'Lossy']
+        ],
+        tags: [
+          ['TITLE:', 'Episode 42'],
+          ['ARTIST:', 'Tech Talk'],
+          ['GENRE:', 'Podcast']
+        ]
+      }
+    },
+    'file3': {
+      name: 'Vacation_Video.mkv',
+      type: 'video',
+      stats: [
+        { label: 'Video', value: 'HEVC' },
+        { label: 'Size', value: '1.2 GB' },
+        { label: 'Length', value: '10:15' },
+        { label: 'FPS', value: '60' },
+        { label: 'Audio', value: 'AAC / 192 kbps' }
+      ],
+      details: {
+        general: [
+          ['Format:', 'Matroska'],
+          ['File size:', '1.20 GiB'],
+          ['Duration:', '10 min 15 s'],
+          ['Overall bit rate:', '1 674 kb/s']
+        ],
+        video: [
+          ['Format:', 'HEVC'],
+          ['Format/Info:', 'High Efficiency Video Coding'],
+          ['Duration:', '10 min 15 s'],
+          ['Bit rate:', '1 450 kb/s'],
+          ['Width:', '1 920 pixels'],
+          ['Height:', '1 080 pixels'],
+          ['Frame rate:', '60.000 FPS'],
+          ['Bit depth:', '8 bits'],
+          ['Scan type:', 'Progressive']
+        ],
+        audio: [
+          ['Format:', 'AAC'],
+          ['Duration:', '10 min 15 s'],
+          ['Bit rate:', '192 kb/s'],
+          ['Channel(s):', '2 channels'],
+          ['Sampling rate:', '48.0 kHz'],
+          ['Compression mode:', 'Lossy']
+        ],
+        tags: [
+          ['ENCODER:', 'HandBrake 1.6.1'],
+          ['DATE:', '2023-08-15']
+        ]
+      }
+    }
+  };
+
+  // Define the order of files for navigation
+  const fileOrder = ['file1', 'file2', 'file3'];
+  let selectedFileId = null;
+
+  // --- UI LOGIC ---
+  function selectMediaItem(element, fileId) {
+    document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    
+    selectedFileId = fileId;
+    renderQuickStats(fileId);
+    document.getElementById('btn-view-details').disabled = false;
+  }
+
+  function renderQuickStats(fileId) {
+    const file = filesData[fileId];
+    const container = document.getElementById('stats-container');
+    container.innerHTML = '';
+
+    file.stats.forEach(stat => {
+      const badge = document.createElement('div');
+      badge.className = 'stat-badge';
+      badge.innerHTML = `<span class="label">${stat.label}</span> ${stat.value}`;
+      container.appendChild(badge);
+    });
+  }
+
+  // --- INFO MODAL LOGIC ---
+  const infoModal = document.getElementById('infoModal');
+
+  function updateInfoModalContent() {
+    if (!selectedFileId) return;
+    
+    const file = filesData[selectedFileId];
+    document.getElementById('info-modal-title').textContent = `Media Information: ${file.name}`;
+
+    function populateList(listId, dataArray) {
+      const dl = document.getElementById(listId);
+      dl.innerHTML = dataArray.map(row => `<dt>${row[0]}</dt><dd>${row[1]}</dd>`).join('');
+    }
+
+    populateList('list-general', file.details.general);
+    populateList('list-audio', file.details.audio);
+    populateList('list-tags', file.details.tags);
+
+    const videoTabBtn = document.getElementById('tab-btn-video');
+    if (file.type === 'video' && file.details.video) {
+      videoTabBtn.classList.remove('hidden-tab');
+      populateList('list-video', file.details.video);
+    } else {
+      videoTabBtn.classList.add('hidden-tab');
+    }
+
+    // Update Nav Button States
+    const currentIndex = fileOrder.indexOf(selectedFileId);
+    document.getElementById('btn-prev-file').disabled = (currentIndex === 0);
+    document.getElementById('btn-next-file').disabled = (currentIndex === fileOrder.length - 1);
+  }
+
+  function openInfoModal() {
+    if (!selectedFileId) return;
+    updateInfoModalContent();
+    switchInfoTab('general', document.getElementById('tab-btn-general'));
+    infoModal.classList.add('active');
+  }
+
+  function closeInfoModal() {
+    infoModal.classList.remove('active');
+  }
+
+  function switchInfoTab(tabId, btnElement) {
+    document.querySelectorAll('.info-tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.info-tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-content-' + tabId).classList.add('active');
+    btnElement.classList.add('active');
+  }
+
+  function navigateFile(direction) {
+    const currentIndex = fileOrder.indexOf(selectedFileId);
+    const newIndex = currentIndex + direction;
+
+    if (newIndex >= 0 && newIndex < fileOrder.length) {
+      const newFileId = fileOrder[newIndex];
+      
+      // Update Sidebar UI
+      document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
+      const newEl = document.querySelector(`.media-item[data-id="${newFileId}"]`);
+      if (newEl) newEl.classList.add('active');
+
+      // Update State & Render
+      selectedFileId = newFileId;
+      renderQuickStats(newFileId);
+      updateInfoModalContent();
+    }
+  }
+
+  infoModal.addEventListener('click', (e) => {
+    if (e.target === infoModal) closeInfoModal();
+  });
+
+  // --- Slider Logic for Audio & Custom Bitrate ---
+  const bitrateSlider = document.getElementById('bitrate-slider');
+  const bitrateValue = document.getElementById('bitrate-value');
+  const audioBitrateCustom = document.getElementById('audio-bitrate-custom');
+  const audioBitrateContainer = document.getElementById('audio-bitrate-container');
+  const audioBitDepthSelect = document.getElementById('audio-bit-depth');
+  const audioCodecSelect = document.getElementById('audio-codec');
+
+  bitrateSlider.addEventListener('input', (e) => {
+    bitrateValue.textContent = e.target.value + 'k';
+  });
+
+  audioBitrateCustom.addEventListener('input', () => {
+    const val = audioBitrateCustom.value.trim();
+    if (val !== "") {
+      audioBitrateContainer.classList.add('disabled-slider');
+      audioBitrateCustom.classList.toggle('is-invalid', !/^\d+$/.test(val));
+    } else {
+      audioBitrateContainer.classList.remove('disabled-slider');
+      audioBitrateCustom.classList.remove('is-invalid');
+    }
+  });
+
+  function updateAudioOptions() {
+    const isLossless = (audioCodecSelect.value === 'flac');
+    audioBitDepthSelect.disabled = !isLossless;
+    audioBitDepthSelect.style.opacity = isLossless ? '1' : '0.4';
+    
+    if (isLossless) {
+      audioBitrateContainer.classList.add('disabled-slider');
+      audioBitrateCustom.disabled = true;
+      audioBitrateCustom.style.opacity = '0.4';
+    } else {
+      if (audioBitrateCustom.value.trim() === "") {
+        audioBitrateContainer.classList.remove('disabled-slider');
+      }
+      audioBitrateCustom.disabled = false;
+      audioBitrateCustom.style.opacity = '1';
+    }
+  }
+
+  // --- Combo Group Logic ---
+  function setupCombo(selectId, inputId, regex) {
+    const select = document.getElementById(selectId);
+    const input = document.getElementById(inputId);
+    select.addEventListener('change', () => {
+      input.value = ""; input.classList.remove('is-invalid'); select.disabled = false;
+    });
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      if (val !== "") {
+        select.disabled = true;
+        input.classList.toggle('is-invalid', !regex.test(val));
+      } else {
+        select.disabled = false;
+        input.classList.remove('is-invalid');
+      }
+    });
+  }
+
+  setupCombo('fps-select', 'fps-custom', /^\d+(\.\d+)?$/);
+  setupCombo('res-select', 'res-custom', /^\d+x\d+$/i);
+
+  // --- Toggle Enable Logic ---
+  function toggleSection(boxId, checkbox) {
+    document.getElementById(boxId).classList.toggle('disabled-box', !checkbox.checked);
+  }
+
+  // --- TURBO MODAL LOGIC ---
+  const turboModal = document.getElementById('turboModal');
+  let activeTurboCheckbox = null;
+
+  function handleTurboToggle(checkbox) {
+    if (checkbox.checked) {
+      activeTurboCheckbox = checkbox;
+      turboModal.classList.add('active');
+    }
+  }
+
+  function confirmTurbo() {
+    turboModal.classList.remove('active');
+    activeTurboCheckbox = null;
+  }
+
+  function cancelTurbo() {
+    turboModal.classList.remove('active');
+    if (activeTurboCheckbox) {
+      activeTurboCheckbox.checked = false;
+      activeTurboCheckbox = null;
+    }
+  }
+
+  // --- DYNAMIC VIDEO OPTIONS LOGIC ---
+  const videoControls = document.getElementById('video-dynamic-controls');
+  const videoCodecSelect = document.getElementById('video-codec');
+
+  const codecCapabilities = {
+    'h264_nvenc': { quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'hevc_nvenc': { quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'av1_nvenc': { quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], default: 'p5' }, tune: { options: ['none', 'hq', 'll', 'ull', 'lossless'], default: 'none' }, profile: { options: ['auto', 'main'], default: 'auto' }, level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'h264_amf': { quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'hevc_amf': { quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'av1_amf': { quality: { label: 'Quality (QP)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Quality Mode', options: ['speed', 'balanced', 'quality'], default: 'balanced' }, profile: { options: ['auto', 'main'], default: 'auto' }, level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'h264_qsv': { quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'hevc_qsv': { quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'av1_qsv': { quality: { label: 'Quality (ICQ)', type: 'slider', min: 1, max: 51, default: 23, step: 1 }, preset: { type: 'select', label: 'Preset', options: ['veryfast', 'faster', 'fast', 'medium', 'slow'], default: 'medium' }, profile: { options: ['auto', 'main'], default: 'auto' }, level: { options: ['auto', '2', '3', '4', '5', '6'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'libx264': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 51, default: 23, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 5, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, tune: { options: ['none', 'film', 'animation', 'grain'], default: 'none' }, profile: { options: ['auto', 'baseline', 'main', 'high'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' }, fastDecode: true },
+    'libx265': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 51, default: 28, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 5, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, tune: { options: ['none', 'psnr', 'ssim', 'grain'], default: 'none' }, profile: { options: ['auto', 'main', 'main10'], default: 'auto' }, level: { options: ['auto', '1', '2', '3', '4', '5'], default: 'auto' }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' }, fastDecode: true },
+    'libaom-av1': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 30, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'libsvtav1': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 30, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'libvpx-vp9': { quality: { label: 'Quality (CRF)', type: 'slider', min: 0, max: 63, default: 31, step: 1 }, preset: { type: 'slider', label: 'Preset (Speed)', min: 0, max: 8, default: 4, step: 1, valueLabels: ['0 (fastest)', '8 (slowest)'] }, colorRange: { options: ['Same as source', 'tv', 'pc'], default: 'Same as source' } },
+    'prores': { quality: { label: 'Profile', type: 'select', options: ['proxy', 'lt', 'standard', 'hq', '4444', '4444xq'], default: 'hq' } },
+    'dnxhd': {}, 'rawvideo': {}, 'ffv1': {}
+  };
+
+  function getSliderLabel(value, cap) {
+      if (cap.valueLabels) {
+          if (value == cap.min) return cap.valueLabels[0];
+          if (value == cap.max) return cap.valueLabels[1];
+      }
+      return value;
+  }
+
+  function updateVideoOptions() {
+    const caps = codecCapabilities[videoCodecSelect.value];
+    videoControls.innerHTML = '';
+    if (!caps) return; 
+
+    if (caps.quality) {
+      const q = caps.quality;
+      const qRow = document.createElement('div');
+      qRow.className = 'setting-row';
+      if (q.type === 'select') {
+        let optionsHTML = q.options.map(opt => `<option value="${opt}" ${opt === q.default ? 'selected' : ''}>${opt}</option>`).join('');
+        qRow.innerHTML = `<label>${q.label}</label><select id="dyn-quality">${optionsHTML}</select>`;
+      } else {
+        qRow.innerHTML = `
+          <label>${q.label}</label>
+          <div class="combo-group">
+            <div class="slider-group" id="cq-slider-container">
+              <input type="range" class="custom-slider" id="dyn-quality" min="${q.min}" max="${q.max}" value="${q.default}" step="${q.step}">
+              <span class="slider-value" id="dyn-quality-val">${q.default}</span>
+            </div>
+            <input type="text" id="bitrate-limit" placeholder="Kbps limit (e.g. 6000)">
+          </div>
+        `;
+      }
+      videoControls.appendChild(qRow);
+
+      if (q.type !== 'select') {
+        const slider = qRow.querySelector('#dyn-quality');
+        const valDisplay = qRow.querySelector('#dyn-quality-val');
+        const sliderContainer = qRow.querySelector('#cq-slider-container');
+        const bitrateInput = qRow.querySelector('#bitrate-limit');
+
+        slider.addEventListener('input', (e) => { valDisplay.textContent = e.target.value; });
+        bitrateInput.addEventListener('input', () => {
+            const val = bitrateInput.value.trim();
+            if (val !== "") {
+                bitrateInput.classList.toggle('is-invalid', !/^\d+$/.test(val));
+                sliderContainer.classList.add('disabled-slider');
+            } else {
+                bitrateInput.classList.remove('is-invalid');
+                sliderContainer.classList.remove('disabled-slider');
+            }
+        });
+      }
+    }
+
+    if (caps.preset) {
+      const p = caps.preset;
+      const pRow = document.createElement('div');
+      pRow.className = 'setting-row';
+      if (p.type === 'select') {
+        let optionsHTML = p.options.map(opt => `<option value="${opt}" ${opt === p.default ? 'selected' : ''}>${opt}</option>`).join('');
+        pRow.innerHTML = `<label>${p.label}</label><select id="dyn-preset">${optionsHTML}</select>`;
+      } else {
+        pRow.innerHTML = `
+          <label>${p.label}</label>
+          <div class="slider-group">
+            <input type="range" class="custom-slider" id="dyn-preset" min="${p.min}" max="${p.max}" value="${p.default}" step="${p.step}">
+            <span class="slider-value" id="dyn-preset-val">${getSliderLabel(p.default, p)}</span>
+          </div>
+        `;
+      }
+      videoControls.appendChild(pRow);
+
+      if (p.type !== 'select') {
+        const slider = pRow.querySelector('#dyn-preset');
+        const valDisplay = pRow.querySelector('#dyn-preset-val');
+        slider.addEventListener('input', (e) => { valDisplay.textContent = getSliderLabel(e.target.value, p); });
+      }
+    }
+  }
+
+  // --- ADVANCED MODAL LOGIC ---
+  const modal = document.getElementById('advancedModal');
+  const modalTitle = document.getElementById('modal-codec-title');
+  const modalContent = document.getElementById('modal-dynamic-content');
+
+  function openAdvancedModal() {
+    const caps = codecCapabilities[videoCodecSelect.value] || {};
+    const codecName = videoCodecSelect.options[videoCodecSelect.selectedIndex].text;
+    modalTitle.textContent = `Advanced Settings: ${codecName}`;
+    modalContent.innerHTML = '';
+    
+    function addRow(label, id, options, defaultVal) {
+      const row = document.createElement('div');
+      row.className = 'modal-row';
+      row.innerHTML = `<label>${label}</label><select id="${id}">${options.map(opt => `<option value="${opt}" ${opt === defaultVal ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
+      modalContent.appendChild(row);
+    }
+
+    if (caps.tune) addRow('Tune', 'adv-tune', caps.tune.options, caps.tune.default);
+    if (caps.profile) addRow('Profile', 'adv-profile', caps.profile.options, caps.profile.default);
+    if (caps.level) addRow('Level', 'adv-level', caps.level.options, caps.level.default);
+    if (caps.colorRange) addRow('Color Range', 'adv-color', caps.colorRange.options, caps.colorRange.default);
+    
+    if (caps.fastDecode) {
+      const row = document.createElement('div');
+      row.className = 'modal-row';
+      row.innerHTML = `<label>Fast Decode</label><div><input type="checkbox" id="adv-fastdecode" style="width: 16px; height: 16px; cursor: pointer;"></div>`;
+      modalContent.appendChild(row);
+    }
+
+    if (modalContent.innerHTML === '') {
+      modalContent.innerHTML = '<p style="color: #666; font-size: 14px; margin-bottom: 16px;">No extra preset options available for this codec.</p>';
+    }
+    modal.classList.add('active');
+  }
+
+  function closeAdvancedModal() { modal.classList.remove('active'); }
+  function applyAdvancedModal() { modal.classList.remove('active'); }
+
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeAdvancedModal(); });
+
+  // Initialize the UI on load (No files selected)
+  window.addEventListener('DOMContentLoaded', () => {
+    updateVideoOptions();
+    updateAudioOptions();
+  });
+</script>
+
+</body>
+</html>
