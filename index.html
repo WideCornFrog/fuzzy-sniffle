@@ -67,7 +67,12 @@
             <div id="video-panel-tags" style="display:flex; gap:4px;"></div>
           </div>
           <div class="header-buttons">
-            <button class="btn-advanced" onclick="openVideoAdvancedModal()">Advanced</button>
+            <select id="video-preset" class="preset-select" onchange="applyVideoPreset(this.value)">
+              <option value="">Preset</option>
+              <option value="fast">Fast</option>
+              <option value="medium">Medium</option>
+              <option value="slow">Slow</option>
+            </select>
           </div>
         </div>
         <div class="setting-row">
@@ -132,6 +137,9 @@
             <input type="text" id="res-custom" placeholder="e.g. 2560x1440">
           </div>
         </div>
+        <div class="box-footer">
+          <button class="btn-advanced" onclick="openVideoAdvancedModal()">Advanced Settings</button>
+        </div>
       </div>
 
       <!-- Audio Settings Panel -->
@@ -144,7 +152,11 @@
             <div id="audio-panel-tags" style="display:flex; gap:4px;"></div>
           </div>
           <div class="header-buttons">
-            <button class="btn-advanced" onclick="openAudioAdvancedModal()">Advanced</button>
+            <select id="audio-preset" class="preset-select" onchange="applyAudioPreset(this.value)">
+              <option value="">Preset</option>
+              <option value="high">High Quality</option>
+              <option value="standard">Standard</option>
+            </select>
           </div>
         </div>
         <div class="setting-row">
@@ -208,6 +220,9 @@
             <option value="Surround (6.1)">6.1 surround</option>
             <option value="Surround (7.1)">7.1 surround</option>
           </select>
+        </div>
+        <div class="box-footer">
+          <button class="btn-advanced" onclick="openAudioAdvancedModal()">Advanced Settings</button>
         </div>
       </div>
 
