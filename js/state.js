@@ -189,6 +189,24 @@ export const audioState = {
   vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192 }
 };
 
+export const audioPresetNames = {
+  'libopus': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'libfdk_aac': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'libmp3lame': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'libvorbis': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'flac': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'alac': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'ape': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'wavpack': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'wav': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
+  'pcm': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' }
+};
+
+export const audioActivePresets = {
+  'libopus': 'standard', 'libfdk_aac': 'standard', 'libmp3lame': 'standard', 'libvorbis': 'standard',
+  'flac': 'standard', 'alac': 'standard', 'ape': 'standard', 'wavpack': 'standard', 'wav': 'standard', 'pcm': 'standard'
+};
+
 export const currentVideoBasicState = {};
 export const audioStateByCategory = { normal: null, pro: null };
 
