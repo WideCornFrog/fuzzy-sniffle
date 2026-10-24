@@ -5,13 +5,13 @@
 import {
   state, codecCapabilities, currentVideoBasicState,
   defaultVideoAdvanced, currentVideoAdvanced,
-  VIDEO_FAMILIES, PRO_VIDEO_FAMILIES
+  VIDEO_FAMILIES, PRO_VIDEO_FAMILIES, audioStateByCategory
 } from './state.js';
 
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability } from './output.js';
 import { refreshSelect } from './custom-select.js';
 import { scheduleRefresh } from './ffmpeg.js';
-import { audioState, audioStateByCategory, captureAudioState, restoreAudioState } from './audio.js';
+import { captureAudioState, restoreAudioState } from './audio.js';
 
 const SKIP_KEYS = ['quality','preset','tune','profile','level','colorRange','fastDecode'];
 
@@ -434,6 +434,3 @@ export function resetAllVideoAdvancedSettings() {
   refreshSelect('video-codec');
   scheduleRefresh();
 }
-
-// Silence unused import warnings
-void audioState;
