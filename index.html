@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" href="data:,">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APE - All Purpose Encoder</title>
+<link rel="icon" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -61,13 +61,13 @@
       <div class="settings-box video-settings no-file" id="box-video">
         <div class="box-header">
           <div class="box-header-left">
+            <input type="checkbox" class="toggle-enable" id="enable-video" checked onchange="onVideoEnableChange(this)">
             <div class="box-title">Video settings</div>
+            <button class="btn-panel-reset" id="btn-reset-video-panel" onclick="resetVideoPanel()" style="display:none;">Reset to Default</button>
             <div id="video-panel-tags" style="display:flex; gap:4px;"></div>
           </div>
           <div class="header-buttons">
-            <input type="checkbox" class="toggle-enable" id="enable-video" checked onchange="onVideoEnableChange(this)">
             <button class="btn-advanced" onclick="openVideoAdvancedModal()">Advanced</button>
-            <button class="btn-panel-reset" id="btn-reset-video-panel" onclick="resetVideoPanel()" style="display:none;">Reset to Default</button>
           </div>
         </div>
         <div class="setting-row">
@@ -138,13 +138,13 @@
       <div class="settings-box audio-settings no-file" id="box-audio">
         <div class="box-header">
           <div class="box-header-left">
+            <input type="checkbox" class="toggle-enable" id="enable-audio" checked onchange="onAudioEnableChange(this)">
             <div class="box-title">Audio settings</div>
+            <button class="btn-panel-reset" id="btn-reset-audio-panel" onclick="resetAudioPanel()" style="display:none;">Reset to Default</button>
             <div id="audio-panel-tags" style="display:flex; gap:4px;"></div>
           </div>
           <div class="header-buttons">
-            <input type="checkbox" class="toggle-enable" id="enable-audio" checked onchange="onAudioEnableChange(this)">
             <button class="btn-advanced" onclick="openAudioAdvancedModal()">Advanced</button>
-            <button class="btn-panel-reset" id="btn-reset-audio-panel" onclick="resetAudioPanel()" style="display:none;">Reset to Default</button>
           </div>
         </div>
         <div class="setting-row">
@@ -340,6 +340,6 @@
   </div>
 </div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=2"></script>
 </body>
 </html>
