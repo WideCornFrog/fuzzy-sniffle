@@ -183,7 +183,7 @@ export const getAudioCodecsForExtension = (ext) =>
 
 // ---- Audio runtime state (lossy + lossless all keyed by codec) ----
 export const audioState = {
-  opus: { mode: 'vbr', vbrTarget: 192, cbrBitrate: 192 },
+  opus: { mode: 'vbr', vbrTarget: 128, cbrBitrate: 128 },
   aac: { mode: 'vbr', vbrQuality: 3, cbrBitrate: 192 },
   mp3: { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '' },
   vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192 },
