@@ -2,7 +2,7 @@
 // main.js — Bootstrap & wire everything to window
 // ============================================================
 
-import { state } from './state.js';
+import { state, audioActivePresets, audioCustomPresets } from './state.js';
 import { selectMediaItem } from './media.js';
 import {
   updateVideoOptions, onVideoCodecChange, resetVideoPanel,
@@ -27,7 +27,7 @@ import {
 } from './ffmpeg.js';
 import { openInfoModal, closeInfoModal, switchInfoTab, navigateFile } from './details.js';
 import { openSettings, closeSettings } from './settings.js';
-import { initAllCustomSelects, setEditedChecker, refreshSelect } from './custom-select.js';
+import { initAllCustomSelects, setEditedChecker, setLabelSuffixProvider, refreshSelect } from './custom-select.js';
 import { isVideoBasicEdited, isVideoAdvancedEdited } from './video.js';
 import { isAudioBasicEdited, isAudioAdvancedEdited } from './audio.js';
 
@@ -38,6 +38,17 @@ setEditedChecker((selectId, value) => {
   if (selectId === 'audio-codec')
     return { basic: isAudioBasicEdited(value), advanced: isAudioAdvancedEdited(value) };
   return { basic: false, advanced: false };
+});
+
+// Wire up custom-select's label-suffix provider.
+// Shows the active audio preset next to each audio codec in the dropdown.
+setLabelSuffixProvider((selectId, value) => {
+  if (selectId !== 'audio-codec') return null;
+  const active = audioActivePresets[value];
+  if (!active || active === 'standard') return null;
+  if (active === 'high') return '· High Quality';
+  const custom = (audioCustomPresets[value] || []).find(p => p.id === active);
+  return custom ? `· ${custom.name}` : null;
 });
 
 // Expose everything needed by inline HTML handlers in one shot
