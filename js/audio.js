@@ -146,6 +146,7 @@ export function resetAudioPanel() {
   if (basicEdited) {
     const type = getAudioStateKey(codec);
     if (type) {
+      // Create a brand new default object instead of deleting it (fixes crash)
       audioState[type] = getAudioDefaultState(type);
       audioState[type].sampleRate = getDefaultSampleRate(codec);
       audioState[type].channels = 'Same as source';
