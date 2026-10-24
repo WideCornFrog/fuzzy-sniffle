@@ -383,6 +383,12 @@ export const codecCapabilities = {
 
 export const videoCodecKeys = Object.keys(codecCapabilities);
 
+// Per-codec user-created video presets. Each entry: { id, name, data }
+export const videoCustomPresets = Object.fromEntries(videoCodecKeys.map(c => [c, []]));
+
+// Active video preset per codec: 'standard' | custom id ('custom1', 'custom2', …)
+export const videoActivePresets = Object.fromEntries(videoCodecKeys.map(c => [c, 'standard']));
+
 // ---- Default advanced state (generated) ----
 export const defaultVideoAdvanced = {};
 videoCodecKeys.forEach(codec => {
