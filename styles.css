@@ -144,7 +144,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px; /* Reduced gap from 16 to 12 to fit footer buttons */
 }
 
 /* --- QUICK STATS BAR --- */
@@ -374,9 +374,9 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .slider-value { min-width: 30px; text-align: right; font-size: 14px; color: #fff; }
 
 /* Adjusted heights to fit the new footer buttons */
-.video-settings { height: 312px; }
-.audio-settings { height: 330px; }
-.output-settings { height: 160px; }
+.video-settings { height: 300px; }
+.audio-settings { height: 320px; }
+.output-settings { height: 150px; }
 
 /* --- Bottom Bar --- */
 .bottom-bar {
@@ -630,4 +630,25 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 
 .preset-select:focus {
   border-color: #325fe9;
+}
+
+/* --- Pencil Rename Button --- */
+.btn-rename {
+  background: transparent; 
+  border: 1px solid #505050; 
+  color: #b2b2b2;
+  width: 22px; 
+  height: 22px; 
+  border-radius: 4px; 
+  cursor: pointer;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  transition: all 0.2s;
+  padding: 0;
+}
+.btn-rename:hover { 
+  background: #1a1a1a; 
+  color: #fff; 
+  border-color: #808080; 
 }
