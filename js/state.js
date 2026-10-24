@@ -186,7 +186,7 @@ export const audioState = {
   opus: { mode: 'vbr', vbrTarget: 128, cbrBitrate: 128 },
   aac: { mode: 'vbr', vbrQuality: 3, cbrBitrate: 192 },
   mp3: { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '' },
-  vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192 },
+  vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192, sampleRate: '48000' },
   flac: { compression: '5', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
   alac: { compression: '3', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
   wavpack: { compression: '1', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
