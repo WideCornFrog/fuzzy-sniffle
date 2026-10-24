@@ -130,7 +130,7 @@ export const AUDIO_CODEC_DISPLAY = {
   'flac':'FLAC','alac':'ALAC','ape':'APE','wavpack':'WavPack','wav':'WAV','pcm':'PCM'
 };
 
-// ---- Shared UI-friendly names and options (moved from audio.js) ----
+// ---- Shared UI-friendly names and options ----
 export const audioCodecNames = {
   'libopus':'Opus','libfdk_aac':'AAC','libmp3lame':'MP3','libvorbis':'Vorbis',
   'flac':'FLAC','alac':'ALAC','ape':"Monkey's Audio",'wavpack':'WavPack','wav':'WAV','pcm':'PCM'
@@ -181,27 +181,27 @@ export const getContainersForAudioFamily = (f) => CONTAINERS.filter(c => (CONTAI
 export const getAudioCodecsForExtension = (ext) =>
   Object.keys(AUDIO_EXTENSIONS).filter(c => (AUDIO_EXTENSIONS[c].options||[]).includes(ext));
 
-// ---- Audio runtime state ----
+// ---- Audio runtime state (lossy + lossless all keyed by codec) ----
 export const audioState = {
   opus: { mode: 'vbr', vbrTarget: 192, cbrBitrate: 192 },
   aac: { mode: 'vbr', vbrQuality: 3, cbrBitrate: 192 },
   mp3: { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '' },
-  vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192 }
+  vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192 },
+  flac: { compression: '5', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
+  alac: { compression: '3', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
+  wavpack: { compression: '1', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
+  ape: { compression: '2', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
+  wav: { sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' },
+  pcm: { sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' }
 };
 
-export const audioPresetNames = {
-  'libopus': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'libfdk_aac': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'libmp3lame': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'libvorbis': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'flac': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'alac': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'ape': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'wavpack': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'wav': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' },
-  'pcm': { custom1: 'Custom-1', custom2: 'Custom-2', custom3: 'Custom-3' }
+// Per-codec list of user-created presets. Each entry: { id, name, data }
+export const audioCustomPresets = {
+  'libopus': [], 'libfdk_aac': [], 'libmp3lame': [], 'libvorbis': [],
+  'flac': [], 'alac': [], 'ape': [], 'wavpack': [], 'wav': [], 'pcm': []
 };
 
+// Active preset per codec: 'standard' | 'high' | custom id ('custom1', 'custom2', …)
 export const audioActivePresets = {
   'libopus': 'standard', 'libfdk_aac': 'standard', 'libmp3lame': 'standard', 'libvorbis': 'standard',
   'flac': 'standard', 'alac': 'standard', 'ape': 'standard', 'wavpack': 'standard', 'wav': 'standard', 'pcm': 'standard'
@@ -210,7 +210,7 @@ export const audioActivePresets = {
 export const currentVideoBasicState = {};
 export const audioStateByCategory = { normal: null, pro: null };
 
-// ---- Video capability matrix (unchanged - it's pure data) ----
+// ---- Video capability matrix ----
 export const codecCapabilities = {
   'h264_nvenc': {
     quality: { label: 'Quality (CQ)', type: 'slider', min: 0, max: 51, default: 23, step: 1 },
@@ -409,6 +409,6 @@ export const defaultAudioAdvanced = Object.fromEntries(
     .map(c => [c, { preserveMetadata: true }])
 );
 
-// Mutable runtime state — mutate properties directly (never reassign the binding)
+// Mutable runtime state
 export const currentVideoAdvanced = JSON.parse(JSON.stringify(defaultVideoAdvanced));
 export const currentAudioAdvanced = JSON.parse(JSON.stringify(defaultAudioAdvanced));
