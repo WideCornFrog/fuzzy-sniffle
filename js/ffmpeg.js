@@ -86,20 +86,21 @@ function getAudioFfmpegArgs(codec) {
   const lossless = isLosslessCodec(codec);
 
   if (!lossless) {
-    const s = audioState[({ libopus:'opus', libfdk_aac:'aac', libmp3lame:'mp3', libvorbis:'vorbis' })[codec]];
+    const type = ({ libopus:'opus', libfdk_aac:'aac', libmp3lame:'mp3', libvorbis:'vorbis' })[codec];
+    const s = audioState[type] || {};
     if (codec === 'libopus') {
       if (s.mode === 'vbr') { args.push('-vbr', 'on'); if (s.vbrTarget) args.push('-b:a', `${s.vbrTarget}k`); }
-      else args.push('-b:a', `${s.cbrBitrate}k`);
+      else args.push('-b:a', `${s.cbrBitrate || 192}k`);
     } else if (codec === 'libfdk_aac') {
-      if (s.mode === 'vbr') args.push('-vbr', s.vbrQuality);
-      else args.push('-b:a', `${s.cbrBitrate}k`);
+      if (s.mode === 'vbr') args.push('-vbr', s.vbrQuality || 3);
+      else args.push('-b:a', `${s.cbrBitrate || 192}k`);
     } else if (codec === 'libmp3lame') {
-      if (s.mode === 'vbr') { args.push('-q:a', s.vbrQuality); if (s.vbrLimit) args.push('-maxrate', `${s.vbrLimit}k`); }
-      else if (s.mode === 'abr') { args.push('-abr', '1'); args.push('-b:a', `${s.abrBitrate}k`); }
-      else args.push('-b:a', `${s.cbrBitrate}k`);
+      if (s.mode === 'vbr') { args.push('-q:a', s.vbrQuality || 4); if (s.vbrLimit) args.push('-maxrate', `${s.vbrLimit}k`); }
+      else if (s.mode === 'abr') { args.push('-abr', '1'); args.push('-b:a', `${s.abrBitrate || 192}k`); }
+      else args.push('-b:a', `${s.cbrBitrate || 192}k`);
     } else if (codec === 'libvorbis') {
-      if (s.mode === 'vbr') args.push('-q:a', s.vbrQuality);
-      else args.push('-b:a', `${s.abrTarget}k`);
+      if (s.mode === 'vbr') args.push('-q:a', s.vbrQuality || 3.0);
+      else args.push('-b:a', `${s.abrTarget || 192}k`);
     }
   } else {
     const compEl = document.getElementById('lossless-compression-slider');
