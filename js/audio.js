@@ -145,7 +145,15 @@ export function resetAudioPanel() {
 
   if (basicEdited) {
     const type = getAudioStateKey(codec);
-    if (type) delete audioState[type];
+    if (type) {
+      audioState[type] = getAudioDefaultState(type);
+      audioState[type].sampleRate = getDefaultSampleRate(codec);
+      audioState[type].channels = 'Same as source';
+      audioState[type].bitDepth = 'Same as source';
+      if (isLosslessCodec(codec) && codec !== 'wav' && codec !== 'pcm') {
+        audioState[type].compression = getDefaultCompression(codec);
+      }
+    }
     state.currentRenderedAudioCodec = '';
     updateAudioOptions();
   }
@@ -482,13 +490,6 @@ export function onAudioModeChange(type, mode) {
   if (!cb.checked && st.mode === mode) { cb.checked = true; return; }
   st.mode = mode;
 
-  const ids = {
-    opus:   ['chk-opus-vbr','chk-opus-cbr','opus-vbr-target','opus-cbr-slider'],
-    aac:    ['chk-aac-vbr','chk-aac-cbr','aac-vbr-quality','aac-cbr-slider'],
-    mp3:    ['chk-mp3-vbr','chk-mp3-abr','chk-mp3-cbr','mp3-vbr-quality','mp3-abr-bitrate','mp3-cbr-bitrate'],
-    vorbis: ['chk-vorbis-vbr','chk-vorbis-abr','vorbis-vbr-quality','vorbis-abr-target']
-  }[type];
-
   if (type === 'mp3') {
     document.getElementById('chk-mp3-vbr').checked = mode === 'vbr';
     document.getElementById('chk-mp3-abr').checked = mode === 'abr';
@@ -512,7 +513,6 @@ export function onAudioModeChange(type, mode) {
     document.getElementById('vorbis-vbr-quality').disabled = mode !== 'vbr';
     document.getElementById('vorbis-abr-target').disabled = mode !== 'abr';
   }
-  void ids;
 
   saveAudioStateUI();
   refreshSelect('audio-codec');
