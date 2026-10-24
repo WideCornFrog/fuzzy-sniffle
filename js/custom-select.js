@@ -2,11 +2,6 @@
 // custom-select.js — Reusable custom <select> wrapper
 // ============================================================
 
-import {
-  state,
-  isLosslessCodec
-} from './state.js';
-
 export const customSelects = {};
 let activeTooltipEl = null;
 let globalOptionIndexCounter = 0;
@@ -242,6 +237,3 @@ export function refreshSelect(id) {
   const cs = customSelects[id];
   if (cs) cs.refresh();
 }
-
-// Silence unused import warning while keeping intent clear
-void isLosslessCodec; void state;
