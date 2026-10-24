@@ -5,7 +5,8 @@
 import {
   state, codecCapabilities, currentVideoBasicState,
   defaultVideoAdvanced, currentVideoAdvanced,
-  VIDEO_FAMILIES, PRO_VIDEO_FAMILIES, audioStateByCategory
+  VIDEO_FAMILIES, PRO_VIDEO_FAMILIES, audioStateByCategory,
+  videoCustomPresets, videoActivePresets
 } from './state.js';
 
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability } from './output.js';
@@ -14,6 +15,11 @@ import { scheduleRefresh } from './ffmpeg.js';
 import { captureAudioState, restoreAudioState } from './audio.js';
 
 const SKIP_KEYS = ['quality','preset','tune','profile','level','colorRange','fastDecode'];
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
 
 // ---- Basic state helpers ----
 export function getVideoDefaultBasic(codec) {
@@ -27,6 +33,16 @@ export function getVideoDefaultBasic(codec) {
   };
 }
 
+// Resolve the base state for a given preset id. Returns a deep clone so callers
+// can freely mutate without corrupting the stored preset.
+function getPresetBaseState(codec, presetId) {
+  if (presetId === 'standard') return JSON.parse(JSON.stringify(getVideoDefaultBasic(codec)));
+  const custom = (videoCustomPresets[codec] || []).find(p => p.id === presetId);
+  return custom
+    ? JSON.parse(JSON.stringify(custom.data))
+    : JSON.parse(JSON.stringify(getVideoDefaultBasic(codec)));
+}
+
 export function saveVideoStateUI() {
   const codec = document.getElementById('video-codec').value;
   if (!currentVideoBasicState[codec]) currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
@@ -38,13 +54,14 @@ export function saveVideoStateUI() {
   });
 }
 
+// Compares current basic state against the ACTIVE preset's base state.
 export function isVideoBasicEdited(codec) {
   const cur = currentVideoBasicState[codec];
   if (!cur) return false;
-  const def = getVideoDefaultBasic(codec);
-  // Loop over scalar fields
+  const activePreset = videoActivePresets[codec] || 'standard';
+  const base = getPresetBaseState(codec, activePreset);
   const scalars = ['quality','preset','bitrate','fpsCustom','fpsSelect','resCustom','resSelect'];
-  return scalars.some(k => String(cur[k] ?? '') !== String(def[k] ?? ''));
+  return scalars.some(k => String(cur[k] ?? '') !== String(base[k] ?? ''));
 }
 
 export function isVideoAdvancedEdited(codec) {
@@ -65,11 +82,8 @@ export function resetVideoPanel() {
   }
 
   if (basicEdited) {
-    currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
-    document.getElementById('fps-custom').value = '';
-    document.getElementById('fps-select').value = 'Same as source';
-    document.getElementById('res-custom').value = '';
-    document.getElementById('res-select').value = 'Same as source';
+    const activePreset = videoActivePresets[codec] || 'standard';
+    currentVideoBasicState[codec] = getPresetBaseState(codec, activePreset);
   }
   if (alsoAdvanced) {
     currentVideoAdvanced[codec] = JSON.parse(JSON.stringify(defaultVideoAdvanced[codec]));
@@ -126,6 +140,14 @@ export function onVideoEnableChange(cb) {
   scheduleRefresh();
 }
 
+// Called when fps/res are edited in the panel.
+export function onVideoPanelChange() {
+  saveVideoStateUI();
+  updatePanelTags();
+  refreshSelect('video-codec');
+  scheduleRefresh();
+}
+
 // ---- Dynamic UI ----
 function getSliderLabel(val, presetDef) {
   return presetDef && presetDef.valueLabels ? (presetDef.valueLabels[+val] ?? val) : val;
@@ -139,6 +161,35 @@ export function updateVideoOptions() {
   if (!currentVideoBasicState[codec]) currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
   const basic = currentVideoBasicState[codec];
 
+  // --- Rebuild preset dropdown (Standard + custom presets + Create New…) ---
+  const presetSelect = document.getElementById('video-preset');
+  if (presetSelect) {
+    const activePreset = videoActivePresets[codec] || 'standard';
+    const customs = videoCustomPresets[codec] || [];
+
+    let html = `<option value="standard">Standard</option>`;
+    customs.forEach(p => {
+      html += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`;
+    });
+    html += `<option value="__create__">+ Create New Preset…</option>`;
+    presetSelect.innerHTML = html;
+    presetSelect.value = activePreset;
+
+    const btnRename = document.getElementById('btn-rename-video-preset');
+    if (btnRename) btnRename.style.display = activePreset.startsWith('custom') ? 'flex' : 'none';
+  }
+
+  // --- Sync fps/res UI fields from basic state ---
+  const fpsSelect = document.getElementById('fps-select');
+  const fpsCustom = document.getElementById('fps-custom');
+  const resSelect = document.getElementById('res-select');
+  const resCustom = document.getElementById('res-custom');
+  if (fpsSelect) fpsSelect.value = basic.fpsSelect || 'Same as source';
+  if (fpsCustom) fpsCustom.value = basic.fpsCustom || '';
+  if (resSelect) resSelect.value = basic.resSelect || 'Same as source';
+  if (resCustom) resCustom.value = basic.resCustom || '';
+
+  // --- Rebuild dynamic controls ---
   const isVbr = ['vbr','vbr_peak','vbr_latency'].includes(adv.rateControl);
   const isCbr = adv.rateControl === 'cbr';
   const isBitrateMode = isVbr || isCbr;
@@ -158,7 +209,7 @@ export function updateVideoOptions() {
       }</select>`;
       row.querySelector('#dyn-quality').addEventListener('change', (e) => {
         currentVideoBasicState[codec].quality = e.target.value;
-        updatePanelTags(); scheduleRefresh();
+        updatePanelTags(); refreshSelect('video-codec'); scheduleRefresh();
       });
     } else {
       const labelText = isCbr ? 'CBR bitrate' : isVbr ? 'VBR bitrate' : q.label;
@@ -174,7 +225,7 @@ export function updateVideoOptions() {
           </div>`;
         row.querySelector('#bitrate-limit').addEventListener('input', (e) => {
           currentVideoBasicState[codec].bitrate = e.target.value;
-          updatePanelTags(); scheduleRefresh();
+          updatePanelTags(); refreshSelect('video-codec'); scheduleRefresh();
         });
       } else {
         row.innerHTML = `
@@ -190,7 +241,7 @@ export function updateVideoOptions() {
         slider.addEventListener('input', (e) => {
           valD.textContent = e.target.value;
           currentVideoBasicState[codec].quality = e.target.value;
-          updatePanelTags(); scheduleRefresh();
+          updatePanelTags(); refreshSelect('video-codec'); scheduleRefresh();
         });
       }
     }
@@ -207,7 +258,7 @@ export function updateVideoOptions() {
       }</select>`;
       row.querySelector('#dyn-preset').addEventListener('change', (e) => {
         currentVideoBasicState[codec].preset = e.target.value;
-        updatePanelTags(); scheduleRefresh();
+        updatePanelTags(); refreshSelect('video-codec'); scheduleRefresh();
       });
     } else {
       row.innerHTML = `
@@ -221,7 +272,7 @@ export function updateVideoOptions() {
       slider.addEventListener('input', (e) => {
         valD.textContent = getSliderLabel(e.target.value, p);
         currentVideoBasicState[codec].preset = e.target.value;
-        updatePanelTags(); scheduleRefresh();
+        updatePanelTags(); refreshSelect('video-codec'); scheduleRefresh();
       });
     }
     container.appendChild(row);
@@ -229,6 +280,89 @@ export function updateVideoOptions() {
 
   updatePanelTags();
   scheduleRefresh();
+}
+
+// ---- Preset selection ----
+export function applyVideoPreset(preset) {
+  if (!preset) return;
+  if (preset === '__create__') { createNewVideoPreset(); return; }
+
+  const codec = document.getElementById('video-codec').value;
+  const caps = codecCapabilities[codec];
+  if (!caps) return;
+
+  if (preset === 'standard') {
+    videoActivePresets[codec] = 'standard';
+    currentVideoBasicState[codec] = getPresetBaseState(codec, 'standard');
+  } else {
+    const custom = (videoCustomPresets[codec] || []).find(p => p.id === preset);
+    if (!custom) return;
+    videoActivePresets[codec] = preset;
+    currentVideoBasicState[codec] = JSON.parse(JSON.stringify(custom.data));
+  }
+
+  updateVideoOptions();
+  refreshSelect('video-codec');
+  updatePanelTags();
+  scheduleRefresh();
+}
+
+function createNewVideoPreset() {
+  const codec = document.getElementById('video-codec').value;
+  if (!codec) return;
+
+  // Capture the current UI state into the basic state object.
+  saveVideoStateUI();
+  const snapshot = JSON.parse(JSON.stringify(
+    currentVideoBasicState[codec] || getVideoDefaultBasic(codec)
+  ));
+
+  const existing = videoCustomPresets[codec] || (videoCustomPresets[codec] = []);
+
+  let n = existing.length + 1;
+  let defaultName = `Custom-${n}`;
+  while (existing.some(p => p.name === defaultName)) {
+    n++;
+    defaultName = `Custom-${n}`;
+  }
+
+  const raw = prompt('Name for new preset:', defaultName);
+  if (raw === null) {
+    // Cancelled — revert the preset dropdown to the still-active preset.
+    updateVideoOptions();
+    refreshSelect('video-codec');
+    return;
+  }
+  const name = (raw.trim() || defaultName);
+
+  let idNum = n;
+  while (existing.some(p => p.id === `custom${idNum}`)) idNum++;
+  const id = `custom${idNum}`;
+
+  existing.push({ id, name, data: snapshot });
+  videoActivePresets[codec] = id;
+
+  updateVideoOptions();
+  refreshSelect('video-codec');
+  updatePanelTags();
+  scheduleRefresh();
+}
+
+export function renameVideoPreset() {
+  const codec = document.getElementById('video-codec').value;
+  const active = videoActivePresets[codec];
+  if (!active || !active.startsWith('custom')) return;
+
+  const custom = (videoCustomPresets[codec] || []).find(p => p.id === active);
+  if (!custom) return;
+
+  const newName = prompt('Rename preset:', custom.name);
+  if (newName !== null && newName.trim() !== '') {
+    custom.name = newName.trim();
+    updateVideoOptions();
+    refreshSelect('video-codec');
+    scheduleRefresh();
+  }
 }
 
 // ---- Advanced modal ----
@@ -432,29 +566,5 @@ export function resetAllVideoAdvancedSettings() {
   switchVideoTab(state.activeVideoTab);
   updateVideoAdvancedIndicators();
   refreshSelect('video-codec');
-  scheduleRefresh();
-}
-
-export function applyVideoPreset(preset) {
-  if (!preset) return;
-  const codec = document.getElementById('video-codec').value;
-  const caps = codecCapabilities[codec];
-  if (!caps || !caps.preset) return;
-  
-  let val = 5;
-  if (preset === 'fast') val = caps.preset.type === 'slider' ? 2 : 'p2';
-  else if (preset === 'slow') val = caps.preset.type === 'slider' ? 8 : 'p7';
-  else if (preset === 'medium') val = caps.preset.type === 'slider' ? 5 : 'p5';
-  
-  const pSelect = document.getElementById('dyn-preset');
-  if (pSelect) {
-    pSelect.value = val;
-    pSelect.dispatchEvent(new Event('input')); 
-  }
-  
-  if (!currentVideoBasicState[codec]) currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
-  currentVideoBasicState[codec].preset = val;
-  
-  updatePanelTags();
   scheduleRefresh();
 }
