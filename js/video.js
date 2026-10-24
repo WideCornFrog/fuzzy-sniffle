@@ -434,3 +434,27 @@ export function resetAllVideoAdvancedSettings() {
   refreshSelect('video-codec');
   scheduleRefresh();
 }
+
+export function applyVideoPreset(preset) {
+  if (!preset) return;
+  const codec = document.getElementById('video-codec').value;
+  const caps = codecCapabilities[codec];
+  if (!caps || !caps.preset) return;
+  
+  let val = 5;
+  if (preset === 'fast') val = caps.preset.type === 'slider' ? 2 : 'p2';
+  else if (preset === 'slow') val = caps.preset.type === 'slider' ? 8 : 'p7';
+  else if (preset === 'medium') val = caps.preset.type === 'slider' ? 5 : 'p5';
+  
+  const pSelect = document.getElementById('dyn-preset');
+  if (pSelect) {
+    pSelect.value = val;
+    pSelect.dispatchEvent(new Event('input')); 
+  }
+  
+  if (!currentVideoBasicState[codec]) currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
+  currentVideoBasicState[codec].preset = val;
+  
+  updatePanelTags();
+  scheduleRefresh();
+}
