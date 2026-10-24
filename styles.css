@@ -598,3 +598,40 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   pointer-events: none; flex-shrink: 0;
 }
 .cselect-edited-tag-red { background: #e74c3c; color: #fff; }
+
+/* --- Footer & Preset Styles --- */
+.settings-box {
+  min-height: 280px; /* Replaces fixed height */
+  height: auto !important; 
+}
+
+.box-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.preset-select {
+  background: #1a1a1a;
+  border: 1px solid #505050;
+  color: #b2b2b2;
+  font-size: 12px;
+  padding: 0 8px;
+  height: 22px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  transition: all 0.2s;
+}
+
+.preset-select:hover {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #808080;
+}
+
+.preset-select:focus {
+  border-color: #325fe9;
+}
