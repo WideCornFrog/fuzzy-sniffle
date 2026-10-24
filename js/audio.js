@@ -20,8 +20,6 @@ function escapeHtml(s) {
     ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 
-// ---- State key helpers ----
-// Lossy codecs use a short key (opus/aac/mp3/vorbis); lossless codecs use the codec name.
 function getAudioStateKey(codec) {
   return ({
     libopus:'opus', libfdk_aac:'aac', libmp3lame:'mp3', libvorbis:'vorbis'
@@ -31,7 +29,7 @@ function getAudioStateKey(codec) {
 function getStandardState(codec) {
   const lossy = {
     libopus: { mode: 'vbr', vbrTarget: 128, cbrBitrate: 128, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
-    libfdk_aac: { mode: 'vbr', vbrQuality: 4, cbrBitrate: 192, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libfdk_aac: { mode: 'vbr', vbrQuality: 3, cbrBitrate: 192, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
     libmp3lame: { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '', sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
     libvorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' }
   };
@@ -64,8 +62,6 @@ function getHighQualityState(codec) {
   };
 }
 
-// Resolve the base state that a given preset represents for a codec.
-// Returns a fresh deep copy so callers can mutate freely.
 function getPresetBaseState(codec, presetId) {
   if (presetId === 'high') return JSON.parse(JSON.stringify(getHighQualityState(codec)));
   if (presetId === 'standard') return JSON.parse(JSON.stringify(getStandardState(codec)));
@@ -252,20 +248,16 @@ export function applyAudioPreset(preset) {
   scheduleRefresh();
 }
 
-// "Create New Preset…" flow: capture current UI state, prompt for a name,
-// defaulting to Custom-N where N is the next free slot for this codec.
 function createNewAudioPreset() {
   const codec = document.getElementById('audio-codec').value;
   const type = getAudioStateKey(codec);
   if (!type) return;
 
-  // Capture whatever the user currently has set for this codec.
   saveAudioStateUI(codec);
   const snapshot = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
 
   const existing = audioCustomPresets[codec] || (audioCustomPresets[codec] = []);
 
-  // Compute next default name (Custom-1, Custom-2, …), skipping any collisions.
   let n = existing.length + 1;
   let defaultName = `Custom-${n}`;
   while (existing.some(p => p.name === defaultName)) {
@@ -275,14 +267,12 @@ function createNewAudioPreset() {
 
   const raw = prompt('Name for new preset:', defaultName);
   if (raw === null) {
-    // Cancelled — revert the preset dropdown to the still-active preset.
     updateAudioOptions();
     refreshSelect('audio-codec');
     return;
   }
   const name = (raw.trim() || defaultName);
 
-  // Ensure the id is unique even if the user has created/deleted odd combos.
   let idNum = n;
   while (existing.some(p => p.id === `custom${idNum}`)) idNum++;
   const id = `custom${idNum}`;
@@ -327,7 +317,6 @@ export function updateAudioOptions() {
     state.currentRenderedAudioCodec = codec;
   }
 
-  // Rebuild preset dropdown (Standard / High Quality / custom presets / Create…)
   const presetSelect = document.getElementById('audio-preset');
   const activePreset = audioActivePresets[codec] || 'standard';
   const customs = audioCustomPresets[codec] || [];
@@ -342,7 +331,6 @@ export function updateAudioOptions() {
   presetSelect.innerHTML = html;
   presetSelect.value = activePreset;
 
-  // Show/hide pencil icon
   const btnRename = document.getElementById('btn-rename-preset');
   btnRename.style.display = activePreset.startsWith('custom') ? 'flex' : 'none';
 
@@ -493,8 +481,8 @@ function renderAudioDynamicUI(codec) {
         <label>VBR Quality</label>
         <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
           <div class="slider-group">
-            <input type="range" class="custom-slider" id="aac-vbr-quality" min="1" max="5" step="1" value="4">
-            <span class="slider-value" id="aac-vbr-quality-value">4</span>
+            <input type="range" class="custom-slider" id="aac-vbr-quality" min="1" max="5" step="1" value="3">
+            <span class="slider-value" id="aac-vbr-quality-value">3</span>
           </div>
           <label class="custom-checkbox-label" style="white-space: nowrap;">
             <input type="checkbox" id="chk-aac-vbr" checked onchange="onAudioModeChange('aac', 'vbr')"> <span>VBR</span>
