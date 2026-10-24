@@ -5,10 +5,10 @@
 import { state, audioActivePresets, audioCustomPresets } from './state.js';
 import { selectMediaItem } from './media.js';
 import {
-  updateVideoOptions, onVideoCodecChange, resetVideoPanel,
+  updateVideoOptions, onVideoCodecChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings,
-  markVideoEdited, onVideoEnableChange, applyVideoPreset
+  markVideoEdited, onVideoEnableChange, applyVideoPreset, renameVideoPreset
 } from './video.js';
 import {
   updateAudioOptions, onAudioCodecChange, onAudioPanelChange, onAudioModeChange,
@@ -57,10 +57,10 @@ Object.assign(window, {
   selectMediaItem,
 
   // Video
-  onVideoCodecChange, onVideoEnableChange, resetVideoPanel,
+  onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings, markVideoEdited,
-  applyVideoPreset,
+  applyVideoPreset, renameVideoPreset,
 
   // Audio
   onAudioCodecChange, onAudioPanelChange, onAudioModeChange, onAudioEnableChange,
