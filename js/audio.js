@@ -5,52 +5,58 @@
 import {
   state, audioState, currentAudioAdvanced, defaultAudioAdvanced,
   audioCodecNames, DEFAULT_SAMPLE_RATES, DEFAULT_CHANNELS, MP3_CHANNELS,
-  AAC_SAMPLE_RATES, MP3_SAMPLE_RATES, isLosslessCodec
+  AAC_SAMPLE_RATES, MP3_SAMPLE_RATES, isLosslessCodec,
+  audioPresetNames, audioActivePresets
 } from './state.js';
 
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability, isTreatAsAudioOnly, updateOutputFormatOptions } from './output.js';
 import { refreshSelect } from './custom-select.js';
 import { scheduleRefresh } from './ffmpeg.js';
 
+let skipSaveAudioState = false;
+
 // ---- State key helpers ----
 function getAudioStateKey(codec) {
   return ({ libopus:'opus', libfdk_aac:'aac', libmp3lame:'mp3', libvorbis:'vorbis' })[codec] || null;
 }
 
-function getAudioDefaultState(type) {
+// Define what "Standard" and "High Quality" mean for each codec
+function getStandardState(codec) {
   return {
-    opus:   { mode: 'vbr', vbrTarget: 192, cbrBitrate: 192 },
-    aac:    { mode: 'vbr', vbrQuality: 3, cbrBitrate: 192 },
-    mp3:    { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '' },
-    vorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192 }
-  }[type] || {};
+    libopus: { mode: 'vbr', vbrTarget: 128, cbrBitrate: 128, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libfdk_aac: { mode: 'vbr', vbrQuality: 4, cbrBitrate: 192, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libmp3lame: { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '', sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libvorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' }
+  }[codec] || { compression: '5', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: 'Same as source' };
 }
 
-function getDefaultSampleRate(codec) {
-  return ['libopus','libfdk_aac','libmp3lame','libvorbis'].includes(codec) ? '48000' : 'Same as source';
-}
-
-function getDefaultCompression(codec) {
-  return ({ flac: '5', alac: '3', wavpack: '1', ape: '2' })[codec] || '5';
+function getHighQualityState(codec) {
+  return {
+    libopus: { mode: 'vbr', vbrTarget: 256, cbrBitrate: 256, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libfdk_aac: { mode: 'vbr', vbrQuality: 5, cbrBitrate: 320, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libmp3lame: { mode: 'vbr', vbrQuality: 2, abrBitrate: 320, cbrBitrate: 320, vbrLimit: '', sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
+    libvorbis: { mode: 'vbr', vbrQuality: 8.0, abrTarget: 320, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' }
+  }[codec] || { compression: '8', sampleRate: 'Same as source', channels: 'Same as source', bitDepth: '24-bit' };
 }
 
 // ---- Basic edited check ----
 export function isAudioBasicEdited(codec) {
   const type = getAudioStateKey(codec);
   if (!type) return false;
-  const def = getAudioDefaultState(type);
+  
+  const activePreset = audioActivePresets[codec] || 'standard';
+  const baseState = activePreset === 'high' ? getHighQualityState(codec) : getStandardState(codec);
   const cur = audioState[type] || {};
 
-  if (cur.sampleRate && cur.sampleRate !== getDefaultSampleRate(codec)) return true;
-  if (cur.channels && cur.channels !== 'Same as source') return true;
-  if (cur.bitDepth && cur.bitDepth !== 'Same as source') return true;
+  // Check dynamic keys
+  const keys = Object.keys(baseState).filter(k => !['sampleRate', 'channels', 'bitDepth'].includes(k));
+  if (keys.some(k => String(cur[k] ?? '') !== String(baseState[k]))) return true;
 
-  const keys = Object.keys(def);
-  if (keys.some(k => String(cur[k] ?? '') !== String(def[k]))) return true;
+  // Check common UI keys
+  if (cur.sampleRate && cur.sampleRate !== baseState.sampleRate) return true;
+  if (cur.channels && cur.channels !== baseState.channels) return true;
+  if (cur.bitDepth && cur.bitDepth !== baseState.bitDepth) return true;
 
-  if (isLosslessCodec(codec) && codec !== 'wav' && codec !== 'pcm') {
-    if (cur.compression && cur.compression != getDefaultCompression(codec)) return true;
-  }
   return false;
 }
 
@@ -146,18 +152,18 @@ export function resetAudioPanel() {
   if (basicEdited) {
     const type = getAudioStateKey(codec);
     if (type) {
-      // Create a brand new default object instead of deleting it (fixes crash)
-      audioState[type] = getAudioDefaultState(type);
-      audioState[type].sampleRate = getDefaultSampleRate(codec);
-      audioState[type].channels = 'Same as source';
-      audioState[type].bitDepth = 'Same as source';
-      if (isLosslessCodec(codec) && codec !== 'wav' && codec !== 'pcm') {
-        audioState[type].compression = getDefaultCompression(codec);
-      }
+      const activePreset = audioActivePresets[codec] || 'standard';
+      // Standard or Custom -> reset to Standard. High -> reset to High.
+      const baseState = activePreset === 'high' ? getHighQualityState(codec) : getStandardState(codec);
+      
+      audioState[type] = JSON.parse(JSON.stringify(baseState));
     }
+    
     state.currentRenderedAudioCodec = '';
+    skipSaveAudioState = true; // Prevent overwriting the reset with old UI values
     updateAudioOptions();
   }
+  
   if (alsoAdvanced) {
     currentAudioAdvanced[codec] = JSON.parse(JSON.stringify(defaultAudioAdvanced[codec]));
   }
@@ -193,15 +199,72 @@ export function onAudioEnableChange(cb) {
   scheduleRefresh();
 }
 
+// ---- Preset Logic ----
+export function applyAudioPreset(preset) {
+  if (!preset) return;
+  const codec = document.getElementById('audio-codec').value;
+  const type = getAudioStateKey(codec);
+  
+  audioActivePresets[codec] = preset;
+
+  if (preset === 'standard' || preset === 'high') {
+    if (type) {
+      const baseState = preset === 'high' ? getHighQualityState(codec) : getStandardState(codec);
+      audioState[type] = JSON.parse(JSON.stringify(baseState));
+    }
+    state.currentRenderedAudioCodec = '';
+    skipSaveAudioState = true;
+    updateAudioOptions();
+  } else {
+    // Custom presets simply keep whatever the user has set.
+    updateAudioOptions();
+  }
+}
+
+export function renameAudioPreset() {
+  const codec = document.getElementById('audio-codec').value;
+  const active = audioActivePresets[codec];
+  if (!active.startsWith('custom')) return;
+  
+  const currentName = audioPresetNames[codec][active];
+  const newName = prompt("Rename preset:", currentName);
+  if (newName && newName.trim() !== '') {
+    audioPresetNames[codec][active] = newName.trim();
+    updateAudioOptions();
+  }
+}
+
 // ---- Dynamic UI ----
 export function updateAudioOptions() {
   const codec = document.getElementById('audio-codec').value;
-  saveAudioStateUI();
+  
+  if (!skipSaveAudioState) {
+    saveAudioStateUI();
+  }
+  skipSaveAudioState = false;
 
   if (state.currentRenderedAudioCodec !== codec) {
     renderAudioDynamicUI(codec);
     state.currentRenderedAudioCodec = codec;
   }
+
+  // Update Preset Dropdown
+  const presetSelect = document.getElementById('audio-preset');
+  const activePreset = audioActivePresets[codec] || 'standard';
+  const names = audioPresetNames[codec];
+  
+  presetSelect.innerHTML = `
+    <option value="standard">Standard</option>
+    <option value="high">High Quality</option>
+    <option value="custom1">${names.custom1}</option>
+    <option value="custom2">${names.custom2}</option>
+    <option value="custom3">${names.custom3}</option>
+  `;
+  presetSelect.value = activePreset;
+
+  // Show/hide Pencil icon
+  const btnRename = document.getElementById('btn-rename-preset');
+  btnRename.style.display = activePreset.startsWith('custom') ? 'flex' : 'none';
 
   const sampleRateSelect = document.getElementById('sample-rate-select');
   const channelsSelect = document.getElementById('audio-channels');
@@ -244,18 +307,20 @@ function restoreAudioStateUI(codec) {
   const s = (type && audioState[type]) || {};
 
   const srSelect = document.getElementById('sample-rate-select');
-  srSelect.value = s.sampleRate && srSelect.querySelector(`option[value="${s.sampleRate}"]`)
-    ? s.sampleRate : getDefaultSampleRate(codec);
+  if (s.sampleRate && srSelect.querySelector(`option[value="${s.sampleRate}"]`)) {
+    srSelect.value = s.sampleRate;
+  }
 
   const chSelect = document.getElementById('audio-channels');
-  chSelect.value = s.channels && chSelect.querySelector(`option[value="${s.channels}"]`)
-    ? s.channels : 'Same as source';
+  if (s.channels && chSelect.querySelector(`option[value="${s.channels}"]`)) {
+    chSelect.value = s.channels;
+  }
 
   const bdEl = document.getElementById('audio-bit-depth');
   if (bdEl) bdEl.value = s.bitDepth || 'Same as source';
 
   if (codec === 'libopus') {
-    const opus = audioState.opus || getAudioDefaultState('opus');
+    const opus = s || getStandardState('libopus');
     document.getElementById('chk-opus-vbr').checked = opus.mode === 'vbr';
     document.getElementById('chk-opus-cbr').checked = opus.mode === 'cbr';
     document.getElementById('opus-vbr-target').value = opus.vbrTarget;
@@ -265,7 +330,7 @@ function restoreAudioStateUI(codec) {
     document.getElementById('opus-vbr-target').disabled = opus.mode !== 'vbr';
     document.getElementById('opus-cbr-slider').disabled = opus.mode !== 'cbr';
   } else if (codec === 'libfdk_aac') {
-    const aac = audioState.aac || getAudioDefaultState('aac');
+    const aac = s || getStandardState('libfdk_aac');
     document.getElementById('chk-aac-vbr').checked = aac.mode === 'vbr';
     document.getElementById('chk-aac-cbr').checked = aac.mode === 'cbr';
     document.getElementById('aac-vbr-quality').value = aac.vbrQuality;
@@ -275,7 +340,7 @@ function restoreAudioStateUI(codec) {
     document.getElementById('aac-vbr-quality').disabled = aac.mode !== 'vbr';
     document.getElementById('aac-cbr-slider').disabled = aac.mode !== 'cbr';
   } else if (codec === 'libmp3lame') {
-    const mp3 = audioState.mp3 || getAudioDefaultState('mp3');
+    const mp3 = s || getStandardState('libmp3lame');
     document.getElementById('chk-mp3-vbr').checked = mp3.mode === 'vbr';
     document.getElementById('chk-mp3-abr').checked = mp3.mode === 'abr';
     document.getElementById('chk-mp3-cbr').checked = mp3.mode === 'cbr';
@@ -289,7 +354,7 @@ function restoreAudioStateUI(codec) {
     document.getElementById('mp3-abr-bitrate').disabled = mp3.mode !== 'abr';
     document.getElementById('mp3-cbr-bitrate').disabled = mp3.mode !== 'cbr';
   } else if (codec === 'libvorbis') {
-    const vorbis = audioState.vorbis || getAudioDefaultState('vorbis');
+    const vorbis = s || getStandardState('libvorbis');
     document.getElementById('chk-vorbis-vbr').checked = vorbis.mode === 'vbr';
     document.getElementById('chk-vorbis-abr').checked = vorbis.mode === 'abr';
     document.getElementById('vorbis-vbr-quality').value = vorbis.vbrQuality;
@@ -301,7 +366,7 @@ function restoreAudioStateUI(codec) {
   } else if (isLosslessCodec(codec)) {
     const compEl = document.getElementById('lossless-compression-slider');
     if (compEl) {
-      compEl.value = s.compression || getDefaultCompression(codec);
+      compEl.value = s.compression || '5';
       document.getElementById('lossless-compression-slider-value').textContent = compEl.value;
     }
   }
@@ -317,8 +382,8 @@ function renderAudioDynamicUI(codec) {
         <label>VBR Target Bitrate</label>
         <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
           <div class="slider-group">
-            <input type="range" class="custom-slider" id="opus-vbr-target" min="6" max="510" step="2" value="192">
-            <span class="slider-value" id="opus-vbr-target-value">192k</span>
+            <input type="range" class="custom-slider" id="opus-vbr-target" min="6" max="510" step="2" value="128">
+            <span class="slider-value" id="opus-vbr-target-value">128k</span>
           </div>
           <label class="custom-checkbox-label" style="white-space: nowrap;">
             <input type="checkbox" id="chk-opus-vbr" checked onchange="onAudioModeChange('opus', 'vbr')"> <span>VBR</span>
@@ -329,8 +394,8 @@ function renderAudioDynamicUI(codec) {
         <label>CBR Bitrate</label>
         <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
           <div class="slider-group">
-            <input type="range" class="custom-slider" id="opus-cbr-slider" min="6" max="510" step="2" value="192">
-            <span class="slider-value" id="opus-cbr-slider-value">192k</span>
+            <input type="range" class="custom-slider" id="opus-cbr-slider" min="6" max="510" step="2" value="128">
+            <span class="slider-value" id="opus-cbr-slider-value">128k</span>
           </div>
           <label class="custom-checkbox-label" style="white-space: nowrap;">
             <input type="checkbox" id="chk-opus-cbr" onchange="onAudioModeChange('opus', 'cbr')"> <span>CBR</span>
@@ -347,8 +412,8 @@ function renderAudioDynamicUI(codec) {
         <label>VBR Quality</label>
         <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
           <div class="slider-group">
-            <input type="range" class="custom-slider" id="aac-vbr-quality" min="1" max="5" step="1" value="3">
-            <span class="slider-value" id="aac-vbr-quality-value">3</span>
+            <input type="range" class="custom-slider" id="aac-vbr-quality" min="1" max="5" step="1" value="4">
+            <span class="slider-value" id="aac-vbr-quality-value">4</span>
           </div>
           <label class="custom-checkbox-label" style="white-space: nowrap;">
             <input type="checkbox" id="chk-aac-vbr" checked onchange="onAudioModeChange('aac', 'vbr')"> <span>VBR</span>
@@ -626,32 +691,5 @@ export function resetAllAudioAdvancedSettings() {
   switchAudioTab(state.activeAudioTab);
   updateAudioAdvancedIndicators();
   refreshSelect('audio-codec');
-  scheduleRefresh();
-}
-
-export function applyAudioPreset(preset) {
-  if (!preset) return;
-  const codec = document.getElementById('audio-codec').value;
-  
-  let bitrate = 192;
-  if (preset === 'high') bitrate = 320;
-  
-  if (codec === 'libopus') {
-    document.getElementById('opus-vbr-target').value = bitrate;
-    document.getElementById('opus-vbr-target-value').textContent = bitrate + 'k';
-    document.getElementById('opus-cbr-slider').value = bitrate;
-    document.getElementById('opus-cbr-slider-value').textContent = bitrate + 'k';
-  } else if (codec === 'libfdk_aac') {
-    document.getElementById('aac-cbr-slider').value = bitrate;
-    document.getElementById('aac-cbr-slider-value').textContent = bitrate + 'k';
-  } else if (codec === 'libmp3lame') {
-    document.getElementById('mp3-abr-bitrate').value = bitrate;
-    document.getElementById('mp3-abr-bitrate-value').textContent = bitrate + 'k';
-    document.getElementById('mp3-cbr-bitrate').value = bitrate;
-    document.getElementById('mp3-cbr-bitrate-value').textContent = bitrate + 'k';
-  }
-  
-  saveAudioStateUI();
-  updatePanelTags();
   scheduleRefresh();
 }
