@@ -249,10 +249,17 @@ body {
 }
 .settings-box.no-file:hover::after { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-.box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .box-header-left { display: flex; align-items: center; gap: 8px; }
 .box-title { font-size: 20px; font-weight: 400; color: #fff; }
 .header-buttons { display: flex; align-items: center; gap: 12px; }
+
+.box-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  justify-content: flex-end; /* Aligns button to bottom right */
+}
 
 .btn-advanced {
   background: transparent; border: 1px solid #505050; color: #b2b2b2; font-size: 12px;
@@ -287,7 +294,7 @@ body {
 }
 .toggle-enable:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
 
-.setting-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; margin-bottom: 12px; }
+.setting-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; margin-bottom: 10px; }
 .setting-row label { font-size: 14px; color: #b2b2b2; }
 .setting-row input[type="text"],
 .setting-row input[type="number"],
@@ -366,9 +373,10 @@ input[type="range"].custom-slider::-moz-range-thumb {
 input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1); }
 .slider-value { min-width: 30px; text-align: right; font-size: 14px; color: #fff; }
 
-.video-settings { height: 295px; }
-.audio-settings { height: 320px; }
-.output-settings { height: 170px; }
+/* Adjusted heights to fit the new footer buttons */
+.video-settings { height: 312px; }
+.audio-settings { height: 330px; }
+.output-settings { height: 160px; }
 
 /* --- Bottom Bar --- */
 .bottom-bar {
@@ -599,19 +607,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 }
 .cselect-edited-tag-red { background: #e74c3c; color: #fff; }
 
-/* --- Footer & Preset Styles --- */
-.settings-box {
-  min-height: 280px; /* Replaces fixed height */
-  height: auto !important; 
-}
-
-.box-footer {
-  margin-top: auto;
-  padding-top: 12px;
-  display: flex;
-  justify-content: flex-start;
-}
-
+/* --- PRESET DROPDOWN STYLES --- */
 .preset-select {
   background: #1a1a1a;
   border: 1px solid #505050;
