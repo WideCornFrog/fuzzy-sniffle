@@ -628,3 +628,30 @@ export function resetAllAudioAdvancedSettings() {
   refreshSelect('audio-codec');
   scheduleRefresh();
 }
+
+export function applyAudioPreset(preset) {
+  if (!preset) return;
+  const codec = document.getElementById('audio-codec').value;
+  
+  let bitrate = 192;
+  if (preset === 'high') bitrate = 320;
+  
+  if (codec === 'libopus') {
+    document.getElementById('opus-vbr-target').value = bitrate;
+    document.getElementById('opus-vbr-target-value').textContent = bitrate + 'k';
+    document.getElementById('opus-cbr-slider').value = bitrate;
+    document.getElementById('opus-cbr-slider-value').textContent = bitrate + 'k';
+  } else if (codec === 'libfdk_aac') {
+    document.getElementById('aac-cbr-slider').value = bitrate;
+    document.getElementById('aac-cbr-slider-value').textContent = bitrate + 'k';
+  } else if (codec === 'libmp3lame') {
+    document.getElementById('mp3-abr-bitrate').value = bitrate;
+    document.getElementById('mp3-abr-bitrate-value').textContent = bitrate + 'k';
+    document.getElementById('mp3-cbr-bitrate').value = bitrate;
+    document.getElementById('mp3-cbr-bitrate-value').textContent = bitrate + 'k';
+  }
+  
+  saveAudioStateUI();
+  updatePanelTags();
+  scheduleRefresh();
+}
