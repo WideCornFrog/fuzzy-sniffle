@@ -258,7 +258,8 @@ body {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
-  justify-content: flex-end; /* Aligns button to bottom right */
+  justify-content: space-between;
+  align-items: center;
 }
 
 .btn-advanced {
