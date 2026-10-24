@@ -71,6 +71,14 @@ export function sortSelectOptions(selectEl) {
 let editedChecker = () => ({ basic: false, advanced: false });
 export function setEditedChecker(fn) { editedChecker = fn; }
 
+/**
+ * Extension point: called to get an optional right-aligned label suffix for
+ * an option (used by the audio codec dropdown to show the active preset).
+ * Returns a string, or null/undefined for no suffix.
+ */
+let labelSuffixProvider = () => null;
+export function setLabelSuffixProvider(fn) { labelSuffixProvider = fn; }
+
 export function initCustomSelect(selectEl) {
   const wrapper = document.createElement('div');
   wrapper.className = 'cselect';
@@ -118,6 +126,15 @@ export function initCustomSelect(selectEl) {
 
     const right = document.createElement('div');
     right.style.cssText = 'display:flex;align-items:center;gap:6px;margin-left:auto;';
+
+    // Preset / active-value suffix (used by audio codec dropdown)
+    const suffix = labelSuffixProvider(selectEl.id, opt.value);
+    if (suffix) {
+      const s = document.createElement('span');
+      s.textContent = suffix;
+      s.style.cssText = 'color:#888;font-size:11px;font-style:italic;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;';
+      right.appendChild(s);
+    }
 
     const { basic, advanced } = editedChecker(selectEl.id, opt.value);
     if (basic) {
@@ -173,8 +190,11 @@ export function initCustomSelect(selectEl) {
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6 9 12 15 18 9"></polyline>
       </svg>`;
+
+    const baseText = selOpt ? selOpt.textContent.replace(/^⛔\s*/, '') : '';
+    const suffix = selOpt ? labelSuffixProvider(selectEl.id, selOpt.value) : null;
     trigger.querySelector('.cselect-label').textContent =
-      selOpt ? selOpt.textContent.replace(/^⛔\s*/, '') : '';
+      baseText + (suffix ? ' ' + suffix : '');
 
     panel.innerHTML = '';
     let lastGroup = null;
