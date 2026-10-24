@@ -221,19 +221,11 @@ export function updatePanelTags() {
   vTags.innerHTML = '';
   if (isVideoBasicEdited(vCodec)) vTags.insertAdjacentHTML('beforeend', '<span class="panel-tag">Edited</span>');
   if (isVideoAdvancedEdited(vCodec)) vTags.insertAdjacentHTML('beforeend', '<span class="panel-tag panel-tag-red">Advanced</span>');
-  
-  // Only show reset button if BASIC settings are edited
-  document.getElementById('btn-reset-video-panel').style.display =
-    isVideoBasicEdited(vCodec) ? 'block' : 'none';
 
   const aTags = document.getElementById('audio-panel-tags');
   aTags.innerHTML = '';
   if (isAudioBasicEdited(aCodec)) aTags.insertAdjacentHTML('beforeend', '<span class="panel-tag">Edited</span>');
   if (isAudioAdvancedEdited(aCodec)) aTags.insertAdjacentHTML('beforeend', '<span class="panel-tag panel-tag-red">Advanced</span>');
-  
-  // Only show reset button if BASIC settings are edited
-  document.getElementById('btn-reset-audio-panel').style.display =
-    isAudioBasicEdited(aCodec) ? 'block' : 'none';
 }
 
 // Silence unused import warning
