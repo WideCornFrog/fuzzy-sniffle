@@ -8,13 +8,13 @@ import {
   updateVideoOptions, onVideoCodecChange, resetVideoPanel,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings,
-  markVideoEdited, onVideoEnableChange
+  markVideoEdited, onVideoEnableChange, applyVideoPreset
 } from './video.js';
 import {
   updateAudioOptions, onAudioCodecChange, onAudioPanelChange, onAudioModeChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
   resetAllAudioAdvancedSettings, resetSpecificAudioSettings,
-  markAudioAdvancedEdited, onAudioEnableChange
+  markAudioAdvancedEdited, onAudioEnableChange, applyAudioPreset, renameAudioPreset
 } from './audio.js';
 import {
   updateOutputFormatOptions, updateVideoCodecAvailability,
@@ -30,8 +30,6 @@ import { openSettings, closeSettings } from './settings.js';
 import { initAllCustomSelects, setEditedChecker, refreshSelect } from './custom-select.js';
 import { isVideoBasicEdited, isVideoAdvancedEdited } from './video.js';
 import { isAudioBasicEdited, isAudioAdvancedEdited } from './audio.js';
-import { applyVideoPreset } from './video.js';
-import { applyAudioPreset } from './audio.js';
 
 // Wire up custom-select's edited-checker callback
 setEditedChecker((selectId, value) => {
@@ -44,10 +42,6 @@ setEditedChecker((selectId, value) => {
 
 // Expose everything needed by inline HTML handlers in one shot
 Object.assign(window, {
-
-  // Presets
-  applyVideoPreset, applyAudioPreset,
-  
   // Media
   selectMediaItem,
 
@@ -55,11 +49,13 @@ Object.assign(window, {
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings, markVideoEdited,
+  applyVideoPreset,
 
   // Audio
   onAudioCodecChange, onAudioPanelChange, onAudioModeChange, onAudioEnableChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
   resetAllAudioAdvancedSettings, resetSpecificAudioSettings, markAudioAdvancedEdited,
+  applyAudioPreset, renameAudioPreset,
 
   // Output
   onContainerChange,
