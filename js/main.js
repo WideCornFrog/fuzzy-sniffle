@@ -8,13 +8,15 @@ import {
   updateVideoOptions, onVideoCodecChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings,
-  markVideoEdited, onVideoEnableChange, applyVideoPreset, renameVideoPreset
+  markVideoEdited, onVideoEnableChange, applyVideoPreset, renameVideoPreset,
+  saveVideoPresetSettings, deleteVideoPreset
 } from './video.js';
 import {
   updateAudioOptions, onAudioCodecChange, onAudioPanelChange, onAudioModeChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
   resetAllAudioAdvancedSettings, resetSpecificAudioSettings,
-  markAudioAdvancedEdited, onAudioEnableChange, applyAudioPreset, renameAudioPreset
+  markAudioAdvancedEdited, onAudioEnableChange, applyAudioPreset, renameAudioPreset,
+  saveAudioPresetSettings, deleteAudioPreset
 } from './audio.js';
 import {
   updateOutputFormatOptions, updateVideoCodecAvailability,
@@ -60,13 +62,13 @@ Object.assign(window, {
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings, markVideoEdited,
-  applyVideoPreset, renameVideoPreset,
+  applyVideoPreset, renameVideoPreset, saveVideoPresetSettings, deleteVideoPreset,
 
   // Audio
   onAudioCodecChange, onAudioPanelChange, onAudioModeChange, onAudioEnableChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
   resetAllAudioAdvancedSettings, resetSpecificAudioSettings, markAudioAdvancedEdited,
-  applyAudioPreset, renameAudioPreset,
+  applyAudioPreset, renameAudioPreset, saveAudioPresetSettings, deleteAudioPreset,
 
   // Output
   onContainerChange,
