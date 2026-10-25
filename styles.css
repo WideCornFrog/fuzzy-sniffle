@@ -50,6 +50,19 @@ body {
 .header-title .title { font-size: 16px; font-weight: 700; line-height: 1.2; }
 .header-title .subtitle { font-size: 14px; color: #b2b2b2; line-height: 1.2; }
 
+.gui-concept-badge {
+  margin-left: 16px;
+  background: rgba(50, 95, 233, 0.15);
+  color: #5c85ff;
+  border: 1px solid rgba(50, 95, 233, 0.4);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .window-controls {
   margin-left: auto;
   display: flex;
