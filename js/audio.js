@@ -12,6 +12,7 @@ import {
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability, isTreatAsAudioOnly, updateOutputFormatOptions } from './output.js';
 import { refreshSelect } from './custom-select.js';
 import { scheduleRefresh } from './ffmpeg.js';
+import { showPrompt, showConfirm, showResetConfirm } from './ui-utils.js';
 
 let skipSaveAudioState = false;
 
@@ -191,7 +192,7 @@ export function restoreAudioState(saved) {
   scheduleRefresh();
 }
 
-export function resetAudioPanel() {
+export async function resetAudioPanel() {
   const codec = document.getElementById('audio-codec').value;
   const basicEdited = isAudioBasicEdited(codec);
   const advEdited = isAudioAdvancedEdited(codec);
@@ -199,9 +200,21 @@ export function resetAudioPanel() {
 
   let alsoAdvanced = false;
   if (basicEdited && advEdited) {
-    alsoAdvanced = confirm("Do you also want to reset the advanced settings for this codec?");
+    const choice = await showResetConfirm(
+      'Reset Audio Settings',
+      'You have modified both basic and advanced settings for this codec. What would you like to reset?',
+      true
+    );
+    if (choice === 'cancel') return;
+    if (choice === 'all') alsoAdvanced = true;
   } else if (advEdited) {
-    alsoAdvanced = confirm("Do you want to reset the advanced settings for this codec?");
+    const choice = await showResetConfirm(
+      'Reset Advanced Settings',
+      'You have modified advanced audio settings for this codec. Do you want to reset them?',
+      false
+    );
+    if (choice === 'cancel') return;
+    alsoAdvanced = true;
   }
 
   if (basicEdited) {
@@ -280,7 +293,7 @@ export function applyAudioPreset(preset) {
   scheduleRefresh();
 }
 
-function createNewAudioPreset() {
+async function createNewAudioPreset() {
   const codec = document.getElementById('audio-codec').value;
   const type = getAudioStateKey(codec);
   if (!type) return;
@@ -296,7 +309,7 @@ function createNewAudioPreset() {
     defaultName = `Custom-${n}`;
   }
 
-  const raw = prompt('Name for new preset:', defaultName);
+  const raw = await showPrompt('Create New Audio Preset', defaultName);
   if (raw === null) {
     updateAudioOptions();
     refreshSelect('audio-codec');
@@ -343,7 +356,7 @@ export function saveAudioPresetSettings() {
   scheduleRefresh();
 }
 
-export function deleteAudioPreset() {
+export async function deleteAudioPreset() {
   const codec = document.getElementById('audio-codec').value;
   const active = audioActivePresets[codec];
   if (!active || !active.startsWith('custom')) return;
@@ -351,7 +364,8 @@ export function deleteAudioPreset() {
   const custom = (audioCustomPresets[codec] || []).find(p => p.id === active);
   if (!custom) return;
 
-  if (!confirm(`Delete preset "${custom.name}"?`)) return;
+  const confirmed = await showConfirm('Delete Preset', `Are you sure you want to delete "${custom.name}"? This cannot be undone.`, 'Delete', true);
+  if (!confirmed) return;
 
   const arr = audioCustomPresets[codec];
   const idx = arr.indexOf(custom);
@@ -370,7 +384,7 @@ export function deleteAudioPreset() {
   scheduleRefresh();
 }
 
-export function renameAudioPreset() {
+export async function renameAudioPreset() {
   const codec = document.getElementById('audio-codec').value;
   const active = audioActivePresets[codec];
   if (!active || !active.startsWith('custom')) return;
@@ -378,7 +392,7 @@ export function renameAudioPreset() {
   const custom = (audioCustomPresets[codec] || []).find(p => p.id === active);
   if (!custom) return;
 
-  const newName = prompt('Rename preset:', custom.name);
+  const newName = await showPrompt('Rename Preset', custom.name);
   if (newName !== null && newName.trim() !== '') {
     custom.name = newName.trim();
     updateAudioOptions();
@@ -837,8 +851,9 @@ export function resetSpecificAudioSettings(codec) {
   scheduleRefresh();
 }
 
-export function resetAllAudioAdvancedSettings() {
-  if (!confirm("Are you sure you want to reset ALL advanced audio settings to default?")) return;
+export async function resetAllAudioAdvancedSettings() {
+  const confirmed = await showConfirm('Reset All Advanced Audio Settings', 'Are you sure you want to reset ALL advanced audio settings to default?', 'Reset All', true);
+  if (!confirmed) return;
   Object.assign(currentAudioAdvanced, JSON.parse(JSON.stringify(defaultAudioAdvanced)));
   buildAudioAdvancedUI();
   switchAudioTab(state.activeAudioTab);
