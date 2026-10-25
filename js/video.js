@@ -21,7 +21,6 @@ function escapeHtml(s) {
     ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 
-// ---- Basic state helpers ----
 export function getVideoDefaultBasic(codec) {
   const caps = codecCapabilities[codec];
   return {
@@ -41,7 +40,6 @@ function getPresetBaseState(codec, presetId) {
     : getVideoDefaultBasic(codec);
 }
 
-// ---- Per-preset cache helpers ----
 function ensureVideoCache(codec) {
   return videoPresetStateCache[codec] || (videoPresetStateCache[codec] = {});
 }
@@ -113,7 +111,6 @@ export function resetVideoPanel() {
   scheduleRefresh();
 }
 
-// ---- Change handlers ----
 export function onVideoCodecChange() {
   if (!state.selectedFileId) { updateVideoOptions(); return; }
 
@@ -169,7 +166,6 @@ export function onVideoPanelChange() {
   scheduleRefresh();
 }
 
-// ---- Dynamic UI ----
 function getSliderLabel(val, presetDef) {
   return presetDef && presetDef.valueLabels ? (presetDef.valueLabels[+val] ?? val) : val;
 }
@@ -182,7 +178,6 @@ export function updateVideoOptions() {
   if (!currentVideoBasicState[codec]) currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
   const basic = currentVideoBasicState[codec];
 
-  // Rebuild preset dropdown
   const presetSelect = document.getElementById('video-preset');
   if (presetSelect) {
     const activePreset = videoActivePresets[codec] || 'standard';
@@ -202,7 +197,6 @@ export function updateVideoOptions() {
     document.getElementById('btn-delete-video-preset').style.display = isCustom ? 'flex' : 'none';
   }
 
-  // Sync fps/res UI fields from basic state
   const fpsSelect = document.getElementById('fps-select');
   const fpsCustom = document.getElementById('fps-custom');
   const resSelect = document.getElementById('res-select');
@@ -212,7 +206,6 @@ export function updateVideoOptions() {
   if (resSelect) resSelect.value = basic.resSelect || 'Same as source';
   if (resCustom) resCustom.value = basic.resCustom || '';
 
-  // Rebuild dynamic controls
   const isVbr = ['vbr','vbr_peak','vbr_latency'].includes(adv.rateControl);
   const isCbr = adv.rateControl === 'cbr';
   const isBitrateMode = isVbr || isCbr;
@@ -311,7 +304,6 @@ export function updateVideoOptions() {
   scheduleRefresh();
 }
 
-// ---- Preset selection ----
 export function applyVideoPreset(preset) {
   if (!preset) return;
   if (preset === '__create__') { createNewVideoPreset(); return; }
@@ -365,9 +357,8 @@ function createNewVideoPreset() {
   existing.push({ id, name, data: getVideoDefaultBasic(codec) });
   videoActivePresets[codec] = id;
 
-  ensureVideoCache(codec)[id] = JSON.parse(JSON.stringify(
-    currentVideoBasicState[codec] || getVideoDefaultBasic(codec)
-  ));
+  currentVideoBasicState[codec] = getVideoDefaultBasic(codec);
+  ensureVideoCache(codec)[id] = JSON.parse(JSON.stringify(currentVideoBasicState[codec]));
 
   updateVideoOptions();
   refreshSelect('video-codec');
@@ -437,7 +428,6 @@ export function renameVideoPreset() {
   }
 }
 
-// ---- Advanced modal ----
 export function openVideoAdvancedModal() {
   buildVideoAdvancedUI();
   switchVideoTab(document.getElementById('video-codec').value);
