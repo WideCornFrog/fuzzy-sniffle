@@ -24,27 +24,12 @@
   <div class="main-content">
     <!-- Left Panel: Media Section -->
     <div class="left-panel">
-      <div class="drop-zone">
+      <div class="drop-zone" onclick="openFileExplorer()">
         <span class="primary-text">Drop media here</span>
         <span class="secondary-text">or click to browse</span>
       </div>
-      <div class="media-list">
-        <div class="media-item" data-id="file1" onclick="selectMediaItem(this, 'file1')">
-          <div class="filename">Audio_Only.m4a</div>
-          <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
-        </div>
-        <div class="media-item" data-id="file2" onclick="selectMediaItem(this, 'file2')">
-          <div class="filename">Lossless_Track.flac</div>
-          <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
-        </div>
-        <div class="media-item" data-id="file3" onclick="selectMediaItem(this, 'file3')">
-          <div class="filename">Video_Only_NoAudio.mkv</div>
-          <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
-        </div>
-        <div class="media-item" data-id="file4" onclick="selectMediaItem(this, 'file4')">
-          <div class="filename">Video_With_Audio.mkv</div>
-          <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
-        </div>
+      <div class="media-list" id="media-list">
+        <div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>
       </div>
     </div>
 
@@ -363,7 +348,21 @@
   </div>
 </div>
 
-<!-- New Utility Modals -->
+<!-- Simulated File Explorer Modal -->
+<div class="modal-overlay" id="fileExplorerModal">
+  <div class="modal-content file-explorer-modal">
+    <div class="modal-title">Browse Media</div>
+    <p class="turbo-warning-text" style="margin-bottom: 12px; font-size: 13px;">Select a file to add to the media list.</p>
+    <div class="file-explorer-list" id="file-explorer-list">
+      <!-- Populated via JS -->
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeFileExplorer()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Utility Modals -->
 <div class="modal-overlay" id="promptModal">
   <div class="modal-content">
     <div class="modal-title" id="prompt-title">Rename Preset</div>
