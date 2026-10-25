@@ -7,7 +7,7 @@ import {
   audioActivePresets, audioCustomPresets,
   videoActivePresets, videoCustomPresets
 } from './state.js';
-import { selectMediaItem } from './media.js';
+import { selectMediaItem, openFileExplorer, closeFileExplorer } from './media.js';
 import {
   updateVideoOptions, onVideoCodecChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
@@ -45,7 +45,6 @@ setEditedChecker((selectId, value) => {
   return { basic: false, advanced: false };
 });
 
-// Shows the active preset next to each codec — always displays a suffix.
 setLabelSuffixProvider((selectId, value) => {
   if (selectId === 'audio-codec') {
     const active = audioActivePresets[value];
@@ -64,26 +63,34 @@ setLabelSuffixProvider((selectId, value) => {
 });
 
 Object.assign(window, {
-  selectMediaItem,
+  // Media
+  selectMediaItem, openFileExplorer, closeFileExplorer,
 
+  // Video
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings, markVideoEdited,
   applyVideoPreset, renameVideoPreset, saveVideoPresetSettings, deleteVideoPreset,
 
+  // Audio
   onAudioCodecChange, onAudioPanelChange, onAudioModeChange, onAudioEnableChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
   resetAllAudioAdvancedSettings, resetSpecificAudioSettings, markAudioAdvancedEdited,
   applyAudioPreset, renameAudioPreset, saveAudioPresetSettings, deleteAudioPreset,
 
+  // Output
   onContainerChange,
 
+  // FFmpeg
   refreshFfmpegCommand, copyFfmpegCommand, triggerEncode, toggleEncodeDropdown, selectEncodeMode,
 
+  // Details
   openInfoModal, closeInfoModal, switchInfoTab, navigateFile,
 
+  // Settings
   openSettings, closeSettings,
 
+  // Turbo modal
   handleTurboToggle: (cb) => { if (cb.checked) document.getElementById('turboModal').classList.add('active'); },
   confirmTurbo: () => document.getElementById('turboModal').classList.remove('active'),
   cancelTurbo: () => document.getElementById('turboModal').classList.remove('active')
