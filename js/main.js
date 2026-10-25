@@ -2,7 +2,11 @@
 // main.js — Bootstrap & wire everything to window
 // ============================================================
 
-import { state, audioActivePresets, audioCustomPresets } from './state.js';
+import {
+  state,
+  audioActivePresets, audioCustomPresets,
+  videoActivePresets, videoCustomPresets
+} from './state.js';
 import { selectMediaItem } from './media.js';
 import {
   updateVideoOptions, onVideoCodecChange, resetVideoPanel, onVideoPanelChange,
@@ -33,7 +37,6 @@ import { initAllCustomSelects, setEditedChecker, setLabelSuffixProvider, refresh
 import { isVideoBasicEdited, isVideoAdvancedEdited } from './video.js';
 import { isAudioBasicEdited, isAudioAdvancedEdited } from './audio.js';
 
-// Wire up custom-select's edited-checker callback
 setEditedChecker((selectId, value) => {
   if (selectId === 'video-codec')
     return { basic: isVideoBasicEdited(value), advanced: isVideoAdvancedEdited(value) };
@@ -42,53 +45,50 @@ setEditedChecker((selectId, value) => {
   return { basic: false, advanced: false };
 });
 
-// Wire up custom-select's label-suffix provider.
-// Shows the active audio preset next to each audio codec in the dropdown.
+// Shows the active preset next to each codec — always displays a suffix.
 setLabelSuffixProvider((selectId, value) => {
-  if (selectId !== 'audio-codec') return null;
-  const active = audioActivePresets[value];
-  if (!active || active === 'standard') return null;
-  if (active === 'high') return '· High Quality';
-  const custom = (audioCustomPresets[value] || []).find(p => p.id === active);
-  return custom ? `· ${custom.name}` : null;
+  if (selectId === 'audio-codec') {
+    const active = audioActivePresets[value];
+    if (!active || active === 'standard') return '· Standard';
+    if (active === 'high') return '· High Quality';
+    const custom = (audioCustomPresets[value] || []).find(p => p.id === active);
+    return custom ? `· ${custom.name}` : '· Standard';
+  }
+  if (selectId === 'video-codec') {
+    const active = videoActivePresets[value];
+    if (!active || active === 'standard') return '· Standard';
+    const custom = (videoCustomPresets[value] || []).find(p => p.id === active);
+    return custom ? `· ${custom.name}` : '· Standard';
+  }
+  return null;
 });
 
-// Expose everything needed by inline HTML handlers in one shot
 Object.assign(window, {
-  // Media
   selectMediaItem,
 
-  // Video
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
   resetAllVideoAdvancedSettings, resetSpecificVideoSettings, markVideoEdited,
   applyVideoPreset, renameVideoPreset, saveVideoPresetSettings, deleteVideoPreset,
 
-  // Audio
   onAudioCodecChange, onAudioPanelChange, onAudioModeChange, onAudioEnableChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
   resetAllAudioAdvancedSettings, resetSpecificAudioSettings, markAudioAdvancedEdited,
   applyAudioPreset, renameAudioPreset, saveAudioPresetSettings, deleteAudioPreset,
 
-  // Output
   onContainerChange,
 
-  // FFmpeg
   refreshFfmpegCommand, copyFfmpegCommand, triggerEncode, toggleEncodeDropdown, selectEncodeMode,
 
-  // Details
   openInfoModal, closeInfoModal, switchInfoTab, navigateFile,
 
-  // Settings
   openSettings, closeSettings,
 
-  // Turbo modal
   handleTurboToggle: (cb) => { if (cb.checked) document.getElementById('turboModal').classList.add('active'); },
   confirmTurbo: () => document.getElementById('turboModal').classList.remove('active'),
   cancelTurbo: () => document.getElementById('turboModal').classList.remove('active')
 });
 
-// Boot
 window.addEventListener('DOMContentLoaded', () => {
   initAllCustomSelects();
   updateVideoOptions();
@@ -99,11 +99,9 @@ window.addEventListener('DOMContentLoaded', () => {
   updatePanelTags();
   refreshFfmpegCommand();
 
-  // Custom-select needs re-rendering on native change
   ['video-codec', 'audio-codec', 'output-format'].forEach(id =>
     document.getElementById(id).addEventListener('change', () => refreshSelect(id)));
 
-  // Global debounced ffmpeg refresh
   document.addEventListener('input', () => refreshFfmpegCommand());
   document.addEventListener('change', () => refreshFfmpegCommand());
 
