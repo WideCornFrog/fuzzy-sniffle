@@ -63,6 +63,7 @@ export const state = {
   selectedFileId: null,
   currentVideoCategory: 'normal',
   currentRenderedAudioCodec: '',
+  currentRenderedVideoCodec: '',
   activeVideoTab: 'h264_nvenc',
   activeAudioTab: 'libopus'
 };
@@ -206,6 +207,8 @@ export const audioActivePresets = {
   'libopus': 'standard', 'libfdk_aac': 'standard', 'libmp3lame': 'standard', 'libvorbis': 'standard',
   'flac': 'standard', 'alac': 'standard', 'ape': 'standard', 'wavpack': 'standard', 'wav': 'standard', 'pcm': 'standard'
 };
+
+export const audioPresetStateCache = {};  // { codec: { presetId: stateData } }
 
 export const currentVideoBasicState = {};
 export const audioStateByCategory = { normal: null, pro: null };
@@ -388,6 +391,8 @@ export const videoCustomPresets = Object.fromEntries(videoCodecKeys.map(c => [c,
 
 // Active video preset per codec: 'standard' | custom id ('custom1', 'custom2', …)
 export const videoActivePresets = Object.fromEntries(videoCodecKeys.map(c => [c, 'standard']));
+
+export const videoPresetStateCache = {};  // { codec: { presetId: basicState } }
 
 // ---- Default advanced state (generated) ----
 export const defaultVideoAdvanced = {};
