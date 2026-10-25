@@ -13,6 +13,7 @@ import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailabil
 import { refreshSelect } from './custom-select.js';
 import { scheduleRefresh } from './ffmpeg.js';
 import { captureAudioState, restoreAudioState } from './audio.js';
+import { showPrompt, showConfirm, showResetConfirm } from './ui-utils.js';
 
 const SKIP_KEYS = ['quality','preset','tune','profile','level','colorRange','fastDecode'];
 
@@ -83,7 +84,7 @@ export function isVideoAdvancedEdited(codec) {
   return JSON.stringify(currentVideoAdvanced[codec]) !== JSON.stringify(defaultVideoAdvanced[codec]);
 }
 
-export function resetVideoPanel() {
+export async function resetVideoPanel() {
   const codec = document.getElementById('video-codec').value;
   const basicEdited = isVideoBasicEdited(codec);
   const advEdited = isVideoAdvancedEdited(codec);
@@ -91,9 +92,21 @@ export function resetVideoPanel() {
 
   let alsoAdvanced = false;
   if (basicEdited && advEdited) {
-    alsoAdvanced = confirm("Do you also want to reset the advanced settings for this codec?");
+    const choice = await showResetConfirm(
+      'Reset Video Settings',
+      'You have modified both basic and advanced settings for this codec. What would you like to reset?',
+      true
+    );
+    if (choice === 'cancel') return;
+    if (choice === 'all') alsoAdvanced = true;
   } else if (advEdited) {
-    alsoAdvanced = confirm("Do you want to reset the advanced settings for this codec?");
+    const choice = await showResetConfirm(
+      'Reset Advanced Settings',
+      'You have modified advanced video settings for this codec. Do you want to reset them?',
+      false
+    );
+    if (choice === 'cancel') return;
+    alsoAdvanced = true;
   }
 
   if (basicEdited) {
@@ -327,7 +340,7 @@ export function applyVideoPreset(preset) {
   scheduleRefresh();
 }
 
-function createNewVideoPreset() {
+async function createNewVideoPreset() {
   const codec = document.getElementById('video-codec').value;
   if (!codec) return;
 
@@ -342,7 +355,7 @@ function createNewVideoPreset() {
     defaultName = `Custom-${n}`;
   }
 
-  const raw = prompt('Name for new preset:', defaultName);
+  const raw = await showPrompt('Create New Video Preset', defaultName);
   if (raw === null) {
     updateVideoOptions();
     refreshSelect('video-codec');
@@ -386,7 +399,7 @@ export function saveVideoPresetSettings() {
   scheduleRefresh();
 }
 
-export function deleteVideoPreset() {
+export async function deleteVideoPreset() {
   const codec = document.getElementById('video-codec').value;
   const active = videoActivePresets[codec];
   if (!active || !active.startsWith('custom')) return;
@@ -394,7 +407,8 @@ export function deleteVideoPreset() {
   const custom = (videoCustomPresets[codec] || []).find(p => p.id === active);
   if (!custom) return;
 
-  if (!confirm(`Delete preset "${custom.name}"?`)) return;
+  const confirmed = await showConfirm('Delete Preset', `Are you sure you want to delete "${custom.name}"? This cannot be undone.`, 'Delete', true);
+  if (!confirmed) return;
 
   const arr = videoCustomPresets[codec];
   const idx = arr.indexOf(custom);
@@ -411,7 +425,7 @@ export function deleteVideoPreset() {
   scheduleRefresh();
 }
 
-export function renameVideoPreset() {
+export async function renameVideoPreset() {
   const codec = document.getElementById('video-codec').value;
   const active = videoActivePresets[codec];
   if (!active || !active.startsWith('custom')) return;
@@ -419,7 +433,7 @@ export function renameVideoPreset() {
   const custom = (videoCustomPresets[codec] || []).find(p => p.id === active);
   if (!custom) return;
 
-  const newName = prompt('Rename preset:', custom.name);
+  const newName = await showPrompt('Rename Preset', custom.name);
   if (newName !== null && newName.trim() !== '') {
     custom.name = newName.trim();
     updateVideoOptions();
@@ -621,8 +635,9 @@ export function resetSpecificVideoSettings(codec) {
   scheduleRefresh();
 }
 
-export function resetAllVideoAdvancedSettings() {
-  if (!confirm("Are you sure you want to reset ALL advanced video settings to default?")) return;
+export async function resetAllVideoAdvancedSettings() {
+  const confirmed = await showConfirm('Reset All Advanced Video Settings', 'Are you sure you want to reset ALL advanced video settings to default?', 'Reset All', true);
+  if (!confirmed) return;
   Object.assign(currentVideoAdvanced, JSON.parse(JSON.stringify(defaultVideoAdvanced)));
   buildVideoAdvancedUI();
   switchVideoTab(state.activeVideoTab);
