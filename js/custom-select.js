@@ -64,18 +64,9 @@ export function sortSelectOptions(selectEl) {
   if (currentValue) selectEl.value = currentValue;
 }
 
-/**
- * Extension point: called by video.js/audio.js to determine if an option should
- * show the "EDITED" / "ADVANCED" tags. Returns { basic: bool, advanced: bool }.
- */
 let editedChecker = () => ({ basic: false, advanced: false });
 export function setEditedChecker(fn) { editedChecker = fn; }
 
-/**
- * Extension point: called to get an optional right-aligned label suffix for
- * an option (used by the audio codec dropdown to show the active preset).
- * Returns a string, or null/undefined for no suffix.
- */
 let labelSuffixProvider = () => null;
 export function setLabelSuffixProvider(fn) { labelSuffixProvider = fn; }
 
@@ -124,17 +115,16 @@ export function initCustomSelect(selectEl) {
     span.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
     el.appendChild(span);
 
-    const right = document.createElement('div');
-    right.style.cssText = 'display:flex;align-items:center;gap:6px;margin-left:auto;';
-
-    // Preset / active-value suffix (used by audio codec dropdown)
     const suffix = labelSuffixProvider(selectEl.id, opt.value);
     if (suffix) {
       const s = document.createElement('span');
       s.textContent = suffix;
-      s.style.cssText = 'color:#888;font-size:11px;font-style:italic;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;';
-      right.appendChild(s);
+      s.style.cssText = 'color:#888;font-size:11px;font-style:italic;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;margin-left:auto;padding-right:8px;flex-shrink:0;';
+      el.appendChild(s);
     }
+
+    const right = document.createElement('div');
+    right.style.cssText = 'display:flex;align-items:center;gap:6px;flex-shrink:0;width:130px;justify-content:flex-end;' + (suffix ? '' : 'margin-left:auto;');
 
     const { basic, advanced } = editedChecker(selectEl.id, opt.value);
     if (basic) {
