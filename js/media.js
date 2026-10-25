@@ -1,14 +1,74 @@
 // ============================================================
-// media.js — File selection & quick stats
+// media.js — File selection, simulated explorer & quick stats
 // ============================================================
 
-import { state, filesData, VIDEO_FAMILIES, PRO_VIDEO_FAMILIES } from './state.js';
+import { state, filesData, fileOrder, VIDEO_FAMILIES, PRO_VIDEO_FAMILIES } from './state.js';
 import {
   updateOutputFormatOptions, updateVideoCodecAvailability,
   updateAudioCodecAvailability, updateContainerAvailability, updatePanelTags
 } from './output.js';
 import { refreshFfmpegCommand } from './ffmpeg.js';
 
+// ---- Simulated File Explorer ----
+export function openFileExplorer() {
+  renderFileExplorer();
+  document.getElementById('fileExplorerModal').classList.add('active');
+}
+
+export function closeFileExplorer() {
+  document.getElementById('fileExplorerModal').classList.remove('active');
+}
+
+function renderFileExplorer() {
+  const list = document.getElementById('file-explorer-list');
+  list.innerHTML = '';
+
+  fileOrder.forEach(id => {
+    const file = filesData[id];
+    const isLoaded = state.loadedFileIds.includes(id);
+
+    const item = document.createElement('div');
+    item.className = 'file-explorer-item' + (isLoaded ? ' disabled' : '');
+    item.innerHTML = `
+      <div class="fe-icon">📄</div>
+      <div class="fe-info">
+        <div class="fe-name">${file.name}</div>
+        <div class="fe-meta">${file.type.toUpperCase()} • ${file.stats.find(s => s.label === 'Size')?.value || 'Unknown size'}</div>
+      </div>
+      <button class="btn-${isLoaded ? 'cancel' : 'confirm'}" style="padding: 4px 12px; font-size: 12px;" ${isLoaded ? 'disabled' : ''}>${isLoaded ? 'Added' : 'Add'}</button>
+    `;
+    
+    if (!isLoaded) {
+      item.onclick = () => addFileToGUI(id);
+    }
+    list.appendChild(item);
+  });
+}
+
+export function addFileToGUI(fileId) {
+  if (state.loadedFileIds.includes(fileId)) return;
+  state.loadedFileIds.push(fileId);
+  
+  const list = document.getElementById('media-list');
+  const emptyText = document.getElementById('empty-list-text');
+  if (emptyText) emptyText.style.display = 'none';
+
+  const file = filesData[fileId];
+  const item = document.createElement('div');
+  item.className = 'media-item';
+  item.dataset.id = fileId;
+  item.onclick = () => selectMediaItem(item, fileId);
+  item.innerHTML = `
+    <div class="filename">${file.name}</div>
+    <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
+  `;
+  
+  list.appendChild(item);
+  closeFileExplorer();
+  selectMediaItem(item, fileId);
+}
+
+// ---- Media Selection ----
 export function selectMediaItem(element, fileId) {
   document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
   element.classList.add('active');
