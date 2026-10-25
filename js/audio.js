@@ -6,7 +6,7 @@ import {
   state, audioState, currentAudioAdvanced, defaultAudioAdvanced,
   audioCodecNames, DEFAULT_SAMPLE_RATES, DEFAULT_CHANNELS, MP3_CHANNELS,
   AAC_SAMPLE_RATES, MP3_SAMPLE_RATES, isLosslessCodec,
-  audioCustomPresets, audioActivePresets
+  audioCustomPresets, audioActivePresets, audioPresetStateCache
 } from './state.js';
 
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability, isTreatAsAudioOnly, updateOutputFormatOptions } from './output.js';
@@ -69,6 +69,29 @@ function getPresetBaseState(codec, presetId) {
   return custom
     ? JSON.parse(JSON.stringify(custom.data))
     : getStandardState(codec);
+}
+
+// ---- Per-preset cache helpers ----
+function ensureAudioCache(codec) {
+  return audioPresetStateCache[codec] || (audioPresetStateCache[codec] = {});
+}
+
+function saveActiveAudioPresetToCache(codec) {
+  const type = getAudioStateKey(codec);
+  if (!type) return;
+  saveAudioStateUI(codec);
+  if (!audioState[type]) return;
+  const activePreset = audioActivePresets[codec] || 'standard';
+  ensureAudioCache(codec)[activePreset] = JSON.parse(JSON.stringify(audioState[type]));
+}
+
+function loadAudioPresetIntoBuffer(codec, presetId) {
+  const type = getAudioStateKey(codec);
+  if (!type) return;
+  const cache = ensureAudioCache(codec);
+  audioState[type] = cache[presetId]
+    ? JSON.parse(JSON.stringify(cache[presetId]))
+    : getPresetBaseState(codec, presetId);
 }
 
 // ---- Basic edited check ----
@@ -145,6 +168,8 @@ export function captureAudioState() {
   return {
     codec: document.getElementById('audio-codec').value,
     state: JSON.parse(JSON.stringify(audioState)),
+    activePresets: JSON.parse(JSON.stringify(audioActivePresets)),
+    presetCache: JSON.parse(JSON.stringify(audioPresetStateCache)),
     advanced: JSON.parse(JSON.stringify(currentAudioAdvanced)),
     sampleRate: document.getElementById('sample-rate-select').value,
     channels: document.getElementById('audio-channels').value
@@ -156,6 +181,12 @@ export function restoreAudioState(saved) {
   document.getElementById('audio-codec').value = saved.codec;
   Object.assign(audioState, saved.state);
   Object.assign(currentAudioAdvanced, JSON.parse(JSON.stringify(saved.advanced)));
+
+  if (saved.activePresets) Object.assign(audioActivePresets, saved.activePresets);
+  if (saved.presetCache) {
+    for (const k in audioPresetStateCache) delete audioPresetStateCache[k];
+    Object.assign(audioPresetStateCache, saved.presetCache);
+  }
 
   state.currentRenderedAudioCodec = '';
   updateAudioOptions();
@@ -182,6 +213,7 @@ export function resetAudioPanel() {
     if (type) {
       const activePreset = audioActivePresets[codec] || 'standard';
       audioState[type] = getPresetBaseState(codec, activePreset);
+      ensureAudioCache(codec)[activePreset] = JSON.parse(JSON.stringify(audioState[type]));
     }
     state.currentRenderedAudioCodec = '';
     skipSaveAudioState = true;
@@ -199,7 +231,12 @@ export function resetAudioPanel() {
 
 // ---- Change handlers ----
 export function onAudioCodecChange() {
-  saveAudioStateUI();
+  const oldCodec = state.currentRenderedAudioCodec;
+  if (oldCodec) saveActiveAudioPresetToCache(oldCodec);
+
+  const newCodec = document.getElementById('audio-codec').value;
+  loadAudioPresetIntoBuffer(newCodec, audioActivePresets[newCodec] || 'standard');
+
   updateAudioOptions();
   if (state.selectedFileId && !isTreatAsAudioOnly()) {
     updateAudioCodecAvailability();
@@ -232,15 +269,14 @@ export function applyAudioPreset(preset) {
   const type = getAudioStateKey(codec);
   if (!type) return;
 
-  if (preset === 'standard' || preset === 'high') {
-    audioActivePresets[codec] = preset;
-    audioState[type] = getPresetBaseState(codec, preset);
-  } else {
+  if (preset !== 'standard' && preset !== 'high') {
     const custom = (audioCustomPresets[codec] || []).find(p => p.id === preset);
     if (!custom) return;
-    audioActivePresets[codec] = preset;
-    audioState[type] = JSON.parse(JSON.stringify(custom.data));
   }
+
+  saveActiveAudioPresetToCache(codec);
+  audioActivePresets[codec] = preset;
+  loadAudioPresetIntoBuffer(codec, preset);
 
   state.currentRenderedAudioCodec = '';
   skipSaveAudioState = true;
@@ -250,13 +286,12 @@ export function applyAudioPreset(preset) {
   scheduleRefresh();
 }
 
-// Create new preset: baseline = Standard (NOT current settings).
-// The panel keeps showing the current settings so the user can either
-// "Save" them into the new preset or "Reset" back to Standard.
 function createNewAudioPreset() {
   const codec = document.getElementById('audio-codec').value;
   const type = getAudioStateKey(codec);
   if (!type) return;
+
+  saveActiveAudioPresetToCache(codec);
 
   const existing = audioCustomPresets[codec] || (audioCustomPresets[codec] = []);
 
@@ -282,13 +317,14 @@ function createNewAudioPreset() {
   existing.push({ id, name, data: getStandardState(codec) });
   audioActivePresets[codec] = id;
 
+  ensureAudioCache(codec)[id] = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
+
   updateAudioOptions();
   refreshSelect('audio-codec');
   updatePanelTags();
   scheduleRefresh();
 }
 
-// Save current panel settings as the active custom preset's new baseline.
 export function saveAudioPresetSettings() {
   const codec = document.getElementById('audio-codec').value;
   const active = audioActivePresets[codec];
@@ -301,7 +337,9 @@ export function saveAudioPresetSettings() {
   const type = getAudioStateKey(codec);
   if (!type) return;
 
-  custom.data = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
+  const snapshot = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
+  custom.data = snapshot;
+  ensureAudioCache(codec)[active] = JSON.parse(JSON.stringify(snapshot));
 
   updatePanelTags();
   refreshSelect('audio-codec');
@@ -322,10 +360,10 @@ export function deleteAudioPreset() {
   const idx = arr.indexOf(custom);
   if (idx >= 0) arr.splice(idx, 1);
 
-  audioActivePresets[codec] = 'standard';
+  if (audioPresetStateCache[codec]) delete audioPresetStateCache[codec][active];
 
-  const type = getAudioStateKey(codec);
-  if (type) audioState[type] = getStandardState(codec);
+  audioActivePresets[codec] = 'standard';
+  loadAudioPresetIntoBuffer(codec, 'standard');
 
   state.currentRenderedAudioCodec = '';
   skipSaveAudioState = true;
@@ -366,7 +404,6 @@ export function updateAudioOptions() {
     state.currentRenderedAudioCodec = codec;
   }
 
-  // Rebuild preset dropdown
   const presetSelect = document.getElementById('audio-preset');
   const activePreset = audioActivePresets[codec] || 'standard';
   const customs = audioCustomPresets[codec] || [];
@@ -381,7 +418,6 @@ export function updateAudioOptions() {
   presetSelect.innerHTML = html;
   presetSelect.value = activePreset;
 
-  // Show/hide preset action buttons
   const isCustom = activePreset.startsWith('custom');
   document.getElementById('btn-rename-preset').style.display = isCustom ? 'flex' : 'none';
   document.getElementById('btn-save-audio-preset').style.display = isCustom ? 'flex' : 'none';
