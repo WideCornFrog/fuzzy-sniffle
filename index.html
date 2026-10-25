@@ -363,6 +363,41 @@
   </div>
 </div>
 
+<!-- New Utility Modals -->
+<div class="modal-overlay" id="promptModal">
+  <div class="modal-content">
+    <div class="modal-title" id="prompt-title">Rename Preset</div>
+    <input type="text" id="prompt-input" class="custom-args-box" style="width:100%; margin-bottom:16px; font-family: 'Source Sans 3', sans-serif; min-height: 36px; padding: 8px 12px;">
+    <div class="modal-actions">
+      <button class="btn-cancel" id="prompt-cancel">Cancel</button>
+      <button class="btn-confirm" id="prompt-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-content">
+    <div class="modal-title" id="confirm-title">Confirm</div>
+    <p class="turbo-warning-text" id="confirm-message"></p>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="confirm-cancel">Cancel</button>
+      <button class="btn-confirm" id="confirm-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-content">
+    <div class="modal-title" id="reset-title">Reset Settings</div>
+    <p class="turbo-warning-text" id="reset-message"></p>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="reset-cancel">Cancel</button>
+      <button class="btn-confirm" id="reset-basic">Reset Basic Only</button>
+      <button class="btn-confirm" id="reset-all">Reset All</button>
+    </div>
+  </div>
+</div>
+
 <script type="module" src="js/main.js?v=3"></script>
 </body>
 </html>
