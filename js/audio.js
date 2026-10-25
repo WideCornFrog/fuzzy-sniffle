@@ -33,7 +33,7 @@ function getStandardState(codec) {
     libmp3lame: { mode: 'vbr', vbrQuality: 4, abrBitrate: 192, cbrBitrate: 192, vbrLimit: '', sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
     libvorbis: { mode: 'vbr', vbrQuality: 3.0, abrTarget: 192, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' }
   };
-  if (lossy[codec]) return lossy[codec];
+  if (lossy[codec]) return JSON.parse(JSON.stringify(lossy[codec]));
 
   const compDefaults = { flac: '5', alac: '3', wavpack: '1', ape: '2' };
   return {
@@ -51,7 +51,7 @@ function getHighQualityState(codec) {
     libmp3lame: { mode: 'vbr', vbrQuality: 2, abrBitrate: 320, cbrBitrate: 320, vbrLimit: '', sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' },
     libvorbis: { mode: 'vbr', vbrQuality: 8.0, abrTarget: 320, sampleRate: '48000', channels: 'Same as source', bitDepth: 'Same as source' }
   };
-  if (lossy[codec]) return lossy[codec];
+  if (lossy[codec]) return JSON.parse(JSON.stringify(lossy[codec]));
 
   const compDefaults = { flac: '8', alac: '3', wavpack: '8', ape: '5' };
   return {
@@ -63,10 +63,12 @@ function getHighQualityState(codec) {
 }
 
 function getPresetBaseState(codec, presetId) {
-  if (presetId === 'high') return JSON.parse(JSON.stringify(getHighQualityState(codec)));
-  if (presetId === 'standard') return JSON.parse(JSON.stringify(getStandardState(codec)));
+  if (presetId === 'high') return getHighQualityState(codec);
+  if (presetId === 'standard') return getStandardState(codec);
   const custom = (audioCustomPresets[codec] || []).find(p => p.id === presetId);
-  return custom ? JSON.parse(JSON.stringify(custom.data)) : JSON.parse(JSON.stringify(getStandardState(codec)));
+  return custom
+    ? JSON.parse(JSON.stringify(custom.data))
+    : getStandardState(codec);
 }
 
 // ---- Basic edited check ----
@@ -248,13 +250,13 @@ export function applyAudioPreset(preset) {
   scheduleRefresh();
 }
 
+// Create new preset: baseline = Standard (NOT current settings).
+// The panel keeps showing the current settings so the user can either
+// "Save" them into the new preset or "Reset" back to Standard.
 function createNewAudioPreset() {
   const codec = document.getElementById('audio-codec').value;
   const type = getAudioStateKey(codec);
   if (!type) return;
-
-  saveAudioStateUI(codec);
-  const snapshot = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
 
   const existing = audioCustomPresets[codec] || (audioCustomPresets[codec] = []);
 
@@ -277,9 +279,56 @@ function createNewAudioPreset() {
   while (existing.some(p => p.id === `custom${idNum}`)) idNum++;
   const id = `custom${idNum}`;
 
-  existing.push({ id, name, data: snapshot });
+  existing.push({ id, name, data: getStandardState(codec) });
   audioActivePresets[codec] = id;
 
+  updateAudioOptions();
+  refreshSelect('audio-codec');
+  updatePanelTags();
+  scheduleRefresh();
+}
+
+// Save current panel settings as the active custom preset's new baseline.
+export function saveAudioPresetSettings() {
+  const codec = document.getElementById('audio-codec').value;
+  const active = audioActivePresets[codec];
+  if (!active || !active.startsWith('custom')) return;
+
+  const custom = (audioCustomPresets[codec] || []).find(p => p.id === active);
+  if (!custom) return;
+
+  saveAudioStateUI();
+  const type = getAudioStateKey(codec);
+  if (!type) return;
+
+  custom.data = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
+
+  updatePanelTags();
+  refreshSelect('audio-codec');
+  scheduleRefresh();
+}
+
+export function deleteAudioPreset() {
+  const codec = document.getElementById('audio-codec').value;
+  const active = audioActivePresets[codec];
+  if (!active || !active.startsWith('custom')) return;
+
+  const custom = (audioCustomPresets[codec] || []).find(p => p.id === active);
+  if (!custom) return;
+
+  if (!confirm(`Delete preset "${custom.name}"?`)) return;
+
+  const arr = audioCustomPresets[codec];
+  const idx = arr.indexOf(custom);
+  if (idx >= 0) arr.splice(idx, 1);
+
+  audioActivePresets[codec] = 'standard';
+
+  const type = getAudioStateKey(codec);
+  if (type) audioState[type] = getStandardState(codec);
+
+  state.currentRenderedAudioCodec = '';
+  skipSaveAudioState = true;
   updateAudioOptions();
   refreshSelect('audio-codec');
   updatePanelTags();
@@ -317,6 +366,7 @@ export function updateAudioOptions() {
     state.currentRenderedAudioCodec = codec;
   }
 
+  // Rebuild preset dropdown
   const presetSelect = document.getElementById('audio-preset');
   const activePreset = audioActivePresets[codec] || 'standard';
   const customs = audioCustomPresets[codec] || [];
@@ -331,8 +381,11 @@ export function updateAudioOptions() {
   presetSelect.innerHTML = html;
   presetSelect.value = activePreset;
 
-  const btnRename = document.getElementById('btn-rename-preset');
-  btnRename.style.display = activePreset.startsWith('custom') ? 'flex' : 'none';
+  // Show/hide preset action buttons
+  const isCustom = activePreset.startsWith('custom');
+  document.getElementById('btn-rename-preset').style.display = isCustom ? 'flex' : 'none';
+  document.getElementById('btn-save-audio-preset').style.display = isCustom ? 'flex' : 'none';
+  document.getElementById('btn-delete-audio-preset').style.display = isCustom ? 'flex' : 'none';
 
   const sampleRateSelect = document.getElementById('sample-rate-select');
   const channelsSelect = document.getElementById('audio-channels');
