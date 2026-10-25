@@ -71,7 +71,6 @@ function getPresetBaseState(codec, presetId) {
     : getStandardState(codec);
 }
 
-// ---- Per-preset cache helpers ----
 function ensureAudioCache(codec) {
   return audioPresetStateCache[codec] || (audioPresetStateCache[codec] = {});
 }
@@ -94,7 +93,6 @@ function loadAudioPresetIntoBuffer(codec, presetId) {
     : getPresetBaseState(codec, presetId);
 }
 
-// ---- Basic edited check ----
 export function isAudioBasicEdited(codec) {
   const type = getAudioStateKey(codec);
   const activePreset = audioActivePresets[codec] || 'standard';
@@ -115,7 +113,6 @@ export function isAudioAdvancedEdited(codec) {
   return JSON.stringify(currentAudioAdvanced[codec]) !== JSON.stringify(defaultAudioAdvanced[codec]);
 }
 
-// ---- State capture/restore ----
 export function saveAudioStateUI(codecOverride) {
   const codec = codecOverride || state.currentRenderedAudioCodec;
   if (!codec) return;
@@ -194,7 +191,6 @@ export function restoreAudioState(saved) {
   scheduleRefresh();
 }
 
-// ---- Panel reset ----
 export function resetAudioPanel() {
   const codec = document.getElementById('audio-codec').value;
   const basicEdited = isAudioBasicEdited(codec);
@@ -229,7 +225,6 @@ export function resetAudioPanel() {
   scheduleRefresh();
 }
 
-// ---- Change handlers ----
 export function onAudioCodecChange() {
   const oldCodec = state.currentRenderedAudioCodec;
   if (oldCodec) saveActiveAudioPresetToCache(oldCodec);
@@ -260,7 +255,6 @@ export function onAudioEnableChange(cb) {
   scheduleRefresh();
 }
 
-// ---- Preset selection ----
 export function applyAudioPreset(preset) {
   if (!preset) return;
   if (preset === '__create__') { createNewAudioPreset(); return; }
@@ -317,8 +311,11 @@ function createNewAudioPreset() {
   existing.push({ id, name, data: getStandardState(codec) });
   audioActivePresets[codec] = id;
 
-  ensureAudioCache(codec)[id] = JSON.parse(JSON.stringify(audioState[type] || getStandardState(codec)));
+  audioState[type] = getStandardState(codec);
+  ensureAudioCache(codec)[id] = JSON.parse(JSON.stringify(audioState[type]));
 
+  state.currentRenderedAudioCodec = '';
+  skipSaveAudioState = true;
   updateAudioOptions();
   refreshSelect('audio-codec');
   updatePanelTags();
@@ -390,7 +387,6 @@ export function renameAudioPreset() {
   }
 }
 
-// ---- Dynamic UI ----
 export function updateAudioOptions() {
   const codec = document.getElementById('audio-codec').value;
 
@@ -744,7 +740,6 @@ export function onAudioModeChange(type, mode) {
   scheduleRefresh();
 }
 
-// ---- Advanced modal ----
 export function openAudioAdvancedModal() {
   buildAudioAdvancedUI();
   switchAudioTab(document.getElementById('audio-codec').value);
