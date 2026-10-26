@@ -10,7 +10,7 @@ import {
 
 import { 
   selectMediaItem, openFileExplorer, closeFileExplorer, 
-  toggleBulkSelectDropdown, selectAllMedia 
+  toggleBulkSelectDropdown, triggerBulkSelect, selectBulkMode, selectAllMedia 
 } from './media.js';
 
 import {
