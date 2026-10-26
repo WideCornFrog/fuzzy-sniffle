@@ -13,7 +13,7 @@ import { refreshFfmpegCommand } from './ffmpeg.js';
 document.addEventListener('click', (e) => {
   const dropdown = document.getElementById('bulk-select-dropdown');
   if (dropdown && dropdown.classList.contains('active')) {
-    if (!e.target.closest('.bulk-select-container')) {
+    if (!e.target.closest('.bulk-select-wrapper')) {
       dropdown.classList.remove('active');
     }
   }
@@ -82,10 +82,31 @@ export function addFileToGUI(fileId) {
   selectMediaItem(item, fileId, null);
 }
 
-// ---- Bulk Selection ----
+// ---- Bulk Selection Split Button ----
 export function toggleBulkSelectDropdown(e) {
   e.stopPropagation();
   document.getElementById('bulk-select-dropdown').classList.toggle('active');
+}
+
+export function triggerBulkSelect() {
+  selectAllMedia(state.bulkSelectMode);
+}
+
+export function selectBulkMode(mode, btnElement) {
+  state.bulkSelectMode = mode;
+  
+  // Update button text
+  document.getElementById('btn-bulk-main-text').textContent = btnElement.textContent;
+  
+  // Update active state in dropdown
+  document.querySelectorAll('.bulk-select-dropdown button').forEach(btn => btn.classList.remove('active-option'));
+  btnElement.classList.add('active-option');
+  
+  // Close dropdown
+  document.getElementById('bulk-select-dropdown').classList.remove('active');
+  
+  // Trigger the selection immediately
+  selectAllMedia(mode);
 }
 
 export function selectAllMedia(type) {
@@ -107,8 +128,6 @@ export function selectAllMedia(type) {
   } else {
     clearSettings();
   }
-  
-  document.getElementById('bulk-select-dropdown').classList.remove('active');
 }
 
 // ---- Media Selection ----
