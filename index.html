@@ -29,9 +29,24 @@
         <span class="primary-text">Drop media here</span>
         <span class="secondary-text">or click to browse</span>
       </div>
+      
+      <!-- NEW BULK SELECT CONTAINER -->
+      <div class="bulk-select-container">
+        <button class="btn-bulk-select" onclick="toggleBulkSelectDropdown(event)">
+          Select Files
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="bulk-select-dropdown" id="bulk-select-dropdown">
+          <button onclick="selectAllMedia('all')">Select all files</button>
+          <button onclick="selectAllMedia('video')">Select all video files</button>
+          <button onclick="selectAllMedia('audio')">Select all audio files</button>
+        </div>
+      </div>
+
       <div class="media-list" id="media-list">
         <div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>
       </div>
+    </div>
     </div>
 
     <div class="right-panel">
