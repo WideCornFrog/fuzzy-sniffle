@@ -31,15 +31,18 @@
         <span class="secondary-text">or click to browse</span>
       </div>
       
-      <div class="bulk-select-container">
-        <button class="btn-bulk-select" onclick="toggleBulkSelectDropdown(event)">
-          Select Files
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </button>
+            <!-- NEW SPLIT BUTTON BULK SELECT -->
+      <div class="bulk-select-wrapper">
+        <div class="btn-bulk-group">
+          <div class="btn-bulk-main" id="btn-bulk-main-text" onclick="triggerBulkSelect()">Select all files</div>
+          <div class="btn-bulk-arrow" onclick="toggleBulkSelectDropdown(event)">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+        </div>
         <div class="bulk-select-dropdown" id="bulk-select-dropdown">
-          <button onclick="selectAllMedia('all')">Select all files</button>
-          <button onclick="selectAllMedia('video')">Select all video files</button>
-          <button onclick="selectAllMedia('audio')">Select all audio files</button>
+          <button class="active-option" onclick="selectBulkMode('all', this)">Select all files</button>
+          <button onclick="selectBulkMode('video', this)">Select all video files</button>
+          <button onclick="selectBulkMode('audio', this)">Select all audio files</button>
         </div>
       </div>
 
