@@ -63,6 +63,7 @@ export const state = {
   selectedFileId: null,
   selectedFileIds: [],
   loadedFileIds: [],
+  bulkSelectMode: 'all',
   currentVideoCategory: 'normal',
   currentRenderedAudioCodec: '',
   currentRenderedVideoCodec: '',
