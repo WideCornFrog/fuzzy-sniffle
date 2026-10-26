@@ -7,7 +7,12 @@ import {
   audioActivePresets, audioCustomPresets,
   videoActivePresets, videoCustomPresets
 } from './state.js';
-import { selectMediaItem, openFileExplorer, closeFileExplorer } from './media.js';
+
+import { 
+  selectMediaItem, openFileExplorer, closeFileExplorer, 
+  toggleBulkSelectDropdown, selectAllMedia 
+} from './media.js';
+
 import {
   updateVideoOptions, onVideoCodecChange, resetVideoPanel, onVideoPanelChange,
   openVideoAdvancedModal, closeVideoAdvancedModal,
@@ -15,6 +20,7 @@ import {
   markVideoEdited, onVideoEnableChange, applyVideoPreset, renameVideoPreset,
   saveVideoPresetSettings, deleteVideoPreset
 } from './video.js';
+
 import {
   updateAudioOptions, onAudioCodecChange, onAudioPanelChange, onAudioModeChange,
   resetAudioPanel, openAudioAdvancedModal, closeAudioAdvancedModal,
@@ -22,15 +28,18 @@ import {
   markAudioAdvancedEdited, onAudioEnableChange, applyAudioPreset, renameAudioPreset,
   saveAudioPresetSettings, deleteAudioPreset
 } from './audio.js';
+
 import {
   updateOutputFormatOptions, updateVideoCodecAvailability,
   updateAudioCodecAvailability, updateContainerAvailability,
   onContainerChange, updatePanelTags
 } from './output.js';
+
 import {
   refreshFfmpegCommand, copyFfmpegCommand,
   triggerEncode, toggleEncodeDropdown, selectEncodeMode
 } from './ffmpeg.js';
+
 import { openInfoModal, closeInfoModal, switchInfoTab, navigateFile } from './details.js';
 import { openSettings, closeSettings } from './settings.js';
 import { initAllCustomSelects, setEditedChecker, setLabelSuffixProvider, refreshSelect } from './custom-select.js';
@@ -64,7 +73,7 @@ setLabelSuffixProvider((selectId, value) => {
 
 Object.assign(window, {
   // Media
-  selectMediaItem, openFileExplorer, closeFileExplorer,
+  selectMediaItem, openFileExplorer, closeFileExplorer, toggleBulkSelectDropdown, selectAllMedia,
 
   // Video
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
