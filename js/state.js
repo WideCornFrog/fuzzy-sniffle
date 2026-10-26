@@ -61,6 +61,7 @@ export const fileOrder = ['file1', 'file2', 'file3', 'file4'];
 // ---- Mutable runtime state ----
 export const state = {
   selectedFileId: null,
+  selectedFileIds: [],
   loadedFileIds: [],
   currentVideoCategory: 'normal',
   currentRenderedAudioCodec: '',
