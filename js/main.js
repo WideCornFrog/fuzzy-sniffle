@@ -73,7 +73,8 @@ setLabelSuffixProvider((selectId, value) => {
 
 Object.assign(window, {
   // Media
-  selectMediaItem, openFileExplorer, closeFileExplorer, toggleBulkSelectDropdown, selectAllMedia,
+  selectMediaItem, openFileExplorer, closeFileExplorer, 
+  toggleBulkSelectDropdown, triggerBulkSelect, selectBulkMode, selectAllMedia,
 
   // Video
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
