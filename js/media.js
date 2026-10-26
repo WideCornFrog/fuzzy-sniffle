@@ -9,6 +9,16 @@ import {
 } from './output.js';
 import { refreshFfmpegCommand } from './ffmpeg.js';
 
+// Close bulk dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('bulk-select-dropdown');
+  if (dropdown && dropdown.classList.contains('active')) {
+    if (!e.target.closest('.bulk-select-container')) {
+      dropdown.classList.remove('active');
+    }
+  }
+});
+
 // ---- Simulated File Explorer ----
 export function openFileExplorer() {
   renderFileExplorer();
@@ -57,7 +67,11 @@ export function addFileToGUI(fileId) {
   const item = document.createElement('div');
   item.className = 'media-item';
   item.dataset.id = fileId;
-  item.onclick = () => selectMediaItem(item, fileId);
+  item.dataset.type = file.type; // Store type for bulk selection
+  
+  // Update the click handler to pass the event object for multi-select (Ctrl/Cmd)
+  item.onclick = (e) => selectMediaItem(item, fileId, e);
+  
   item.innerHTML = `
     <div class="filename">${file.name}</div>
     <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
@@ -65,14 +79,71 @@ export function addFileToGUI(fileId) {
   
   list.appendChild(item);
   closeFileExplorer();
-  selectMediaItem(item, fileId);
+  selectMediaItem(item, fileId, null);
+}
+
+// ---- Bulk Selection ----
+export function toggleBulkSelectDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('bulk-select-dropdown').classList.toggle('active');
+}
+
+export function selectAllMedia(type) {
+  document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
+  state.selectedFileIds = [];
+  
+  let firstId = null;
+  document.querySelectorAll('.media-item').forEach(el => {
+    if (type === 'all' || el.dataset.type === type) {
+      el.classList.add('active');
+      const id = el.dataset.id;
+      state.selectedFileIds.push(id);
+      if (!firstId) firstId = id;
+    }
+  });
+  
+  if (firstId) {
+    updateSettingsForFile(firstId);
+  } else {
+    clearSettings();
+  }
+  
+  document.getElementById('bulk-select-dropdown').classList.remove('active');
 }
 
 // ---- Media Selection ----
-export function selectMediaItem(element, fileId) {
-  document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
+export function selectMediaItem(element, fileId, event = null) {
+  const isMultiSelect = event && (event.ctrlKey || event.metaKey);
+  
+  // If it's a standard click, clear all other selections
+  if (!isMultiSelect) {
+    document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
+    state.selectedFileIds = [];
+  }
+  
+  // If multi-selecting and clicking an already active item, deselect it
+  if (element.classList.contains('active') && isMultiSelect) {
+    element.classList.remove('active');
+    state.selectedFileIds = state.selectedFileIds.filter(id => id !== fileId);
+    if (state.selectedFileIds.length > 0) {
+      updateSettingsForFile(state.selectedFileIds[state.selectedFileIds.length - 1]);
+    } else {
+      clearSettings();
+    }
+    return;
+  }
+  
+  // Add to selection
   element.classList.add('active');
+  if (!state.selectedFileIds.includes(fileId)) {
+    state.selectedFileIds.push(fileId);
+  }
+  
+  updateSettingsForFile(fileId);
+}
 
+// Extracted to support bulk select keeping the UI in sync with the last selected file
+function updateSettingsForFile(fileId) {
   state.selectedFileId = fileId;
   const file = filesData[fileId];
 
@@ -107,6 +178,15 @@ export function selectMediaItem(element, fileId) {
   updateContainerAvailability();
   updatePanelTags();
   refreshFfmpegCommand();
+}
+
+function clearSettings() {
+  state.selectedFileId = null;
+  document.getElementById('box-video').classList.add('no-file');
+  document.getElementById('box-audio').classList.add('no-file');
+  document.getElementById('btn-view-details').disabled = true;
+  document.getElementById('stats-container').innerHTML = '<span class="empty-text">Select a file to view statistics</span>';
+  document.getElementById('ffmpeg-cmd').value = '';
 }
 
 function renderQuickStats(fileId) {
