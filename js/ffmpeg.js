@@ -4,7 +4,7 @@
 
 import {
   state, filesData, currentVideoAdvanced, currentVideoBasicState,
-  codecCapabilities, isLosslessCodec, audioState
+  codecCapabilities, isLosslessCodec, audioState, currentAudioAdvanced
 } from './state.js';
 
 let pending = false;
@@ -88,6 +88,8 @@ function getAudioFfmpegArgs(codec) {
   if (!lossless) {
     const type = ({ libopus:'opus', libfdk_aac:'aac', libmp3lame:'mp3', libvorbis:'vorbis' })[codec];
     const s = audioState[type] || {};
+    const adv = currentAudioAdvanced[codec] || {};
+    
     if (codec === 'libopus') {
       if (s.mode === 'vbr') { args.push('-vbr', 'on'); if (s.vbrTarget) args.push('-b:a', `${s.vbrTarget}k`); }
       else args.push('-b:a', `${s.cbrBitrate || 192}k`);
@@ -97,7 +99,7 @@ function getAudioFfmpegArgs(codec) {
     } else if (codec === 'libmp3lame') {
       if (s.mode === 'vbr') { args.push('-q:a', s.vbrQuality || 4); if (s.vbrLimit) args.push('-maxrate', `${s.vbrLimit}k`); }
       else if (s.mode === 'abr') { args.push('-abr', '1'); args.push('-b:a', `${s.abrBitrate || 192}k`); }
-      else args.push('-b:a', `${s.cbrBitrate || 192}k`);
+      else args.push('-b:a', `${adv.cbrBitrate || 192}k`);
     } else if (codec === 'libvorbis') {
       if (s.mode === 'vbr') args.push('-q:a', s.vbrQuality || 3.0);
       else args.push('-b:a', `${s.abrTarget || 192}k`);
