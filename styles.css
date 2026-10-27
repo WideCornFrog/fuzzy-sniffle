@@ -133,7 +133,7 @@ body {
   border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* NEW: Pushes button to right */
+  justify-content: space-between;
   user-select: none;
   flex-shrink: 0;
 }
@@ -141,7 +141,6 @@ body {
   font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px;
 }
 
-/* NEW: Placeholder Button */
 .btn-placeholder-details {
   background: transparent;
   border: 1px solid #505050;
@@ -250,13 +249,12 @@ body {
   min-width: 0;
 }
 
+/* Disables ALL interactions and grays out the panel */
 .settings-box.disabled-box {
-  opacity: 0.3;
+  opacity: 0.4;
   filter: grayscale(100%);
+  pointer-events: none; 
 }
-
-.settings-box.disabled-box .setting-row { pointer-events: none; }
-.settings-box.disabled-box .btn-advanced { pointer-events: none; }
 
 .settings-box.no-file { position: relative; cursor: not-allowed; }
 .settings-box.no-file > * { opacity: 0.25; filter: grayscale(100%); pointer-events: none; user-select: none; }
