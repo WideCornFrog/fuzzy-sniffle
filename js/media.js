@@ -63,30 +63,31 @@ function getInlineMetadata(file) {
   if (isVid) {
     const parts = [];
     
-    // 1. Video Codec (e.g., HEVC)
+    // 1. Video Codec
     const vCodec = getStat('Video').split(' ')[0];
     if (vCodec) parts.push(vCodec);
 
-    // 2. Resolution (e.g., 1080p)
+    // 2. Resolution
     const hStr = file.details?.video?.find(d => d[0] === 'Height:')?.[1] || '';
     const h = parseInt(hStr.replace(/\D/g, ''), 10);
     if (h) parts.push(h === 2160 ? '4K' : `${h}p`);
 
-    // 3. Framerate (e.g., 24fps)
+    // 3. Framerate
     const fps = getStat('FPS');
     if (fps) parts.push(`${fps}fps`);
 
-    // 4. Audio Codec (e.g., AAC)
-    const aStr = getStat('Audio');
-    if (aStr) parts.push(aStr.split('/')[0].trim());
+    // 4. Audio Data (Only if the file has audio)
+    if (file.hasAudio) {
+      const aStr = getStat('Audio');
+      if (aStr) parts.push(aStr.split('/')[0].trim());
 
-    // 5. Audio Channels (e.g., Mono)
-    const cStr = file.details?.audio?.find(d => d[0] === 'Channel(s):')?.[1] || '';
-    if (cStr.includes('1')) parts.push('Mono');
-    else if (cStr.includes('2')) parts.push('Stereo');
-    else if (cStr.includes('6')) parts.push('5.1');
-    else if (cStr.includes('8')) parts.push('7.1');
-    else if (cStr) parts.push(cStr);
+      const cStr = file.details?.audio?.find(d => d[0] === 'Channel(s):')?.[1] || '';
+      if (cStr.includes('1')) parts.push('Mono');
+      else if (cStr.includes('2')) parts.push('Stereo');
+      else if (cStr.includes('6')) parts.push('5.1');
+      else if (cStr.includes('8')) parts.push('7.1');
+      else if (cStr) parts.push(cStr);
+    }
 
     return parts.join(' • ');
   } else {
