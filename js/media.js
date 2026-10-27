@@ -49,8 +49,11 @@ export function addFileToGUI(baseId) {
   filesData[id].id = id;
   fileOrder.push(id);
 
+  // DO NOT close the file explorer here
+  
   renderMediaList();
-  selectMediaItem(id);
+  // REMOVED: selectMediaItem(id); 
+  // This prevents the right panels from auto-enabling before the user actually clicks the file.
 }
 
 // ---- HELPER: Generate the exact inline text ----
@@ -290,11 +293,13 @@ function syncCheckboxStates() {
 export function selectMediaItem(id) {
   state.selectedFileId = id;
   
+  // Removed auto-push so files start unselected
+  
   const file = filesData[id];
 
   document.getElementById('box-video').classList.remove('no-file');
   document.getElementById('box-audio').classList.remove('no-file');
-  document.getElementById('box-output').classList.remove('no-file'); // NEW
+  document.getElementById('box-output').classList.remove('no-file');
 
   const videoToggle = document.getElementById('enable-video');
   const audioToggle = document.getElementById('enable-audio');
@@ -327,7 +332,7 @@ function clearSettings() {
   state.selectedFileId = null;
   document.getElementById('box-video').classList.add('no-file');
   document.getElementById('box-audio').classList.add('no-file');
-  document.getElementById('box-output').classList.add('no-file'); // NEW
+  document.getElementById('box-output').classList.add('no-file');
   document.getElementById('ffmpeg-cmd').value = '';
 }
 
