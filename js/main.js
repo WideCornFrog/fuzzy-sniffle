@@ -46,6 +46,7 @@ import { initAllCustomSelects, setEditedChecker, setLabelSuffixProvider, refresh
 import { isVideoBasicEdited, isVideoAdvancedEdited } from './video.js';
 import { isAudioBasicEdited, isAudioAdvancedEdited } from './audio.js';
 
+// Wire up custom-select's edited-checker callback
 setEditedChecker((selectId, value) => {
   if (selectId === 'video-codec')
     return { basic: isVideoBasicEdited(value), advanced: isVideoAdvancedEdited(value) };
@@ -54,6 +55,7 @@ setEditedChecker((selectId, value) => {
   return { basic: false, advanced: false };
 });
 
+// Wire up custom-select's label-suffix provider
 setLabelSuffixProvider((selectId, value) => {
   if (selectId === 'audio-codec') {
     const active = audioActivePresets[value];
@@ -71,6 +73,7 @@ setLabelSuffixProvider((selectId, value) => {
   return null;
 });
 
+// Expose everything needed by inline HTML handlers in one shot
 Object.assign(window, {
   // Media
   selectMediaItem, openFileExplorer, closeFileExplorer, 
@@ -106,6 +109,7 @@ Object.assign(window, {
   cancelTurbo: () => document.getElementById('turboModal').classList.remove('active')
 });
 
+// Boot
 window.addEventListener('DOMContentLoaded', () => {
   initAllCustomSelects();
   updateVideoOptions();
@@ -116,9 +120,11 @@ window.addEventListener('DOMContentLoaded', () => {
   updatePanelTags();
   refreshFfmpegCommand();
 
+  // Custom-select needs re-rendering on native change
   ['video-codec', 'audio-codec', 'output-format'].forEach(id =>
     document.getElementById(id).addEventListener('change', () => refreshSelect(id)));
 
+  // Global debounced ffmpeg refresh
   document.addEventListener('input', () => refreshFfmpegCommand());
   document.addEventListener('change', () => refreshFfmpegCommand());
 
