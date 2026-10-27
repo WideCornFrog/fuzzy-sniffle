@@ -54,11 +54,54 @@ export function addFileToGUI(baseId) {
   selectMediaItem(id);
 }
 
+// ---- HELPER: Generate the exact inline text ----
+function getInlineMetadata(file) {
+  const isVid = file.hasVideo;
+  const stats = file.stats;
+  const getStat = (label) => stats.find(s => s.label === label)?.value || '';
+
+  if (isVid) {
+    const parts = [];
+    
+    // 1. Video Codec (e.g., HEVC)
+    const vCodec = getStat('Video').split(' ')[0];
+    if (vCodec) parts.push(vCodec);
+
+    // 2. Resolution (e.g., 1080p)
+    const hStr = file.details?.video?.find(d => d[0] === 'Height:')?.[1] || '';
+    const h = parseInt(hStr.replace(/\D/g, ''), 10);
+    if (h) parts.push(h === 2160 ? '4K' : `${h}p`);
+
+    // 3. Framerate (e.g., 24fps)
+    const fps = getStat('FPS');
+    if (fps) parts.push(`${fps}fps`);
+
+    // 4. Audio Codec (e.g., AAC)
+    const aStr = getStat('Audio');
+    if (aStr) parts.push(aStr.split('/')[0].trim());
+
+    // 5. Audio Channels (e.g., Mono)
+    const cStr = file.details?.audio?.find(d => d[0] === 'Channel(s):')?.[1] || '';
+    if (cStr.includes('1')) parts.push('Mono');
+    else if (cStr.includes('2')) parts.push('Stereo');
+    else if (cStr.includes('6')) parts.push('5.1');
+    else if (cStr.includes('8')) parts.push('7.1');
+    else if (cStr) parts.push(cStr);
+
+    return parts.join(' • ');
+  } else {
+    // Audio only fallback
+    return file.stats
+      .filter(s => s.label !== 'Length' && s.label !== 'Size')
+      .map(s => s.value)
+      .join(' • ');
+  }
+}
+
 // ---- RENDER MEDIA LIST ----
 function generateHUD(file) {
   const isVid = file.hasVideo;
   const stats = file.stats;
-
   const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
   if (isVid) {
@@ -123,24 +166,14 @@ export function renderMediaList() {
       const file = filesData[id];
       const isSelected = state.selectedFileIds.includes(id);
       const hudContent = generateHUD(file);
-
-      // Filter out 'Length' and 'Size'. Exclude 'Audio' if video, and append 'fps' to FPS.
-      const visibleStats = file.stats
-        .filter(s => s.label !== 'Length' && s.label !== 'Size')
-        .map(s => {
-          if (file.hasVideo && s.label === 'Audio') return null;
-          if (s.label === 'FPS') return `${s.value} fps`;
-          return s.value;
-        })
-        .filter(Boolean)
-        .join(' • ');
+      const inlineMeta = getInlineMetadata(file);
 
       groupHtml += `
         <div class="media-row" id="row-${id}">
           <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelect('${id}', this.checked)">
           <div class="col-info" onclick="selectMediaItem('${id}')">
             <div class="col-name">${file.name}</div>
-            <div class="col-meta">${visibleStats}</div>
+            <div class="col-meta">${inlineMeta}</div>
           </div>
           <div class="col-size">${file.stats.find(s => s.label === 'Size')?.value || ''}</div>
           <div class="col-actions">
@@ -168,8 +201,6 @@ export function renderMediaList() {
   html += renderGroup('Audio Files', 'audio', audios);
 
   panel.innerHTML = html;
-  
-  // Sync Checkboxes
   syncCheckboxStates();
 }
 
