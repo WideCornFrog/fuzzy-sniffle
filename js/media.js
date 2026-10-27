@@ -49,11 +49,8 @@ export function addFileToGUI(baseId) {
   filesData[id].id = id;
   fileOrder.push(id);
 
-  // DO NOT close the file explorer here
-  
   renderMediaList();
-  // REMOVED: selectMediaItem(id); 
-  // This prevents the right panels from auto-enabling before the user actually clicks the file.
+  // Do not auto-select
 }
 
 // ---- HELPER: Generate the exact inline text ----
@@ -100,7 +97,6 @@ function generateHUD(file) {
   const stats = file.stats;
   const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
-  // Helper to clean up and format bitrate
   const formatBitrate = (str) => {
     if (!str || str === 'N/A' || str === 'None') return str;
     const num = str.replace(/[^0-9]/g, '');
@@ -109,14 +105,12 @@ function generateHUD(file) {
   };
 
   if (isVid) {
-    // Extract Resolution
     const wStr = file.details?.video?.find(d => d[0] === 'Width:')?.[1] || '';
     const hStr = file.details?.video?.find(d => d[0] === 'Height:')?.[1] || '';
     const w = wStr.replace(/[^0-9]/g, '');
     const h = hStr.replace(/[^0-9]/g, '');
     const resVal = (w && h) ? `${w} x ${h}` : 'N/A';
 
-    // Extract Audio Codec & Avg Bitrate
     const audioStr = getStat('Audio');
     const audioCodec = file.hasAudio ? audioStr.split('/')[0].trim() : 'None';
     const rawAvgBitrate = file.hasAudio ? (audioStr.split('/')[1]?.trim() || 'N/A') : 'None';
@@ -133,7 +127,6 @@ function generateHUD(file) {
       </div>
     `;
   } else {
-    // Audio Only HUD
     const codec = getStat('Codec') || 'N/A';
     const rawOverallBitrate = file.details?.general?.find(d => d[0] === 'Overall bit rate:')?.[1] || 'N/A';
     const overallBitrate = formatBitrate(rawOverallBitrate);
@@ -293,28 +286,40 @@ function syncCheckboxStates() {
 export function selectMediaItem(id) {
   state.selectedFileId = id;
   
-  // Removed auto-push so files start unselected
-  
   const file = filesData[id];
 
-  document.getElementById('box-video').classList.remove('no-file');
-  document.getElementById('box-audio').classList.remove('no-file');
-  document.getElementById('box-output').classList.remove('no-file');
+  const boxVideo = document.getElementById('box-video');
+  const boxAudio = document.getElementById('box-audio');
+  const boxOutput = document.getElementById('box-output');
+
+  // Reset all styling classes first to prevent stacking
+  boxVideo.classList.remove('no-file', 'disabled-box');
+  boxAudio.classList.remove('no-file', 'disabled-box');
+  boxOutput.classList.remove('no-file');
 
   const videoToggle = document.getElementById('enable-video');
   const audioToggle = document.getElementById('enable-audio');
-  const boxVideo = document.getElementById('box-video');
-  const boxAudio = document.getElementById('box-audio');
 
   if (file.hasVideo) {
-    videoToggle.disabled = false; videoToggle.checked = true; boxVideo.classList.remove('disabled-box');
+    videoToggle.disabled = false; 
+    videoToggle.checked = true; 
+    videoToggle.setAttribute('checked', 'checked');
   } else {
-    videoToggle.disabled = true;  videoToggle.checked = false; boxVideo.classList.add('disabled-box');
+    videoToggle.disabled = true;  
+    videoToggle.checked = false; 
+    videoToggle.removeAttribute('checked');
+    boxVideo.classList.add('disabled-box');
   }
+  
   if (file.hasAudio) {
-    audioToggle.disabled = false; audioToggle.checked = true; boxAudio.classList.remove('disabled-box');
+    audioToggle.disabled = false; 
+    audioToggle.checked = true; 
+    audioToggle.setAttribute('checked', 'checked');
   } else {
-    audioToggle.disabled = true;  audioToggle.checked = false; boxAudio.classList.add('disabled-box');
+    audioToggle.disabled = true;  
+    audioToggle.checked = false; 
+    audioToggle.removeAttribute('checked');
+    boxAudio.classList.add('disabled-box');
   }
 
   const videoFam = VIDEO_FAMILIES[document.getElementById('video-codec').value];
@@ -330,9 +335,28 @@ export function selectMediaItem(id) {
 
 function clearSettings() {
   state.selectedFileId = null;
-  document.getElementById('box-video').classList.add('no-file');
-  document.getElementById('box-audio').classList.add('no-file');
-  document.getElementById('box-output').classList.add('no-file');
+  
+  const vBox = document.getElementById('box-video');
+  const aBox = document.getElementById('box-audio');
+  const oBox = document.getElementById('box-output');
+  
+  // Ensure no disabled-box classes remain when reverting to no-file state
+  vBox.classList.remove('disabled-box');
+  vBox.classList.add('no-file');
+  
+  aBox.classList.remove('disabled-box');
+  aBox.classList.add('no-file');
+  
+  oBox.classList.add('no-file');
+  
+  // Uncheck toggles when clearing
+  const vToggle = document.getElementById('enable-video');
+  const aToggle = document.getElementById('enable-audio');
+  vToggle.checked = false;
+  vToggle.removeAttribute('checked');
+  aToggle.checked = false;
+  aToggle.removeAttribute('checked');
+  
   document.getElementById('ffmpeg-cmd').value = '';
 }
 
