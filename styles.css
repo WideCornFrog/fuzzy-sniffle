@@ -24,7 +24,7 @@ body {
   height: 1000px;
   min-height: 1000px;
   max-height: 1000px;
-  background: #101010;
+  background: #111110; /* Updated from #101010 */
   border-radius: 5px;
   overflow: hidden;
   display: flex;
@@ -34,7 +34,7 @@ body {
 /* --- Header --- */
 .header {
   height: 42px;
-  background: #0e0e0e;
+  background: #0F0E0F; /* Explicitly set */
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -117,7 +117,7 @@ body {
 
 /* --- NEW MEDIA PANEL STRUCTURE --- */
 .media-panel { 
-  background: #0e0e0e; 
+  background: #111110; /* Updated from #0e0e0e */
   border: 1px solid #50505066; 
   border-radius: 5px; 
   flex: 1;
@@ -128,7 +128,7 @@ body {
 }
 
 .global-toolbar {
-  background: #111;
+  background: #111110; /* Updated from #111 */
   padding: 12px 14px;
   border-bottom: 1px solid #333;
   display: flex;
@@ -252,13 +252,13 @@ body {
 /* --- Unified Greyed-Out States --- */
 .settings-box.disabled-box,
 .settings-box.no-file {
-  border-color: rgba(80, 80, 80, 0.2); /* Fades border identically for both */
+  border-color: rgba(80, 80, 80, 0.2);
   cursor: not-allowed;
 }
 
 .settings-box.disabled-box > *,
 .settings-box.no-file > * {
-  opacity: 0.35; /* Forces identical grey-out */
+  opacity: 0.35; 
   filter: grayscale(100%);
   pointer-events: none;
   user-select: none;
@@ -429,13 +429,14 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   display: flex; 
   align-items: center;
   gap: 12px; 
-  background: #101010; 
+  background: #0F0E0F; /* Explicitly set */
   flex-shrink: 0; 
   border-top: 1px solid #222;
 }
 
 .ffmpeg-input {
-  flex: 1; height: 36px; background: #0e0e0e; border: 1px solid #50505066;
+  flex: 1; height: 36px; background: #0F0E0F; /* Updated from #0e0e0e */
+  border: 1px solid #50505066;
   border-radius: 5px; color: #fff; padding: 0 12px; font-size: 14px;
   font-family: monospace; outline: none; min-width: 0; cursor: copy;
   transition: background 0.2s, border-color 0.2s;
@@ -445,7 +446,8 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .ffmpeg-input::placeholder { color: #555; font-style: italic; font-family: "Source Sans 3", sans-serif; font-size: 13px; }
 
 .btn {
-  height: 36px; background: #0e0e0e; border: 1px solid #50505066;
+  height: 36px; background: #0F0E0F; /* Updated from #0e0e0e */
+  border: 1px solid #50505066;
   border-radius: 5px; color: #fff; display: flex; align-items: center;
   justify-content: center; cursor: pointer; font-size: 16px; transition: background 0.2s;
   flex-shrink: 0;
@@ -455,7 +457,8 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .btn-encode-wrapper { position: relative; flex-shrink: 0; }
 .btn-encode-group {
   display: flex; height: 36px; border-radius: 5px; border: 1px solid #50505066;
-  background: #0e0e0e; overflow: hidden; width: 180px;
+  background: #0F0E0F; /* Updated from #0e0e0e */
+  overflow: hidden; width: 180px;
 }
 .btn-encode-main {
   flex: 1; display: flex; align-items: center; justify-content: center;
@@ -471,7 +474,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .btn-encode-arrow:hover { background: #1a1a1a; color: #fff; }
 
 .encode-dropdown {
-  position: absolute; bottom: 42px; right: 0; width: 180px; background: #1a1a1a;
+  position: absolute; bottom: 42px; right: 0; width: 180px; background: #0F0E0F; /* Updated from #1a1a1a */
   border: 1px solid #505050; border-radius: 6px;
   display: none; flex-direction: column; z-index: 1000; overflow: hidden;
 }
@@ -790,37 +793,4 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   font-size: 12px;
   color: #888;
   margin-top: 4px;
-}
-
-/* --- Generic Disabled UI State --- */
-.disabled-ui {
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Only the Encode button is fully greyed out visually */
-.btn-encode-wrapper.disabled-ui {
-  opacity: 0.35;
-  filter: grayscale(100%);
-}
-
-/* Media panel border dims, but text stays visible */
-.media-panel.disabled-ui {
-  border-color: rgba(80, 80, 80, 0.2);
-}
-.media-panel.disabled-ui .empty-list-text {
-  color: #888; 
-}
-
-/* FFmpeg input border dims, text stays visible */
-.ffmpeg-input.disabled-ui {
-  border-color: rgba(80, 80, 80, 0.2);
-  background: #0e0e0e;
-  color: #fff;
-}
-.ffmpeg-input.disabled-ui::placeholder {
-  color: #888;
-  font-style: italic;
-  font-family: "Source Sans 3", sans-serif;
-  font-size: 13px;
 }
