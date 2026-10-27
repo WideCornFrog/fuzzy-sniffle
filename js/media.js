@@ -171,6 +171,7 @@ export function renderMediaList() {
         <input type="checkbox" class="select-all-cb" id="global-select" onchange="toggleGlobalSelect(this.checked)">
         Select All Files
       </label>
+      <button class="btn-placeholder-details">Full Details</button>
     </div>
   `;
 
