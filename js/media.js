@@ -49,7 +49,8 @@ export function addFileToGUI(baseId) {
   filesData[id].id = id;
   fileOrder.push(id);
 
-  closeFileExplorer();
+  // DO NOT close the file explorer here
+  
   renderMediaList();
   selectMediaItem(id);
 }
@@ -282,6 +283,7 @@ export function toggleGroupSelect(type) {
 function syncCheckboxStates() {
   const globalCb = document.getElementById('global-select');
   if (globalCb) {
+    // Only check the global box if ALL files are selected AND there is at least one file
     globalCb.checked = fileOrder.length > 0 && state.selectedFileIds.length === fileOrder.length;
   }
 }
@@ -289,11 +291,8 @@ function syncCheckboxStates() {
 // ---- MEDIA SELECTION (Right Panel Sync) ----
 export function selectMediaItem(id) {
   state.selectedFileId = id;
-  if (!state.selectedFileIds.includes(id)) {
-    state.selectedFileIds.push(id);
-    syncCheckboxStates();
-    updateSelectionUI();
-  }
+  
+  // Removed the auto-push to state.selectedFileIds so files start unselected
   
   const file = filesData[id];
 
