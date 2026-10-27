@@ -794,8 +794,33 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 
 /* --- Generic Disabled UI State --- */
 .disabled-ui {
-  opacity: 0.35;
-  filter: grayscale(100%);
   pointer-events: none;
   user-select: none;
+}
+
+/* Only the Encode button is fully greyed out visually */
+.btn-encode-wrapper.disabled-ui {
+  opacity: 0.35;
+  filter: grayscale(100%);
+}
+
+/* Media panel border dims, but text stays visible */
+.media-panel.disabled-ui {
+  border-color: rgba(80, 80, 80, 0.2);
+}
+.media-panel.disabled-ui .empty-list-text {
+  color: #888; 
+}
+
+/* FFmpeg input border dims, text stays visible */
+.ffmpeg-input.disabled-ui {
+  border-color: rgba(80, 80, 80, 0.2);
+  background: #0e0e0e;
+  color: #fff;
+}
+.ffmpeg-input.disabled-ui::placeholder {
+  color: #888;
+  font-style: italic;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 13px;
 }
