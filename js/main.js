@@ -75,6 +75,7 @@ Object.assign(window, {
   // Media
   selectMediaItem, openFileExplorer, closeFileExplorer, 
   toggleBulkSelectDropdown, triggerBulkSelect, selectBulkMode, selectAllMedia,
+  toggleRowSelect, toggleGlobalSelect, toggleGroupSelect, removeMediaItem, renderMediaList,
 
   // Video
   onVideoCodecChange, onVideoEnableChange, resetVideoPanel, onVideoPanelChange,
