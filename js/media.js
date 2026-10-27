@@ -105,8 +105,17 @@ function generateHUD(file) {
   const stats = file.stats;
   const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
+  // Extract Channels
+  let channelStr = 'N/A';
+  const cStr = file.details?.audio?.find(d => d[0] === 'Channel(s):')?.[1] || '';
+  if (cStr.includes('1')) channelStr = 'Mono';
+  else if (cStr.includes('2')) channelStr = 'Stereo';
+  else if (cStr.includes('6')) channelStr = '5.1';
+  else if (cStr.includes('8')) channelStr = '7.1';
+  else if (cStr) channelStr = cStr;
+
   if (isVid) {
-    // Clean up resolution string by removing everything except numbers
+    // Extract Resolution
     const wStr = file.details?.video?.find(d => d[0] === 'Width:')?.[1] || '';
     const hStr = file.details?.video?.find(d => d[0] === 'Height:')?.[1] || '';
     const w = wStr.replace(/[^0-9]/g, '');
@@ -115,20 +124,20 @@ function generateHUD(file) {
 
     return `
       <div class="tt-grid">
-        <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
         <div class="tt-item"><span class="tt-key">Video</span><span class="tt-val">${getStat('Video').split(' ')[0]}</span></div>
         <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${resVal}</span></div>
         <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')} fps</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${getStat('Audio') || 'None'}</span></div>
+        <div class="tt-item"><span class="tt-key">Channels</span><span class="tt-val">${file.hasAudio ? channelStr : 'None'}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
       </div>
     `;
   } else {
     return `
       <div class="tt-grid">
-        <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">Lossless</span></div>
         <div class="tt-item"><span class="tt-key">Bitrate</span><span class="tt-val">N/A</span></div>
+        <div class="tt-item"><span class="tt-key">Channels</span><span class="tt-val">${channelStr}</span></div>
         <div class="tt-item"><span class="tt-key">Depth</span><span class="tt-val">16-bit</span></div>
         <div class="tt-item"><span class="tt-key">Rate</span><span class="tt-val">44.1 kHz</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
