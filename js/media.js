@@ -292,7 +292,6 @@ export function selectMediaItem(id) {
   const boxAudio = document.getElementById('box-audio');
   const boxOutput = document.getElementById('box-output');
 
-  // Reset all styling classes first to prevent stacking
   boxVideo.classList.remove('no-file', 'disabled-box');
   boxAudio.classList.remove('no-file', 'disabled-box');
   boxOutput.classList.remove('no-file');
@@ -333,14 +332,13 @@ export function selectMediaItem(id) {
   refreshFfmpegCommand();
 }
 
-function clearSettings() {
+export function clearSettings() {
   state.selectedFileId = null;
   
   const vBox = document.getElementById('box-video');
   const aBox = document.getElementById('box-audio');
   const oBox = document.getElementById('box-output');
   
-  // Ensure no disabled-box classes remain when reverting to no-file state
   vBox.classList.remove('disabled-box');
   vBox.classList.add('no-file');
   
@@ -349,7 +347,6 @@ function clearSettings() {
   
   oBox.classList.add('no-file');
   
-  // Uncheck toggles when clearing
   const vToggle = document.getElementById('enable-video');
   const aToggle = document.getElementById('enable-audio');
   vToggle.checked = false;
@@ -389,31 +386,4 @@ function updateSelectionUI() {
     if (count > 1) btn.textContent = `Encode ${count} selected files`;
     else btn.textContent = 'Encode selected files';
   }
-}
-
-export function clearSettings() {
-  state.selectedFileId = null;
-  
-  const vBox = document.getElementById('box-video');
-  const aBox = document.getElementById('box-audio');
-  const oBox = document.getElementById('box-output');
-  
-  // Ensure no disabled-box classes remain when reverting to no-file state
-  vBox.classList.remove('disabled-box');
-  vBox.classList.add('no-file');
-  
-  aBox.classList.remove('disabled-box');
-  aBox.classList.add('no-file');
-  
-  oBox.classList.add('no-file');
-  
-  // Uncheck toggles when clearing
-  const vToggle = document.getElementById('enable-video');
-  const aToggle = document.getElementById('enable-audio');
-  vToggle.checked = false;
-  vToggle.removeAttribute('checked');
-  aToggle.checked = false;
-  aToggle.removeAttribute('checked');
-  
-  document.getElementById('ffmpeg-cmd').value = '';
 }
