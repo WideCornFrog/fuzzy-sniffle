@@ -50,7 +50,6 @@ export function addFileToGUI(baseId) {
   fileOrder.push(id);
 
   renderMediaList();
-  // Do not auto-select
 }
 
 // ---- HELPER: Generate the exact inline text ----
@@ -62,20 +61,16 @@ function getInlineMetadata(file) {
   if (isVid) {
     const parts = [];
     
-    // 1. Video Codec
     const vCodec = getStat('Video').split(' ')[0];
     if (vCodec) parts.push(vCodec);
 
-    // 2. Resolution
     const hStr = file.details?.video?.find(d => d[0] === 'Height:')?.[1] || '';
     const h = parseInt(hStr.replace(/\D/g, ''), 10);
     if (h) parts.push(h === 2160 ? '4K' : `${h}p`);
 
-    // 3. Framerate
     const fps = getStat('FPS');
     if (fps) parts.push(`${fps}fps`);
 
-    // 4. Audio Codec
     if (file.hasAudio) {
       const aStr = getStat('Audio');
       if (aStr) parts.push(aStr.split('/')[0].trim());
@@ -83,7 +78,6 @@ function getInlineMetadata(file) {
 
     return parts.join(' • ');
   } else {
-    // Audio only fallback
     return file.stats
       .filter(s => s.label !== 'Length' && s.label !== 'Size')
       .map(s => s.value)
@@ -291,35 +285,52 @@ export function selectMediaItem(id) {
   const boxVideo = document.getElementById('box-video');
   const boxAudio = document.getElementById('box-audio');
   const boxOutput = document.getElementById('box-output');
-
-  boxVideo.classList.remove('no-file', 'disabled-box');
-  boxAudio.classList.remove('no-file', 'disabled-box');
-  boxOutput.classList.remove('no-file');
+  
+  // Disable CSS transitions temporarily to prevent the "flash" when swapping classes
+  boxVideo.style.transition = 'none';
+  boxAudio.style.transition = 'none';
+  boxOutput.style.transition = 'none';
 
   const videoToggle = document.getElementById('enable-video');
   const audioToggle = document.getElementById('enable-audio');
 
   if (file.hasVideo) {
+    boxVideo.classList.remove('no-file', 'disabled-box');
     videoToggle.disabled = false; 
     videoToggle.checked = true; 
     videoToggle.setAttribute('checked', 'checked');
   } else {
+    boxVideo.classList.add('disabled-box');
+    boxVideo.classList.remove('no-file');
     videoToggle.disabled = true;  
     videoToggle.checked = false; 
     videoToggle.removeAttribute('checked');
-    boxVideo.classList.add('disabled-box');
   }
   
   if (file.hasAudio) {
+    boxAudio.classList.remove('no-file', 'disabled-box');
     audioToggle.disabled = false; 
     audioToggle.checked = true; 
     audioToggle.setAttribute('checked', 'checked');
   } else {
+    boxAudio.classList.add('disabled-box');
+    boxAudio.classList.remove('no-file');
     audioToggle.disabled = true;  
     audioToggle.checked = false; 
     audioToggle.removeAttribute('checked');
-    boxAudio.classList.add('disabled-box');
   }
+
+  boxOutput.classList.remove('no-file');
+
+  // Force a browser reflow so the class changes apply instantly
+  void boxVideo.offsetWidth;
+  void boxAudio.offsetWidth;
+  void boxOutput.offsetWidth;
+
+  // Restore CSS transitions
+  boxVideo.style.transition = '';
+  boxAudio.style.transition = '';
+  boxOutput.style.transition = '';
 
   const videoFam = VIDEO_FAMILIES[document.getElementById('video-codec').value];
   state.currentVideoCategory = PRO_VIDEO_FAMILIES.includes(videoFam) ? 'pro' : 'normal';
@@ -339,6 +350,10 @@ export function clearSettings() {
   const aBox = document.getElementById('box-audio');
   const oBox = document.getElementById('box-output');
   
+  vBox.style.transition = 'none';
+  aBox.style.transition = 'none';
+  oBox.style.transition = 'none';
+
   vBox.classList.remove('disabled-box');
   vBox.classList.add('no-file');
   
@@ -353,6 +368,14 @@ export function clearSettings() {
   vToggle.removeAttribute('checked');
   aToggle.checked = false;
   aToggle.removeAttribute('checked');
+
+  void vBox.offsetWidth;
+  void aBox.offsetWidth;
+  void oBox.offsetWidth;
+
+  vBox.style.transition = '';
+  aBox.style.transition = '';
+  oBox.style.transition = '';
   
   document.getElementById('ffmpeg-cmd').value = '';
 }
