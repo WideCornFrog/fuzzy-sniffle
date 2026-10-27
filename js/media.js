@@ -50,6 +50,7 @@ export function addFileToGUI(baseId) {
   fileOrder.push(id);
 
   renderMediaList();
+  // Do not auto-select
 }
 
 // ---- HELPER: Generate the exact inline text ----
@@ -146,8 +147,11 @@ export function renderMediaList() {
   const panel = document.getElementById('media-panel');
   
   if (fileOrder.length === 0) {
+    panel.classList.add('disabled-ui');
     panel.innerHTML = '<div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>';
     return;
+  } else {
+    panel.classList.remove('disabled-ui');
   }
 
   const videos = fileOrder.filter(id => filesData[id].type === 'video');
@@ -286,7 +290,6 @@ export function selectMediaItem(id) {
   const boxAudio = document.getElementById('box-audio');
   const boxOutput = document.getElementById('box-output');
   
-  // Disable CSS transitions temporarily to prevent the "flash" when swapping classes
   boxVideo.style.transition = 'none';
   boxAudio.style.transition = 'none';
   boxOutput.style.transition = 'none';
@@ -322,12 +325,14 @@ export function selectMediaItem(id) {
 
   boxOutput.classList.remove('no-file');
 
-  // Force a browser reflow so the class changes apply instantly
+  // Enable bottom bar
+  document.getElementById('ffmpeg-cmd').classList.remove('disabled-ui');
+  document.getElementById('encode-wrapper').classList.remove('disabled-ui');
+
   void boxVideo.offsetWidth;
   void boxAudio.offsetWidth;
   void boxOutput.offsetWidth;
 
-  // Restore CSS transitions
   boxVideo.style.transition = '';
   boxAudio.style.transition = '';
   boxOutput.style.transition = '';
@@ -365,7 +370,6 @@ export function clearSettings() {
   const vToggle = document.getElementById('enable-video');
   const aToggle = document.getElementById('enable-audio');
   
-  // Force disabled state to match the greyed-out file state
   vToggle.checked = false;
   vToggle.disabled = true;
   vToggle.removeAttribute('checked');
@@ -373,6 +377,10 @@ export function clearSettings() {
   aToggle.checked = false;
   aToggle.disabled = true;
   aToggle.removeAttribute('checked');
+
+  // Disable bottom bar
+  document.getElementById('ffmpeg-cmd').classList.add('disabled-ui');
+  document.getElementById('encode-wrapper').classList.add('disabled-ui');
 
   void vBox.offsetWidth;
   void aBox.offsetWidth;
