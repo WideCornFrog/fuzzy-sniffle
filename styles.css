@@ -133,11 +133,30 @@ body {
   border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* NEW: Pushes button to right */
   user-select: none;
   flex-shrink: 0;
 }
 .global-toolbar label { 
-  font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; 
+  font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px;
+}
+
+/* NEW: Placeholder Button */
+.btn-placeholder-details {
+  background: transparent;
+  border: 1px solid #505050;
+  color: #b2b2b2;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "Source Sans 3", sans-serif;
+}
+.btn-placeholder-details:hover {
+  background: #333;
+  color: #fff;
+  border-color: #808080;
 }
 
 /* Shared Custom Checkbox Styles */
