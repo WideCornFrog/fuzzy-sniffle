@@ -791,3 +791,11 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   color: #888;
   margin-top: 4px;
 }
+
+/* --- Generic Disabled UI State --- */
+.disabled-ui {
+  opacity: 0.35;
+  filter: grayscale(100%);
+  pointer-events: none;
+  user-select: none;
+}
