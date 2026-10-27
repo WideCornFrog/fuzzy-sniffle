@@ -24,7 +24,7 @@ body {
   height: 1000px;
   min-height: 1000px;
   max-height: 1000px;
-  background: #111110; /* Updated from #101010 */
+  background: #111110; 
   border-radius: 5px;
   overflow: hidden;
   display: flex;
@@ -34,7 +34,7 @@ body {
 /* --- Header --- */
 .header {
   height: 42px;
-  background: #0F0E0F; /* Explicitly set */
+  background: #0F0E0F; 
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -115,9 +115,9 @@ body {
 .drop-zone .primary-text { font-size: 20px; font-weight: 500; }
 .drop-zone .secondary-text { font-size: 16px; color: #b2b2b2; margin-top: 4px; }
 
-/* --- NEW MEDIA PANEL STRUCTURE --- */
+/* --- MEDIA PANEL STRUCTURE --- */
 .media-panel { 
-  background: #111110; /* Updated from #0e0e0e */
+  background: #111110; 
   border: 1px solid #50505066; 
   border-radius: 5px; 
   flex: 1;
@@ -128,7 +128,7 @@ body {
 }
 
 .global-toolbar {
-  background: #111110; /* Updated from #111 */
+  background: #111110; 
   padding: 12px 14px;
   border-bottom: 1px solid #333;
   display: flex;
@@ -141,8 +141,9 @@ body {
   font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px;
 }
 
+/* Button Unified Styling */
 .btn-placeholder-details {
-  background: transparent;
+  background: #1A1B1B;
   border: 1px solid #505050;
   color: #b2b2b2;
   padding: 4px 10px;
@@ -153,7 +154,7 @@ body {
   font-family: "Source Sans 3", sans-serif;
 }
 .btn-placeholder-details:hover {
-  background: #333;
+  background: #2A2A2B;
   color: #fff;
   border-color: #808080;
 }
@@ -181,11 +182,21 @@ body {
 }
 .group-title { display: flex; align-items: center; gap: 6px; }
 .group-select-all {
-  font-size: 10px; color: #888; background: transparent; border: 1px solid #333;
-  padding: 2px 6px; border-radius: 4px; cursor: pointer; transition: 0.2s;
+  background: #1A1B1B;
+  border: 1px solid #505050;
+  color: #b2b2b2;
+  font-size: 10px;
+  padding: 2px 6px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: 0.2s;
   font-family: "Source Sans 3", sans-serif;
 }
-.group-select-all:hover { background: #333; color: #fff; border-color: #555; }
+.group-select-all:hover { 
+  background: #2A2A2B; 
+  color: #fff; 
+  border-color: #808080; 
+}
 
 .media-row { 
   display: grid; 
@@ -206,10 +217,34 @@ body {
 .col-size { font-size: 11px; color: #888; text-align: right; }
 
 .col-actions { display: flex; justify-content: flex-end; gap: 12px; z-index: 10; }
-.btn-icon { background: transparent; border: none; color: #666; cursor: pointer; width: 24px; height: 24px; padding: 0; border-radius: 4px; transition: all 0.2s; opacity: 0; display: flex; align-items: center; justify-content: center; }
-.media-row:hover .btn-icon { opacity: 1; color: #aaa; }
-.btn-icon:hover { background: #333; color: #fff; }
-.media-row:hover .btn-remove:hover { background: #e74c3c; color: #fff; }
+
+/* Media Action Buttons (Info & Remove) */
+.btn-icon { 
+  background: #1A1B1B;
+  border: 1px solid #505050;
+  color: #b2b2b2; 
+  cursor: pointer; 
+  width: 24px; 
+  height: 24px; 
+  padding: 0; 
+  border-radius: 4px; 
+  transition: all 0.2s; 
+  opacity: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+.media-row:hover .btn-icon { opacity: 1; }
+.btn-icon:hover { 
+  background: #2A2A2B; 
+  color: #fff; 
+  border-color: #808080;
+}
+.media-row:hover .btn-remove:hover { 
+  background: #e74c3c; 
+  color: #fff; 
+  border-color: #e74c3c;
+}
 
 /* HUD OVERLAY */
 .tooltip-wrapper { position: static; display: flex; align-items: center; }
@@ -293,19 +328,48 @@ body {
   flex-shrink: 0;
 }
 
+/* Settings Buttons */
 .btn-advanced {
-  background: transparent; border: 1px solid #505050; color: #b2b2b2; font-size: 12px;
-  padding: 0 10px; height: 22px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center; font-family: "Source Sans 3", sans-serif;
+  background: #1A1B1B; 
+  border: 1px solid #505050; 
+  color: #b2b2b2; 
+  font-size: 12px;
+  padding: 0 10px; 
+  height: 22px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: all 0.2s;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-family: "Source Sans 3", sans-serif;
 }
-.btn-advanced:hover { background: #1a1a1a; color: #fff; border-color: #808080; }
+.btn-advanced:hover { 
+  background: #2A2A2B; 
+  color: #fff; 
+  border-color: #808080; 
+}
 
 .btn-panel-reset {
-  background: transparent; border: 1px solid #505050; color: #b2b2b2; font-size: 11px;
-  padding: 0 8px; height: 22px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center; font-family: "Source Sans 3", sans-serif;
+  background: #1A1B1B; 
+  border: 1px solid #505050; 
+  color: #b2b2b2; 
+  font-size: 11px;
+  padding: 0 8px; 
+  height: 22px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: all 0.2s;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-family: "Source Sans 3", sans-serif;
 }
-.btn-panel-reset:hover { background: #1a1a1a; color: #fff; border-color: #808080; }
+.btn-panel-reset:hover { 
+  background: #2A2A2B; 
+  color: #fff; 
+  border-color: #808080; 
+}
 
 .panel-tag {
   background: #eab308; color: #000; font-size: 10px; font-weight: 700;
@@ -379,9 +443,20 @@ option, optgroup { background-color: #1a1a1a; color: #fff; }
 
 .path-input-group { display: flex; gap: 8px; min-width: 0; }
 .btn-browse {
-  background: #1a1a1a; border: 1px solid #404040; color: #fff;
-  padding: 0 12px; border-radius: 4px; font-size: 14px; cursor: pointer;
+  background: #1A1B1B; 
+  border: 1px solid #505050; 
+  color: #b2b2b2;
+  padding: 0 12px; 
+  border-radius: 4px; 
+  font-size: 14px; 
+  cursor: pointer;
   flex-shrink: 0;
+  transition: all 0.2s;
+}
+.btn-browse:hover {
+  background: #2A2A2B; 
+  color: #fff; 
+  border-color: #808080; 
 }
 
 .tooltip-container { position: relative; width: 100%; min-width: 0; }
@@ -429,13 +504,13 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   display: flex; 
   align-items: center;
   gap: 12px; 
-  background: #0F0E0F; /* Explicitly set */
+  background: #0F0E0F; 
   flex-shrink: 0; 
   border-top: 1px solid #222;
 }
 
 .ffmpeg-input {
-  flex: 1; height: 36px; background: #0F0E0F; /* Updated from #0e0e0e */
+  flex: 1; height: 36px; background: #0F0E0F; 
   border: 1px solid #50505066;
   border-radius: 5px; color: #fff; padding: 0 12px; font-size: 14px;
   font-family: monospace; outline: none; min-width: 0; cursor: copy;
@@ -446,7 +521,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .ffmpeg-input::placeholder { color: #555; font-style: italic; font-family: "Source Sans 3", sans-serif; font-size: 13px; }
 
 .btn {
-  height: 36px; background: #0F0E0F; /* Updated from #0e0e0e */
+  height: 36px; background: #0F0E0F; 
   border: 1px solid #50505066;
   border-radius: 5px; color: #fff; display: flex; align-items: center;
   justify-content: center; cursor: pointer; font-size: 16px; transition: background 0.2s;
@@ -457,7 +532,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .btn-encode-wrapper { position: relative; flex-shrink: 0; }
 .btn-encode-group {
   display: flex; height: 36px; border-radius: 5px; border: 1px solid #50505066;
-  background: #0F0E0F; /* Updated from #0e0e0e */
+  background: #0F0E0F; 
   overflow: hidden; width: 180px;
 }
 .btn-encode-main {
@@ -474,7 +549,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .btn-encode-arrow:hover { background: #1a1a1a; color: #fff; }
 
 .encode-dropdown {
-  position: absolute; bottom: 42px; right: 0; width: 180px; background: #0F0E0F; /* Updated from #1a1a1a */
+  position: absolute; bottom: 42px; right: 0; width: 180px; background: #0F0E0F; 
   border: 1px solid #505050; border-radius: 6px;
   display: none; flex-direction: column; z-index: 1000; overflow: hidden;
 }
@@ -518,11 +593,19 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .modal-actions { display: flex; justify-content: flex-start; gap: 12px; margin-top: 20px; }
 
 .btn-cancel {
-  background: transparent; border: 1px solid #505050; color: #b2b2b2;
-  padding: 8px 16px; border-radius: 4px; cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  background: #1A1B1B; 
+  border: 1px solid #505050; 
+  color: #b2b2b2;
+  padding: 8px 16px; 
+  border-radius: 4px; 
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
-.btn-cancel:hover:not(:disabled) { background: #2a2a2a; color: #fff; }
+.btn-cancel:hover:not(:disabled) { 
+  background: #2A2A2B; 
+  color: #fff; 
+  border-color: #808080; 
+}
 .btn-cancel:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .btn-confirm {
@@ -588,10 +671,10 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 .info-modal-title { font-size: 20px; font-weight: 500; }
 .info-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
 .info-tab-btn {
-  background: transparent; border: 1px solid #505050; color: #b2b2b2;
+  background: #1A1B1B; border: 1px solid #505050; color: #b2b2b2;
   padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s;
 }
-.info-tab-btn:hover { background: #2a2a2a; color: #fff; }
+.info-tab-btn:hover { background: #2A2A2B; color: #fff; border-color: #808080; }
 .info-tab-btn.active { background: #325fe9; border-color: #325fe9; color: #fff; }
 .info-tab-btn.hidden-tab { display: none; }
 .info-tab-content {
@@ -688,7 +771,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 
 /* --- Pencil Rename Button --- */
 .btn-rename {
-  background: transparent; 
+  background: #1A1B1B; 
   border: 1px solid #505050; 
   color: #b2b2b2;
   width: 22px; 
@@ -702,13 +785,13 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   padding: 0;
 }
 .btn-rename:hover { 
-  background: #1a1a1a; 
+  background: #2A2A2B; 
   color: #fff; 
   border-color: #808080; 
 }
 
 .btn-preset-save {
-  background: transparent;
+  background: #1A1B1B;
   border: 1px solid #505050;
   color: #b2b2b2;
   font-size: 11px;
@@ -723,7 +806,7 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   justify-content: center;
 }
 .btn-preset-save:hover {
-  background: #1a1a1a;
+  background: #2A2A2B;
   color: #fff;
   border-color: #808080;
 }
