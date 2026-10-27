@@ -245,19 +245,31 @@ body {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  transition: opacity 0.3s, filter 0.3s;
+  transition: border-color 0.3s;
   min-width: 0;
 }
 
-/* Disables ALL interactions and grays out the panel */
+/* --- Unified Greyed-Out States --- */
 .settings-box.disabled-box {
+  pointer-events: none;
+}
+.settings-box.disabled-box > * {
   opacity: 0.4;
   filter: grayscale(100%);
-  pointer-events: none; 
 }
 
-.settings-box.no-file { position: relative; cursor: not-allowed; }
-.settings-box.no-file > * { opacity: 0.25; filter: grayscale(100%); pointer-events: none; user-select: none; }
+.settings-box.no-file { 
+  position: relative; 
+  cursor: not-allowed; 
+  border-color: #50505033; /* Fades the border to match disabled-box */
+}
+.settings-box.no-file > * { 
+  opacity: 0.4; 
+  filter: grayscale(100%); 
+  pointer-events: none; 
+  user-select: none; 
+}
+
 .settings-box.no-file::after {
   content: 'Select a file first';
   position: absolute; top: 50%; left: 50%;
