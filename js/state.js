@@ -406,7 +406,10 @@ videoCodecKeys.forEach(codec => {
 
 export const defaultAudioAdvanced = Object.fromEntries(
   ['libopus','libfdk_aac','libmp3lame','libvorbis','flac','alac','ape','wavpack','wav','pcm']
-    .map(c => [c, { preserveMetadata: true }])
+    .map(c => {
+      if (c === 'libmp3lame') return [c, { preserveMetadata: true, cbrBitrate: 192 }];
+      return [c, { preserveMetadata: true }];
+    })
 );
 
 // Mutable runtime state
