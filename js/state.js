@@ -2,22 +2,10 @@
 // state.js — All shared data, constants, and mutable state
 // ============================================================
 
-export const filesData = {
+// These are the templates shown in the File Explorer
+export const fileTemplates = {
   'file1': {
-    name: 'Audio_Only.m4a', type: 'audio', hasVideo: false, hasAudio: true,
-    stats: [
-      { label: 'Audio', value: 'AAC / 256 kbps' },
-      { label: 'Size', value: '8.5 MB' },
-      { label: 'Length', value: '04:20' }
-    ],
-    details: {
-      general: [['Format:', 'MPEG-4'], ['File size:', '8.5 MiB'], ['Duration:', '4 min 20 s'], ['Overall bit rate:', '260 kb/s']],
-      audio: [['Format:', 'AAC'], ['Format/Info:', 'Advanced Audio Codec'], ['Duration:', '4 min 20 s'], ['Bit rate mode:', 'Constant'], ['Bit rate:', '256 kb/s'], ['Channel(s):', '2 channels'], ['Sampling rate:', '44.1 kHz'], ['Compression mode:', 'Lossy']],
-      tags: [['TITLE:', 'Audio Only Track'], ['ARTIST:', 'APE Test']]
-    }
-  },
-  'file2': {
-    name: 'Lossless_Track.flac', type: 'audio', hasVideo: false, hasAudio: true,
+    name: 'File with only audio.flac', type: 'audio', hasVideo: false, hasAudio: true,
     stats: [
       { label: 'Codec', value: 'FLAC' }, { label: 'Size', value: '120 MB' },
       { label: 'Length', value: '15:30' }, { label: 'Audio Format', value: '16-bit / 44.1 kHz' }
@@ -28,41 +16,43 @@ export const filesData = {
       tags: [['ARTIST:', 'Various Artists'], ['ALBUM:', 'Test Album']]
     }
   },
-  'file3': {
-    name: 'Video_Only_NoAudio.mkv', type: 'video', hasVideo: true, hasAudio: false,
+  'file2': {
+    name: 'File with only video.mp4', type: 'video', hasVideo: true, hasAudio: false,
     stats: [
-      { label: 'Video', value: 'HEVC' }, { label: 'Size', value: '4.2 GB' },
+      { label: 'Video', value: 'H.264' }, { label: 'Size', value: '4.2 GB' },
       { label: 'Length', value: '01:45:00' }, { label: 'FPS', value: '24' }
     ],
     details: {
-      general: [['Format:', 'Matroska'], ['File size:', '4.20 GiB'], ['Duration:', '1 h 45 min'], ['Overall bit rate:', '5 716 kb/s']],
-      video: [['Format:', 'HEVC'], ['Format/Info:', 'High Efficiency Video Coding'], ['Duration:', '1 h 45 min'], ['Bit rate:', '5 500 kb/s'], ['Width:', '3 840 pixels'], ['Height:', '2 160 pixels'], ['Frame rate:', '24.000 FPS'], ['Bit depth:', '10 bits']],
+      general: [['Format:', 'MPEG-4'], ['File size:', '4.20 GiB'], ['Duration:', '1 h 45 min'], ['Overall bit rate:', '5 716 kb/s']],
+      video: [['Format:', 'H.264'], ['Format/Info:', 'Advanced Video Coding'], ['Duration:', '1 h 45 min'], ['Bit rate:', '5 500 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '24.000 FPS'], ['Bit depth:', '8 bits']],
       tags: [['ENCODER:', 'Video Tool'], ['DATE:', '2023-01-01']]
     }
   },
-  'file4': {
-    name: 'Video_With_Audio.mkv', type: 'video', hasVideo: true, hasAudio: true,
+  'file3': {
+    name: 'File with video and audio.mkv', type: 'video', hasVideo: true, hasAudio: true,
     stats: [
-      { label: 'Video', value: 'AV1' }, { label: 'Size', value: '2.1 GB' },
+      { label: 'Video', value: 'HEVC' }, { label: 'Size', value: '2.1 GB' },
       { label: 'Length', value: '01:30:00' }, { label: 'FPS', value: '60' },
       { label: 'Audio', value: 'AAC / 192 kbps' }
     ],
     details: {
       general: [['Format:', 'Matroska'], ['File size:', '2.10 GiB'], ['Duration:', '1 h 30 min'], ['Overall bit rate:', '3 342 kb/s']],
-      video: [['Format:', 'AV1'], ['Format/Info:', 'AOMedia Video 1'], ['Duration:', '1 h 30 min'], ['Bit rate:', '3 100 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '60.000 FPS'], ['Bit depth:', '10 bits']],
+      video: [['Format:', 'HEVC'], ['Format/Info:', 'High Efficiency Video Coding'], ['Duration:', '1 h 30 min'], ['Bit rate:', '3 100 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '60.000 FPS'], ['Bit depth:', '10 bits']],
       audio: [['Format:', 'AAC'], ['Duration:', '1 h 30 min'], ['Bit rate:', '192 kb/s'], ['Channel(s):', '2 channels'], ['Sampling rate:', '48.0 kHz']],
       tags: [['ENCODER:', 'SVT-AV1'], ['DATE:', '2023-05-15']]
     }
   }
 };
 
-export const fileOrder = ['file1', 'file2', 'file3', 'file4'];
+// These populate dynamically as the user adds files via the explorer
+export const filesData = {};
+export const fileOrder = [];
 
 // ---- Mutable runtime state ----
 export const state = {
   selectedFileId: null,
   selectedFileIds: [],
-  loadedFileIds: [],
+  loadedFileIds: [], // Kept for compatibility, but not strictly used for deduplication anymore
   bulkSelectMode: 'all',
   currentVideoCategory: 'normal',
   currentRenderedAudioCodec: '',
@@ -211,10 +201,11 @@ export const audioActivePresets = {
   'flac': 'standard', 'alac': 'standard', 'ape': 'standard', 'wavpack': 'standard', 'wav': 'standard', 'pcm': 'standard'
 };
 
-export const audioPresetStateCache = {};  // { codec: { presetId: stateData } }
+export const audioPresetStateCache = {}; 
 
 export const currentVideoBasicState = {};
 export const audioStateByCategory = { normal: null, pro: null };
+export const videoPresetStateCache = {}; 
 
 // ---- Video capability matrix ----
 export const codecCapabilities = {
@@ -394,8 +385,6 @@ export const videoCustomPresets = Object.fromEntries(videoCodecKeys.map(c => [c,
 
 // Active video preset per codec: 'standard' | custom id ('custom1', 'custom2', …)
 export const videoActivePresets = Object.fromEntries(videoCodecKeys.map(c => [c, 'standard']));
-
-export const videoPresetStateCache = {};  // { codec: { presetId: basicState } }
 
 // ---- Default advanced state (generated) ----
 export const defaultVideoAdvanced = {};
