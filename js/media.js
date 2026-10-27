@@ -364,9 +364,14 @@ export function clearSettings() {
   
   const vToggle = document.getElementById('enable-video');
   const aToggle = document.getElementById('enable-audio');
+  
+  // Force disabled state to match the greyed-out file state
   vToggle.checked = false;
+  vToggle.disabled = true;
   vToggle.removeAttribute('checked');
+  
   aToggle.checked = false;
+  aToggle.disabled = true;
   aToggle.removeAttribute('checked');
 
   void vBox.offsetWidth;
