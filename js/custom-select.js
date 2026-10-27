@@ -165,10 +165,15 @@ export function initCustomSelect(selectEl) {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       if (opt.disabled) return;
-      selectEl.value = opt.value;
-      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      // Only fire change if the value actually changed
+      if (opt.value !== selectEl.value) {
+        selectEl.value = opt.value;
+        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      
       close();
-      trigger.blur(); // Remove focus so it's no longer highlighted after clicking
+      trigger.blur(); // Remove focus so it's no longer highlighted
     });
 
     return el;
