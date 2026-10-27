@@ -22,36 +22,19 @@
     <div class="window-controls"><span>_</span><span>o</span><span>X</span></div>
   </div>
 
-  <!-- Main Content (2 Columns) -->
   <div class="main-content">
-    <!-- Left Column: Media Section -->
+    <!-- Left Panel: Media Section -->
     <div class="left-panel">
       <div class="drop-zone" onclick="openFileExplorer()">
         <span class="primary-text">Drop media here</span>
         <span class="secondary-text">or click to browse</span>
       </div>
       
-            <!-- NEW SPLIT BUTTON BULK SELECT -->
-      <div class="bulk-select-wrapper">
-        <div class="btn-bulk-group">
-          <div class="btn-bulk-main" id="btn-bulk-main-text" onclick="triggerBulkSelect()">Select all files</div>
-          <div class="btn-bulk-arrow" onclick="toggleBulkSelectDropdown(event)">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </div>
-        </div>
-        <div class="bulk-select-dropdown" id="bulk-select-dropdown">
-          <button class="active-option" onclick="selectBulkMode('all', this)">Select all files</button>
-          <button onclick="selectBulkMode('video', this)">Select all video files</button>
-          <button onclick="selectBulkMode('audio', this)">Select all audio files</button>
-        </div>
-      </div>
-
-      <div class="media-list" id="media-list">
+      <div class="media-panel" id="media-panel">
         <div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>
       </div>
     </div>
 
-    <!-- Right Column: Settings -->
     <div class="right-panel">
       <!-- Details Section -->
       <div class="quick-stats-bar">
