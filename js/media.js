@@ -390,3 +390,30 @@ function updateSelectionUI() {
     else btn.textContent = 'Encode selected files';
   }
 }
+
+export function clearSettings() {
+  state.selectedFileId = null;
+  
+  const vBox = document.getElementById('box-video');
+  const aBox = document.getElementById('box-audio');
+  const oBox = document.getElementById('box-output');
+  
+  // Ensure no disabled-box classes remain when reverting to no-file state
+  vBox.classList.remove('disabled-box');
+  vBox.classList.add('no-file');
+  
+  aBox.classList.remove('disabled-box');
+  aBox.classList.add('no-file');
+  
+  oBox.classList.add('no-file');
+  
+  // Uncheck toggles when clearing
+  const vToggle = document.getElementById('enable-video');
+  const aToggle = document.getElementById('enable-audio');
+  vToggle.checked = false;
+  vToggle.removeAttribute('checked');
+  aToggle.checked = false;
+  aToggle.removeAttribute('checked');
+  
+  document.getElementById('ffmpeg-cmd').value = '';
+}
