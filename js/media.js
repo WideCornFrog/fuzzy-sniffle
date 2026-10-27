@@ -300,9 +300,6 @@ export function selectMediaItem(id) {
   document.getElementById('box-video').classList.remove('no-file');
   document.getElementById('box-audio').classList.remove('no-file');
 
-  renderQuickStats(id);
-  document.getElementById('btn-view-details').disabled = false;
-
   const videoToggle = document.getElementById('enable-video');
   const audioToggle = document.getElementById('enable-audio');
   const boxVideo = document.getElementById('box-video');
@@ -334,21 +331,7 @@ function clearSettings() {
   state.selectedFileId = null;
   document.getElementById('box-video').classList.add('no-file');
   document.getElementById('box-audio').classList.add('no-file');
-  document.getElementById('btn-view-details').disabled = true;
-  document.getElementById('stats-container').innerHTML = '<span class="empty-text">Select a file to view statistics</span>';
   document.getElementById('ffmpeg-cmd').value = '';
-}
-
-function renderQuickStats(fileId) {
-  const file = filesData[fileId];
-  const container = document.getElementById('stats-container');
-  container.innerHTML = '';
-  file.stats.forEach(stat => {
-    const badge = document.createElement('div');
-    badge.className = 'stat-badge';
-    badge.innerHTML = `<span class="label">${stat.label}</span> ${stat.value}`;
-    container.appendChild(badge);
-  });
 }
 
 // ---- REMOVE ITEM ----
