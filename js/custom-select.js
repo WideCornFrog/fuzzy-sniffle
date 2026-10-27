@@ -168,6 +168,7 @@ export function initCustomSelect(selectEl) {
       selectEl.value = opt.value;
       selectEl.dispatchEvent(new Event('change', { bubbles: true }));
       close();
+      trigger.blur(); // Remove focus so it's no longer highlighted after clicking
     });
 
     return el;
