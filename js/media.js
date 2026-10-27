@@ -106,11 +106,18 @@ function generateHUD(file) {
   const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
   if (isVid) {
+    // Clean up resolution string by removing everything except numbers
+    const wStr = file.details?.video?.find(d => d[0] === 'Width:')?.[1] || '';
+    const hStr = file.details?.video?.find(d => d[0] === 'Height:')?.[1] || '';
+    const w = wStr.replace(/[^0-9]/g, '');
+    const h = hStr.replace(/[^0-9]/g, '');
+    const resVal = (w && h) ? `${w} x ${h}` : 'N/A';
+
     return `
       <div class="tt-grid">
         <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
         <div class="tt-item"><span class="tt-key">Video</span><span class="tt-val">${getStat('Video').split(' ')[0]}</span></div>
-        <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${file.details?.video?.find(d => d[0] === 'Width:')?.[1] || 'N/A'} x ${file.details?.video?.find(d => d[0] === 'Height:')?.[1] || 'N/A'}</span></div>
+        <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${resVal}</span></div>
         <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')} fps</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${getStat('Audio') || 'None'}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
