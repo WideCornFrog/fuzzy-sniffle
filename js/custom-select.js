@@ -115,6 +115,9 @@ export function initCustomSelect(selectEl) {
     span.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
     el.appendChild(span);
 
+    const right = document.createElement('div');
+    right.style.cssText = 'display:flex;align-items:center;gap:6px;margin-left:auto;';
+
     const suffix = labelSuffixProvider(selectEl.id, opt.value);
     if (suffix) {
       const s = document.createElement('span');
@@ -122,9 +125,6 @@ export function initCustomSelect(selectEl) {
       s.style.cssText = 'color:#888;font-size:11px;font-style:italic;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;margin-left:auto;padding-right:8px;flex-shrink:0;';
       el.appendChild(s);
     }
-
-    const right = document.createElement('div');
-    right.style.cssText = 'display:flex;align-items:center;gap:6px;flex-shrink:0;width:130px;justify-content:flex-end;' + (suffix ? '' : 'margin-left:auto;');
 
     const { basic, advanced } = editedChecker(selectEl.id, opt.value);
     if (basic) {
@@ -142,7 +142,7 @@ export function initCustomSelect(selectEl) {
     if (opt.selected) {
       const c = document.createElement('span');
       c.textContent = '✓';
-      c.style.cssText = 'color:#325fe9;font-size:12px;';
+      c.style.cssText = 'color:#2563eb;font-size:12px;';
       right.appendChild(c);
     }
     el.appendChild(right);
@@ -176,7 +176,7 @@ export function initCustomSelect(selectEl) {
   function render() {
     const selOpt = selectEl.selectedOptions[0];
     trigger.innerHTML = `<span class="cselect-label"></span>
-      <svg class="cselect-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none"
+      <svg class="cselect-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6 9 12 15 18 9"></polyline>
       </svg>`;
