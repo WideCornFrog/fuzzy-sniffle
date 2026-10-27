@@ -76,7 +76,7 @@ function getInlineMetadata(file) {
     const fps = getStat('FPS');
     if (fps) parts.push(`${fps}fps`);
 
-    // 4. Audio Codec (Channels removed as requested)
+    // 4. Audio Codec (Channels removed)
     if (file.hasAudio) {
       const aStr = getStat('Audio');
       if (aStr) parts.push(aStr.split('/')[0].trim());
@@ -132,7 +132,7 @@ function generateHUD(file) {
 
     return `
       <div class="tt-grid">
-        <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
+        <div class="tt-item"><span class="tt-key">Container</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${codec}</span></div>
         <div class="tt-item"><span class="tt-key">Avg Bitrate</span><span class="tt-val">${overallBitrate}</span></div>
         <div class="tt-item"><span class="tt-key">Depth</span><span class="tt-val">${depth}</span></div>
