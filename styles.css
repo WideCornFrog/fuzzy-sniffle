@@ -250,24 +250,18 @@ body {
 }
 
 /* --- Unified Greyed-Out States --- */
-.settings-box.disabled-box {
-  pointer-events: none;
-}
-.settings-box.disabled-box > * {
-  opacity: 0.4;
-  filter: grayscale(100%);
+.settings-box.disabled-box,
+.settings-box.no-file {
+  border-color: rgba(80, 80, 80, 0.2); /* Fades border identically for both */
+  cursor: not-allowed;
 }
 
-.settings-box.no-file { 
-  position: relative; 
-  cursor: not-allowed; 
-  border-color: #50505033; /* Fades the border to match disabled-box */
-}
-.settings-box.no-file > * { 
-  opacity: 0.4; 
-  filter: grayscale(100%); 
-  pointer-events: none; 
-  user-select: none; 
+.settings-box.disabled-box > *,
+.settings-box.no-file > * {
+  opacity: 0.35; /* Forces identical grey-out */
+  filter: grayscale(100%);
+  pointer-events: none;
+  user-select: none;
 }
 
 .settings-box.no-file::after {
@@ -282,6 +276,7 @@ body {
   transition: opacity 0.15s ease, transform 0.15s ease;
   z-index: 20;
 }
+
 .settings-box.no-file:hover::after { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
 .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; min-width: 0; }
