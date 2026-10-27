@@ -90,8 +90,8 @@ body {
 
 /* --- Left Panel (Media Window) --- */
 .left-panel {
-  width: 370px; 
-  min-width: 370px;
+  width: 360px; 
+  min-width: 360px;
   display: flex;
   flex-direction: column;
   gap: 12px;
