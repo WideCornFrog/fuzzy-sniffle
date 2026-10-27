@@ -2,7 +2,7 @@
 // media.js — File selection, simulated explorer & quick stats
 // ============================================================
 
-import { state, filesData, fileOrder, VIDEO_FAMILIES, PRO_VIDEO_FAMILIES } from './state.js';
+import { state, fileTemplates, filesData, fileOrder, VIDEO_FAMILIES, PRO_VIDEO_FAMILIES } from './state.js';
 import {
   updateOutputFormatOptions, updateVideoCodecAvailability,
   updateAudioCodecAvailability, updateContainerAvailability, updatePanelTags
@@ -33,44 +33,46 @@ function renderFileExplorer() {
   const list = document.getElementById('file-explorer-list');
   list.innerHTML = '';
 
-  fileOrder.forEach(id => {
-    const file = filesData[id];
-    const isLoaded = state.loadedFileIds.includes(id);
+  // Iterate through templates. We no longer disable based on what's loaded.
+  Object.keys(fileTemplates).forEach(baseId => {
+    const file = fileTemplates[baseId];
 
     const item = document.createElement('div');
-    item.className = 'file-explorer-item' + (isLoaded ? ' disabled' : '');
+    item.className = 'file-explorer-item';
     item.innerHTML = `
       <div class="fe-icon">📄</div>
       <div class="fe-info">
         <div class="fe-name">${file.name}</div>
         <div class="fe-meta">${file.type.toUpperCase()} • ${file.stats.find(s => s.label === 'Size')?.value || 'Unknown size'}</div>
       </div>
-      <button class="btn-${isLoaded ? 'cancel' : 'confirm'}" style="padding: 4px 12px; font-size: 12px;" ${isLoaded ? 'disabled' : ''}>${isLoaded ? 'Added' : 'Add'}</button>
+      <button class="btn-confirm" style="padding: 4px 12px; font-size: 12px;">Add</button>
     `;
     
-    if (!isLoaded) {
-      item.onclick = () => addFileToGUI(id);
-    }
+    item.onclick = () => addFileToGUI(baseId);
     list.appendChild(item);
   });
 }
 
-export function addFileToGUI(fileId) {
-  if (state.loadedFileIds.includes(fileId)) return;
-  state.loadedFileIds.push(fileId);
+export function addFileToGUI(baseId) {
+  // Generate a unique instance ID
+  const id = 'item_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
   
+  // Clone the template into the active filesData
+  filesData[id] = JSON.parse(JSON.stringify(fileTemplates[baseId]));
+  filesData[id].id = id;
+  fileOrder.push(id);
+
   const list = document.getElementById('media-list');
   const emptyText = document.getElementById('empty-list-text');
   if (emptyText) emptyText.style.display = 'none';
 
-  const file = filesData[fileId];
+  const file = filesData[id];
   const item = document.createElement('div');
   item.className = 'media-item';
-  item.dataset.id = fileId;
+  item.dataset.id = id;
   item.dataset.type = file.type; // Store type for bulk selection
   
-  // Update the click handler to pass the event object for multi-select (Ctrl/Cmd)
-  item.onclick = (e) => selectMediaItem(item, fileId, e);
+  item.onclick = (e) => selectMediaItem(item, id, e);
   
   item.innerHTML = `
     <div class="filename">${file.name}</div>
@@ -79,7 +81,7 @@ export function addFileToGUI(fileId) {
   
   list.appendChild(item);
   closeFileExplorer();
-  selectMediaItem(item, fileId, null);
+  selectMediaItem(item, id, null);
 }
 
 // ---- Bulk Selection Split Button ----
