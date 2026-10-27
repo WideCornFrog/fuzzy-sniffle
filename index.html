@@ -30,8 +30,8 @@
         <span class="secondary-text">or click to browse</span>
       </div>
       
-      <!-- Media Panel (Populated via JS) -->
-      <div class="media-panel" id="media-panel">
+      <!-- Media Panel (Starts with disabled-ui) -->
+      <div class="media-panel disabled-ui" id="media-panel">
         <div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>
       </div>
     </div>
@@ -42,8 +42,7 @@
       <div class="settings-box video-settings no-file" id="box-video">
         <div class="box-header">
           <div class="box-header-left">
-            <!-- NO checked ATTRIBUTE HERE -->
-            <input type="checkbox" class="toggle-enable" id="enable-video" onchange="onVideoEnableChange(this)">
+            <input type="checkbox" class="toggle-enable" id="enable-video" disabled onchange="onVideoEnableChange(this)">
             <div class="box-title">Video settings</div>
             <div id="video-panel-tags" style="display:flex; gap:4px;"></div>
           </div>
@@ -131,8 +130,7 @@
       <div class="settings-box audio-settings no-file" id="box-audio">
         <div class="box-header">
           <div class="box-header-left">
-            <!-- NO checked ATTRIBUTE HERE -->
-            <input type="checkbox" class="toggle-enable" id="enable-audio" onchange="onAudioEnableChange(this)">
+            <input type="checkbox" class="toggle-enable" id="enable-audio" disabled onchange="onAudioEnableChange(this)">
             <div class="box-title">Audio settings</div>
             <div id="audio-panel-tags" style="display:flex; gap:4px;"></div>
           </div>
@@ -246,11 +244,14 @@
 
   <!-- Bottom Bar (FFmpeg Command & Encode) -->
   <div class="bottom-bar">
-    <input type="text" class="ffmpeg-input" id="ffmpeg-cmd" readonly
+    <!-- Starts with disabled-ui -->
+    <input type="text" class="ffmpeg-input disabled-ui" id="ffmpeg-cmd" readonly
            placeholder="Select a file to see the FFmpeg command"
            title="Click to copy"
            onclick="copyFfmpegCommand()">
-    <div class="btn-encode-wrapper">
+    
+    <!-- Starts with disabled-ui -->
+    <div class="btn-encode-wrapper disabled-ui" id="encode-wrapper">
       <div class="btn-encode-group">
         <div class="btn-encode-main" id="btn-encode-text" onclick="triggerEncode()">Encode selected files</div>
         <div class="btn-encode-arrow" id="btn-encode-arrow" onclick="toggleEncodeDropdown(event)">
