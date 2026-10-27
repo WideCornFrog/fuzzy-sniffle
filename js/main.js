@@ -126,5 +126,15 @@ window.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('input', () => refreshFfmpegCommand());
   document.addEventListener('change', () => refreshFfmpegCommand());
 
+  // Blur text inputs when Enter is pressed to remove the highlight/focus state
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' && e.target.type === 'text' || tag === 'TEXTAREA') {
+        e.target.blur();
+      }
+    }
+  });
+
   void state; void updateOutputFormatOptions;
 });
