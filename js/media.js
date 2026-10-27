@@ -77,7 +77,7 @@ function getInlineMetadata(file) {
     const fps = getStat('FPS');
     if (fps) parts.push(`${fps}fps`);
 
-    // 4. Audio Codec (Channels removed)
+    // 4. Audio Codec
     if (file.hasAudio) {
       const aStr = getStat('Audio');
       if (aStr) parts.push(aStr.split('/')[0].trim());
@@ -283,7 +283,6 @@ export function toggleGroupSelect(type) {
 function syncCheckboxStates() {
   const globalCb = document.getElementById('global-select');
   if (globalCb) {
-    // Only check the global box if ALL files are selected AND there is at least one file
     globalCb.checked = fileOrder.length > 0 && state.selectedFileIds.length === fileOrder.length;
   }
 }
@@ -292,7 +291,7 @@ function syncCheckboxStates() {
 export function selectMediaItem(id) {
   state.selectedFileId = id;
   
-  // Removed the auto-push to state.selectedFileIds so files start unselected
+  // Removed auto-push so files start unselected
   
   const file = filesData[id];
 
