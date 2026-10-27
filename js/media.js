@@ -124,9 +124,9 @@ export function renderMediaList() {
       const isSelected = state.selectedFileIds.includes(id);
       const hudContent = generateHUD(file);
 
-      // Filter out the 'Length' stat for the visible row text
+      // Filter out 'Length' and 'Size' so they aren't duplicated
       const visibleStats = file.stats
-        .filter(s => s.label !== 'Length')
+        .filter(s => s.label !== 'Length' && s.label !== 'Size')
         .map(s => s.value)
         .join(' • ');
 
