@@ -9,16 +9,6 @@ import {
 } from './output.js';
 import { refreshFfmpegCommand } from './ffmpeg.js';
 
-// Close bulk dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  const dropdown = document.getElementById('bulk-select-dropdown');
-  if (dropdown && dropdown.classList.contains('active')) {
-    if (!e.target.closest('.bulk-select-wrapper')) {
-      dropdown.classList.remove('active');
-    }
-  }
-});
-
 // ---- Simulated File Explorer ----
 export function openFileExplorer() {
   renderFileExplorer();
@@ -33,7 +23,6 @@ function renderFileExplorer() {
   const list = document.getElementById('file-explorer-list');
   list.innerHTML = '';
 
-  // Iterate through templates. We no longer disable based on what's loaded.
   Object.keys(fileTemplates).forEach(baseId => {
     const file = fileTemplates[baseId];
 
@@ -54,124 +43,200 @@ function renderFileExplorer() {
 }
 
 export function addFileToGUI(baseId) {
-  // Generate a unique instance ID
   const id = 'item_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
   
-  // Clone the template into the active filesData
   filesData[id] = JSON.parse(JSON.stringify(fileTemplates[baseId]));
   filesData[id].id = id;
   fileOrder.push(id);
 
-  const list = document.getElementById('media-list');
-  const emptyText = document.getElementById('empty-list-text');
-  if (emptyText) emptyText.style.display = 'none';
-
-  const file = filesData[id];
-  const item = document.createElement('div');
-  item.className = 'media-item';
-  item.dataset.id = id;
-  item.dataset.type = file.type; // Store type for bulk selection
-  
-  item.onclick = (e) => selectMediaItem(item, id, e);
-  
-  item.innerHTML = `
-    <div class="filename">${file.name}</div>
-    <div class="progress-bg"></div><div class="progress-fill" style="width: 100%;"></div>
-  `;
-  
-  list.appendChild(item);
   closeFileExplorer();
-  selectMediaItem(item, id, null);
+  renderMediaList();
+  selectMediaItem(id);
 }
 
-// ---- Bulk Selection Split Button ----
-export function toggleBulkSelectDropdown(e) {
-  e.stopPropagation();
-  document.getElementById('bulk-select-dropdown').classList.toggle('active');
-}
+// ---- RENDER MEDIA LIST ----
+function generateHUD(file) {
+  const isVid = file.hasVideo;
+  const stats = file.stats;
 
-export function triggerBulkSelect() {
-  selectAllMedia(state.bulkSelectMode);
-}
+  const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
-export function selectBulkMode(mode, btnElement) {
-  state.bulkSelectMode = mode;
-  
-  // Update button text
-  document.getElementById('btn-bulk-main-text').textContent = btnElement.textContent;
-  
-  // Update active state in dropdown
-  document.querySelectorAll('.bulk-select-dropdown button').forEach(btn => btn.classList.remove('active-option'));
-  btnElement.classList.add('active-option');
-  
-  // Close dropdown
-  document.getElementById('bulk-select-dropdown').classList.remove('active');
-  
-  // Trigger the selection immediately
-  selectAllMedia(mode);
-}
-
-export function selectAllMedia(type) {
-  document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
-  state.selectedFileIds = [];
-  
-  let firstId = null;
-  document.querySelectorAll('.media-item').forEach(el => {
-    if (type === 'all' || el.dataset.type === type) {
-      el.classList.add('active');
-      const id = el.dataset.id;
-      state.selectedFileIds.push(id);
-      if (!firstId) firstId = id;
-    }
-  });
-  
-  if (firstId) {
-    updateSettingsForFile(firstId);
+  if (isVid) {
+    return `
+      <div class="tt-grid">
+        <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
+        <div class="tt-item"><span class="tt-key">Video</span><span class="tt-val">${getStat('Video').split(' ')[0]}</span></div>
+        <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${file.details?.video?.find(d => d[0] === 'Width:')?.[1] || 'N/A'} x ${file.details?.video?.find(d => d[0] === 'Height:')?.[1] || 'N/A'}</span></div>
+        <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')}</span></div>
+        <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${getStat('Audio') || 'None'}</span></div>
+        <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
+      </div>
+    `;
   } else {
-    clearSettings();
+    return `
+      <div class="tt-grid">
+        <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
+        <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">Lossless</span></div>
+        <div class="tt-item"><span class="tt-key">Bitrate</span><span class="tt-val">N/A</span></div>
+        <div class="tt-item"><span class="tt-key">Depth</span><span class="tt-val">16-bit</span></div>
+        <div class="tt-item"><span class="tt-key">Rate</span><span class="tt-val">44.1 kHz</span></div>
+        <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
+      </div>
+    `;
   }
 }
 
-// ---- Media Selection ----
-export function selectMediaItem(element, fileId, event = null) {
-  const isMultiSelect = event && (event.ctrlKey || event.metaKey);
+export function renderMediaList() {
+  const panel = document.getElementById('media-panel');
+  const emptyText = document.getElementById('empty-list-text');
   
-  // If it's a standard click, clear all other selections
-  if (!isMultiSelect) {
-    document.querySelectorAll('.media-item').forEach(el => el.classList.remove('active'));
-    state.selectedFileIds = [];
-  }
-  
-  // If multi-selecting and clicking an already active item, deselect it
-  if (element.classList.contains('active') && isMultiSelect) {
-    element.classList.remove('active');
-    state.selectedFileIds = state.selectedFileIds.filter(id => id !== fileId);
-    if (state.selectedFileIds.length > 0) {
-      updateSettingsForFile(state.selectedFileIds[state.selectedFileIds.length - 1]);
-    } else {
-      clearSettings();
-    }
+  if (fileOrder.length === 0) {
+    panel.innerHTML = '<div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>';
     return;
   }
+
+  const videos = fileOrder.filter(id => filesData[id].type === 'video');
+  const audios = fileOrder.filter(id => filesData[id].type === 'audio');
+
+  let html = `
+    <div class="global-toolbar">
+      <label>
+        <input type="checkbox" class="select-all-cb" id="global-select" onchange="toggleGlobalSelect(this.checked)">
+        Select All Files
+      </label>
+    </div>
+  `;
+
+  const renderGroup = (title, type, items) => {
+    if (items.length === 0) return '';
+    
+    let groupHtml = `
+      <div class="group-header">
+        <div class="group-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          ${title} (${items.length})
+        </div>
+        <button class="group-select-all" onclick="toggleGroupSelect('${type}')">Select All ${type.charAt(0).toUpperCase() + type.slice(1)}</button>
+      </div>
+    `;
+
+    items.forEach(id => {
+      const file = filesData[id];
+      const isSelected = state.selectedFileIds.includes(id);
+      const hudContent = generateHUD(file);
+
+      groupHtml += `
+        <div class="media-row" id="row-${id}">
+          <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelect('${id}', this.checked)">
+          <div class="col-info" onclick="selectMediaItem('${id}')">
+            <div class="col-name">${file.name}</div>
+            <div class="col-meta">${file.stats.map(s => s.value).join(' • ')}</div>
+          </div>
+          <div class="col-size">${file.stats.find(s => s.label === 'Size')?.value || ''}</div>
+          <div class="col-actions">
+            <div class="tooltip-wrapper">
+              <button class="btn-icon" title="Info">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"></circle>
+                </svg>
+              </button>
+              <div class="info-tooltip">${hudContent}</div>
+            </div>
+            <button class="btn-icon btn-remove" title="Remove" onclick="removeMediaItem('${id}', event)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    return groupHtml;
+  };
+
+  html += renderGroup('Video Files', 'video', videos);
+  html += renderGroup('Audio Files', 'audio', audios);
+
+  panel.innerHTML = html;
   
-  // Add to selection
-  element.classList.add('active');
-  if (!state.selectedFileIds.includes(fileId)) {
-    state.selectedFileIds.push(fileId);
-  }
-  
-  updateSettingsForFile(fileId);
+  // Sync Checkboxes
+  syncCheckboxStates();
 }
 
-// Extracted to support bulk select keeping the UI in sync with the last selected file
-function updateSettingsForFile(fileId) {
-  state.selectedFileId = fileId;
-  const file = filesData[fileId];
+// ---- SELECTION LOGIC ----
+export function toggleRowSelect(id, isChecked) {
+  if (isChecked) {
+    if (!state.selectedFileIds.includes(id)) state.selectedFileIds.push(id);
+    selectMediaItem(id); // Focus this file in the right panel
+  } else {
+    state.selectedFileIds = state.selectedFileIds.filter(fId => fId !== id);
+    if (state.selectedFileId === id) {
+      // If we deselect the active file, try to select the last remaining one
+      if (state.selectedFileIds.length > 0) {
+        selectMediaItem(state.selectedFileIds[state.selectedFileIds.length - 1]);
+      } else {
+        clearSettings();
+      }
+    }
+  }
+  syncCheckboxStates();
+  updateSelectionUI();
+}
+
+export function toggleGlobalSelect(isChecked) {
+  if (isChecked) {
+    state.selectedFileIds = [...fileOrder];
+    if (fileOrder.length > 0) selectMediaItem(fileOrder[0]);
+  } else {
+    state.selectedFileIds = [];
+    clearSettings();
+  }
+  renderMediaList();
+  updateSelectionUI();
+}
+
+export function toggleGroupSelect(type) {
+  const itemsOfType = fileOrder.filter(id => filesData[id].type === type);
+  const allSelected = itemsOfType.every(id => state.selectedFileIds.includes(id));
+  
+  if (allSelected) {
+    state.selectedFileIds = state.selectedFileIds.filter(id => !itemsOfType.includes(id));
+    if (state.selectedFileId && !state.selectedFileIds.includes(state.selectedFileId)) {
+      if (state.selectedFileIds.length > 0) selectMediaItem(state.selectedFileIds[state.selectedFileIds.length - 1]);
+      else clearSettings();
+    }
+  } else {
+    itemsOfType.forEach(id => {
+      if (!state.selectedFileIds.includes(id)) state.selectedFileIds.push(id);
+    });
+    if (itemsOfType.length > 0) selectMediaItem(itemsOfType[0]);
+  }
+  renderMediaList();
+  updateSelectionUI();
+}
+
+function syncCheckboxStates() {
+  const globalCb = document.getElementById('global-select');
+  if (globalCb) {
+    globalCb.checked = fileOrder.length > 0 && state.selectedFileIds.length === fileOrder.length;
+  }
+}
+
+// ---- MEDIA SELECTION (Right Panel Sync) ----
+export function selectMediaItem(id) {
+  state.selectedFileId = id;
+  if (!state.selectedFileIds.includes(id)) {
+    state.selectedFileIds.push(id);
+    syncCheckboxStates();
+    updateSelectionUI();
+  }
+  
+  const file = filesData[id];
 
   document.getElementById('box-video').classList.remove('no-file');
   document.getElementById('box-audio').classList.remove('no-file');
 
-  renderQuickStats(fileId);
+  renderQuickStats(id);
   document.getElementById('btn-view-details').disabled = false;
 
   const videoToggle = document.getElementById('enable-video');
@@ -220,4 +285,37 @@ function renderQuickStats(fileId) {
     badge.innerHTML = `<span class="label">${stat.label}</span> ${stat.value}`;
     container.appendChild(badge);
   });
+}
+
+// ---- REMOVE ITEM ----
+export function removeMediaItem(id, event) {
+  if (event) event.stopPropagation();
+
+  // Remove from state
+  state.selectedFileIds = state.selectedFileIds.filter(fId => fId !== id);
+  const index = fileOrder.indexOf(id);
+  if (index > -1) fileOrder.splice(index, 1);
+  delete filesData[id];
+
+  // If removing the active file, select the next available
+  if (state.selectedFileId === id) {
+    if (fileOrder.length > 0) {
+      selectMediaItem(fileOrder[0]);
+    } else {
+      clearSettings();
+    }
+  }
+
+  renderMediaList();
+  updateSelectionUI();
+}
+
+// ---- UI UPDATE HELPER ----
+function updateSelectionUI() {
+  const count = state.selectedFileIds.length;
+  const btn = document.getElementById('btn-encode-text');
+  if (btn) {
+    if (count > 1) btn.textContent = `Encode ${count} selected files`;
+    else btn.textContent = 'Encode selected files';
+  }
 }
