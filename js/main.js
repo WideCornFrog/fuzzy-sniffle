@@ -124,7 +124,16 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById(id).addEventListener('change', () => refreshSelect(id)));
 
   document.addEventListener('input', () => refreshFfmpegCommand());
-  document.addEventListener('change', () => refreshFfmpegCommand());
+  
+  // Handle change events and remove focus from native selects and inputs
+  document.addEventListener('change', (e) => {
+    refreshFfmpegCommand();
+    
+    // Remove focus highlight from native dropdowns after selection
+    if (e.target.tagName === 'SELECT') {
+      e.target.blur();
+    }
+  });
 
   // Blur text inputs when Enter is pressed to remove the highlight/focus state
   document.addEventListener('keydown', (e) => {
