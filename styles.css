@@ -34,7 +34,7 @@ body {
 /* --- Header --- */
 .header {
   height: 42px;
-  background: #1a1a1a;
+  background: #0a0a0a; /* Matched to footer */
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -816,7 +816,6 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   cursor: pointer;
   font-family: "Source Sans 3", sans-serif;
   
-  /* Restricted transition to prevent arrow sliding */
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   
   appearance: none;
