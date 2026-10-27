@@ -76,17 +76,10 @@ function getInlineMetadata(file) {
     const fps = getStat('FPS');
     if (fps) parts.push(`${fps}fps`);
 
-    // 4. Audio Data (Only if the file has audio)
+    // 4. Audio Codec (Channels removed as requested)
     if (file.hasAudio) {
       const aStr = getStat('Audio');
       if (aStr) parts.push(aStr.split('/')[0].trim());
-
-      const cStr = file.details?.audio?.find(d => d[0] === 'Channel(s):')?.[1] || '';
-      if (cStr.includes('1')) parts.push('Mono');
-      else if (cStr.includes('2')) parts.push('Stereo');
-      else if (cStr.includes('6')) parts.push('5.1');
-      else if (cStr.includes('8')) parts.push('7.1');
-      else if (cStr) parts.push(cStr);
     }
 
     return parts.join(' • ');
@@ -105,15 +98,6 @@ function generateHUD(file) {
   const stats = file.stats;
   const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
-  // Extract Channels
-  let channelStr = 'N/A';
-  const cStr = file.details?.audio?.find(d => d[0] === 'Channel(s):')?.[1] || '';
-  if (cStr.includes('1')) channelStr = 'Mono';
-  else if (cStr.includes('2')) channelStr = 'Stereo';
-  else if (cStr.includes('6')) channelStr = '5.1';
-  else if (cStr.includes('8')) channelStr = '7.1';
-  else if (cStr) channelStr = cStr;
-
   if (isVid) {
     // Extract Resolution
     const wStr = file.details?.video?.find(d => d[0] === 'Width:')?.[1] || '';
@@ -122,24 +106,37 @@ function generateHUD(file) {
     const h = hStr.replace(/[^0-9]/g, '');
     const resVal = (w && h) ? `${w} x ${h}` : 'N/A';
 
+    // Extract Audio Codec & Avg Bitrate
+    const audioStr = getStat('Audio');
+    const audioCodec = file.hasAudio ? audioStr.split('/')[0].trim() : 'None';
+    const avgBitrate = file.hasAudio ? (audioStr.split('/')[1]?.trim() || 'N/A') : 'None';
+
     return `
       <div class="tt-grid">
         <div class="tt-item"><span class="tt-key">Video</span><span class="tt-val">${getStat('Video').split(' ')[0]}</span></div>
         <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${resVal}</span></div>
         <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')} fps</span></div>
-        <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${getStat('Audio') || 'None'}</span></div>
-        <div class="tt-item"><span class="tt-key">Channels</span><span class="tt-val">${file.hasAudio ? channelStr : 'None'}</span></div>
+        <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${audioCodec}</span></div>
+        <div class="tt-item"><span class="tt-key">Avg Bitrate</span><span class="tt-val">${avgBitrate}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
       </div>
     `;
   } else {
+    // Audio Only HUD
+    const codec = getStat('Codec') || 'N/A';
+    const overallBitrate = file.details?.general?.find(d => d[0] === 'Overall bit rate:')?.[1] || 'N/A';
+    
+    const audioFormat = (getStat('Audio Format') || '').split(' / ');
+    const depth = audioFormat[0] || 'N/A';
+    const rate = audioFormat[1] || 'N/A';
+
     return `
       <div class="tt-grid">
-        <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">Lossless</span></div>
-        <div class="tt-item"><span class="tt-key">Bitrate</span><span class="tt-val">N/A</span></div>
-        <div class="tt-item"><span class="tt-key">Channels</span><span class="tt-val">${channelStr}</span></div>
-        <div class="tt-item"><span class="tt-key">Depth</span><span class="tt-val">16-bit</span></div>
-        <div class="tt-item"><span class="tt-key">Rate</span><span class="tt-val">44.1 kHz</span></div>
+        <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
+        <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${codec}</span></div>
+        <div class="tt-item"><span class="tt-key">Avg Bitrate</span><span class="tt-val">${overallBitrate}</span></div>
+        <div class="tt-item"><span class="tt-key">Depth</span><span class="tt-val">${depth}</span></div>
+        <div class="tt-item"><span class="tt-key">Rate</span><span class="tt-val">${rate}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
       </div>
     `;
