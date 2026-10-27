@@ -10,7 +10,7 @@ import {
 
 import { 
   selectMediaItem, openFileExplorer, closeFileExplorer, 
-  toggleBulkSelectDropdown, triggerBulkSelect, selectBulkMode, selectAllMedia 
+  toggleRowSelect, toggleGlobalSelect, toggleGroupSelect, removeMediaItem, renderMediaList 
 } from './media.js';
 
 import {
@@ -74,7 +74,6 @@ setLabelSuffixProvider((selectId, value) => {
 Object.assign(window, {
   // Media
   selectMediaItem, openFileExplorer, closeFileExplorer, 
-  toggleBulkSelectDropdown, triggerBulkSelect, selectBulkMode, selectAllMedia,
   toggleRowSelect, toggleGlobalSelect, toggleGroupSelect, removeMediaItem, renderMediaList,
 
   // Video
