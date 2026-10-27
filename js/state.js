@@ -19,12 +19,12 @@ export const fileTemplates = {
   'file2': {
     name: 'File with only video.mp4', type: 'video', hasVideo: true, hasAudio: false,
     stats: [
-      { label: 'Video', value: 'H.264' }, { label: 'Size', value: '4.2 GB' },
+      { label: 'Video', value: 'HEVC' }, { label: 'Size', value: '4.2 GB' },
       { label: 'Length', value: '01:45:00' }, { label: 'FPS', value: '24' }
     ],
     details: {
       general: [['Format:', 'MPEG-4'], ['File size:', '4.20 GiB'], ['Duration:', '1 h 45 min'], ['Overall bit rate:', '5 716 kb/s']],
-      video: [['Format:', 'H.264'], ['Format/Info:', 'Advanced Video Coding'], ['Duration:', '1 h 45 min'], ['Bit rate:', '5 500 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '24.000 FPS'], ['Bit depth:', '8 bits']],
+      video: [['Format:', 'HEVC'], ['Format/Info:', 'High Efficiency Video Coding'], ['Duration:', '1 h 45 min'], ['Bit rate:', '5 500 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '24.000 FPS'], ['Bit depth:', '10 bits']],
       tags: [['ENCODER:', 'Video Tool'], ['DATE:', '2023-01-01']]
     }
   },
@@ -32,13 +32,13 @@ export const fileTemplates = {
     name: 'File with video and audio.mkv', type: 'video', hasVideo: true, hasAudio: true,
     stats: [
       { label: 'Video', value: 'HEVC' }, { label: 'Size', value: '2.1 GB' },
-      { label: 'Length', value: '01:30:00' }, { label: 'FPS', value: '60' },
+      { label: 'Length', value: '01:30:00' }, { label: 'FPS', value: '24' },
       { label: 'Audio', value: 'AAC / 192 kbps' }
     ],
     details: {
       general: [['Format:', 'Matroska'], ['File size:', '2.10 GiB'], ['Duration:', '1 h 30 min'], ['Overall bit rate:', '3 342 kb/s']],
-      video: [['Format:', 'HEVC'], ['Format/Info:', 'High Efficiency Video Coding'], ['Duration:', '1 h 30 min'], ['Bit rate:', '3 100 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '60.000 FPS'], ['Bit depth:', '10 bits']],
-      audio: [['Format:', 'AAC'], ['Duration:', '1 h 30 min'], ['Bit rate:', '192 kb/s'], ['Channel(s):', '2 channels'], ['Sampling rate:', '48.0 kHz']],
+      video: [['Format:', 'HEVC'], ['Format/Info:', 'High Efficiency Video Coding'], ['Duration:', '1 h 30 min'], ['Bit rate:', '3 100 kb/s'], ['Width:', '1 920 pixels'], ['Height:', '1 080 pixels'], ['Frame rate:', '24.000 FPS'], ['Bit depth:', '10 bits']],
+      audio: [['Format:', 'AAC'], ['Duration:', '1 h 30 min'], ['Bit rate:', '192 kb/s'], ['Channel(s):', '1 channel'], ['Sampling rate:', '48.0 kHz']],
       tags: [['ENCODER:', 'SVT-AV1'], ['DATE:', '2023-05-15']]
     }
   }
@@ -52,7 +52,7 @@ export const fileOrder = [];
 export const state = {
   selectedFileId: null,
   selectedFileIds: [],
-  loadedFileIds: [], // Kept for compatibility, but not strictly used for deduplication anymore
+  loadedFileIds: [],
   bulkSelectMode: 'all',
   currentVideoCategory: 'normal',
   currentRenderedAudioCodec: '',
@@ -380,10 +380,7 @@ export const codecCapabilities = {
 
 export const videoCodecKeys = Object.keys(codecCapabilities);
 
-// Per-codec user-created video presets. Each entry: { id, name, data }
 export const videoCustomPresets = Object.fromEntries(videoCodecKeys.map(c => [c, []]));
-
-// Active video preset per codec: 'standard' | custom id ('custom1', 'custom2', …)
 export const videoActivePresets = Object.fromEntries(videoCodecKeys.map(c => [c, 'standard']));
 
 // ---- Default advanced state (generated) ----
