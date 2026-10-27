@@ -42,6 +42,7 @@
       <div class="settings-box video-settings no-file" id="box-video">
         <div class="box-header">
           <div class="box-header-left">
+            <!-- Starts disabled and unchecked -->
             <input type="checkbox" class="toggle-enable" id="enable-video" disabled onchange="onVideoEnableChange(this)">
             <div class="box-title">Video settings</div>
             <div id="video-panel-tags" style="display:flex; gap:4px;"></div>
@@ -130,6 +131,7 @@
       <div class="settings-box audio-settings no-file" id="box-audio">
         <div class="box-header">
           <div class="box-header-left">
+            <!-- Starts disabled and unchecked -->
             <input type="checkbox" class="toggle-enable" id="enable-audio" disabled onchange="onAudioEnableChange(this)">
             <div class="box-title">Audio settings</div>
             <div id="audio-panel-tags" style="display:flex; gap:4px;"></div>
@@ -255,7 +257,7 @@
       <div class="btn-encode-group">
         <div class="btn-encode-main" id="btn-encode-text" onclick="triggerEncode()">Encode selected files</div>
         <div class="btn-encode-arrow" id="btn-encode-arrow" onclick="toggleEncodeDropdown(event)">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
       </div>
       <div class="encode-dropdown" id="encode-dropdown">
