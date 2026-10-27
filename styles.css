@@ -815,7 +815,9 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
   outline: none;
   cursor: pointer;
   font-family: "Source Sans 3", sans-serif;
-  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  
+  /* Restricted transition to prevent arrow sliding */
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   
   appearance: none;
   -webkit-appearance: none;
