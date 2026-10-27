@@ -11,7 +11,7 @@ import {
 import { 
   selectMediaItem, openFileExplorer, closeFileExplorer, 
   toggleRowSelect, toggleGlobalSelect, toggleGroupSelect, removeMediaItem, renderMediaList,
-  clearSettings // <-- Ensure this is imported
+  clearSettings
 } from './media.js';
 
 import {
