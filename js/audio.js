@@ -143,7 +143,10 @@ export function saveAudioStateUI(codecOverride) {
   } else if (codec === 'libmp3lame') {
     const vbr = document.getElementById('chk-mp3-vbr');
     if (vbr) {
-      audioState.mp3.mode = vbr.checked ? 'vbr' : (document.getElementById('chk-mp3-abr').checked ? 'abr' : 'cbr');
+      // Only update mode if one of the basic checkboxes is explicitly checked
+      if (vbr.checked) audioState.mp3.mode = 'vbr';
+      else if (document.getElementById('chk-mp3-abr').checked) audioState.mp3.mode = 'abr';
+      
       audioState.mp3.vbrQuality = document.getElementById('mp3-vbr-quality').value;
       audioState.mp3.abrBitrate = document.getElementById('mp3-abr-bitrate').value;
     }
@@ -509,7 +512,6 @@ function restoreAudioStateUI(codec) {
     const mp3 = s || getStandardState('libmp3lame');
     document.getElementById('chk-mp3-vbr').checked = mp3.mode === 'vbr';
     document.getElementById('chk-mp3-abr').checked = mp3.mode === 'abr';
-    document.getElementById('chk-mp3-cbr').checked = mp3.mode === 'cbr';
     document.getElementById('mp3-vbr-quality').value = mp3.vbrQuality;
     document.getElementById('mp3-vbr-quality-value').textContent = mp3.vbrQuality;
     document.getElementById('mp3-abr-bitrate').value = mp3.abrBitrate;
@@ -625,19 +627,10 @@ function renderAudioDynamicUI(codec) {
             <input type="checkbox" id="chk-mp3-abr" onchange="onAudioModeChange('mp3', 'abr')"> <span>ABR</span>
           </label>
         </div>
-      </div>
-      <div class="setting-row">
-        <label>CBR Mode</label>
-        <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
-          <span style="font-size: 12px; color: #888;">Bitrate configured in Advanced Settings</span>
-          <label class="custom-checkbox-label" style="white-space: nowrap;">
-            <input type="checkbox" id="chk-mp3-cbr" onchange="onAudioModeChange('mp3', 'cbr')"> <span>CBR</span>
-          </label>
-        </div>
       </div>`;
     bindAudioSlider('#mp3-vbr-quality', '#mp3-vbr-quality-value', '');
     bindAudioSlider('#mp3-abr-bitrate', '#mp3-abr-bitrate-value', 'k');
-    ['chk-mp3-vbr', 'chk-mp3-abr', 'chk-mp3-cbr'].forEach(id =>
+    ['chk-mp3-vbr', 'chk-mp3-abr'].forEach(id =>
       document.getElementById(id).addEventListener('change', () => scheduleRefresh()));
   } else if (codec === 'libvorbis') {
     c.innerHTML = `
@@ -719,7 +712,6 @@ export function onAudioModeChange(type, mode) {
   if (type === 'mp3') {
     document.getElementById('chk-mp3-vbr').checked = mode === 'vbr';
     document.getElementById('chk-mp3-abr').checked = mode === 'abr';
-    document.getElementById('chk-mp3-cbr').checked = mode === 'cbr';
     document.getElementById('mp3-vbr-quality').disabled = mode !== 'vbr';
     document.getElementById('mp3-abr-bitrate').disabled = mode !== 'abr';
   } else if (type === 'opus') {
@@ -781,6 +773,15 @@ function buildAudioAdvancedUI() {
     if (codec === 'libmp3lame') {
       extraHtml = `
         <div class="setting-row" style="grid-template-columns:140px 1fr;">
+          <label>Force CBR</label>
+          <div>
+            <label class="custom-checkbox-label">
+              <input type="checkbox" id="aud-adv-mp3-cbrmode-${codec}" onchange="markAudioAdvancedEdited('${codec}')">
+              <span>Enable Constant Bitrate Mode</span>
+            </label>
+          </div>
+        </div>
+        <div class="setting-row" style="grid-template-columns:140px 1fr;">
           <label>CBR Bitrate</label>
           <div class="slider-group">
             <input type="range" class="custom-slider" id="aud-adv-mp3-cbr-${codec}" min="8" max="320" step="8" value="${currentAudioAdvanced[codec].cbrBitrate || 192}" oninput="markAudioAdvancedEdited('${codec}')">
@@ -827,6 +828,8 @@ export function switchAudioTab(codec) {
       el.value = currentAudioAdvanced[codec].cbrBitrate || 192;
       document.getElementById(`aud-adv-mp3-cbr-val-${codec}`).textContent = el.value + 'k';
     }
+    const modeCb = document.getElementById(`aud-adv-mp3-cbrmode-${codec}`);
+    if (modeCb) modeCb.checked = (audioState.mp3.mode === 'cbr');
   }
 
   const isEdited = isAudioAdvancedEdited(codec);
@@ -855,6 +858,14 @@ export function markAudioAdvancedEdited(codec) {
   currentAudioAdvanced[codec].preserveMetadata = document.getElementById(`aud-meta-${codec}`).checked;
   
   if (codec === 'libmp3lame') {
+    const modeCb = document.getElementById(`aud-adv-mp3-cbrmode-${codec}`);
+    if (modeCb) {
+      if (modeCb.checked) {
+        audioState.mp3.mode = 'cbr';
+      } else if (audioState.mp3.mode === 'cbr') {
+        audioState.mp3.mode = 'vbr'; // Default back
+      }
+    }
     const el = document.getElementById(`aud-adv-mp3-cbr-${codec}`);
     if (el) {
       currentAudioAdvanced[codec].cbrBitrate = +el.value;
@@ -869,6 +880,9 @@ export function markAudioAdvancedEdited(codec) {
 
 export function resetSpecificAudioSettings(codec) {
   currentAudioAdvanced[codec] = JSON.parse(JSON.stringify(defaultAudioAdvanced[codec]));
+  if (codec === 'libmp3lame' && audioState.mp3.mode === 'cbr') {
+    audioState.mp3.mode = 'vbr';
+  }
   switchAudioTab(codec);
   updateAudioAdvancedIndicators();
   refreshSelect('audio-codec');
@@ -880,6 +894,7 @@ export async function resetAllAudioAdvancedSettings() {
   const confirmed = await showConfirm('Reset All Advanced Audio Settings', 'Are you sure you want to reset ALL advanced audio settings to default?', 'Reset All', true);
   if (!confirmed) return;
   Object.assign(currentAudioAdvanced, JSON.parse(JSON.stringify(defaultAudioAdvanced)));
+  if (audioState.mp3.mode === 'cbr') audioState.mp3.mode = 'vbr';
   buildAudioAdvancedUI();
   switchAudioTab(state.activeAudioTab);
   updateAudioAdvancedIndicators();
