@@ -67,7 +67,7 @@ function generateHUD(file) {
         <div class="tt-item"><span class="tt-key">Format</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
         <div class="tt-item"><span class="tt-key">Video</span><span class="tt-val">${getStat('Video').split(' ')[0]}</span></div>
         <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${file.details?.video?.find(d => d[0] === 'Width:')?.[1] || 'N/A'} x ${file.details?.video?.find(d => d[0] === 'Height:')?.[1] || 'N/A'}</span></div>
-        <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')}</span></div>
+        <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')} fps</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${getStat('Audio') || 'None'}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
       </div>
@@ -124,10 +124,15 @@ export function renderMediaList() {
       const isSelected = state.selectedFileIds.includes(id);
       const hudContent = generateHUD(file);
 
-      // Filter out 'Length' and 'Size' so they aren't duplicated
+      // Filter out 'Length' and 'Size'. Exclude 'Audio' if video, and append 'fps' to FPS.
       const visibleStats = file.stats
         .filter(s => s.label !== 'Length' && s.label !== 'Size')
-        .map(s => s.value)
+        .map(s => {
+          if (file.hasVideo && s.label === 'Audio') return null;
+          if (s.label === 'FPS') return `${s.value} fps`;
+          return s.value;
+        })
+        .filter(Boolean)
         .join(' • ');
 
       groupHtml += `
