@@ -88,7 +88,6 @@ function generateHUD(file) {
 
 export function renderMediaList() {
   const panel = document.getElementById('media-panel');
-  const emptyText = document.getElementById('empty-list-text');
   
   if (fileOrder.length === 0) {
     panel.innerHTML = '<div class="empty-list-text" id="empty-list-text">No media added yet.<br>Click above to browse.</div>';
@@ -125,12 +124,18 @@ export function renderMediaList() {
       const isSelected = state.selectedFileIds.includes(id);
       const hudContent = generateHUD(file);
 
+      // Filter out the 'Length' stat for the visible row text
+      const visibleStats = file.stats
+        .filter(s => s.label !== 'Length')
+        .map(s => s.value)
+        .join(' • ');
+
       groupHtml += `
         <div class="media-row" id="row-${id}">
           <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelect('${id}', this.checked)">
           <div class="col-info" onclick="selectMediaItem('${id}')">
             <div class="col-name">${file.name}</div>
-            <div class="col-meta">${file.stats.map(s => s.value).join(' • ')}</div>
+            <div class="col-meta">${visibleStats}</div>
           </div>
           <div class="col-size">${file.stats.find(s => s.label === 'Size')?.value || ''}</div>
           <div class="col-actions">
@@ -167,11 +172,10 @@ export function renderMediaList() {
 export function toggleRowSelect(id, isChecked) {
   if (isChecked) {
     if (!state.selectedFileIds.includes(id)) state.selectedFileIds.push(id);
-    selectMediaItem(id); // Focus this file in the right panel
+    selectMediaItem(id);
   } else {
     state.selectedFileIds = state.selectedFileIds.filter(fId => fId !== id);
     if (state.selectedFileId === id) {
-      // If we deselect the active file, try to select the last remaining one
       if (state.selectedFileIds.length > 0) {
         selectMediaItem(state.selectedFileIds[state.selectedFileIds.length - 1]);
       } else {
@@ -291,13 +295,11 @@ function renderQuickStats(fileId) {
 export function removeMediaItem(id, event) {
   if (event) event.stopPropagation();
 
-  // Remove from state
   state.selectedFileIds = state.selectedFileIds.filter(fId => fId !== id);
   const index = fileOrder.indexOf(id);
   if (index > -1) fileOrder.splice(index, 1);
   delete filesData[id];
 
-  // If removing the active file, select the next available
   if (state.selectedFileId === id) {
     if (fileOrder.length > 0) {
       selectMediaItem(fileOrder[0]);
