@@ -15,7 +15,7 @@ body {
   color: #fff;
 }
 
-/* --- Main Container (Enforces Fixed Size) --- */
+/* --- Main Container --- */
 .app-container {
   position: relative;
   width: 1000px;
@@ -78,7 +78,7 @@ body {
 .window-controls span { cursor: pointer; }
 .window-controls span:hover { color: #fff; }
 
-/* --- Main Content Area (2 Columns) --- */
+/* --- Main Content Area --- */
 .main-content {
   display: flex;
   flex: 1;
@@ -90,8 +90,8 @@ body {
 
 /* --- Left Panel (Media Window) --- */
 .left-panel {
-  width: 375px; /* Widened to accommodate the new layout */
-  min-width: 375px;
+  width: 380px; 
+  min-width: 380px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -209,6 +209,7 @@ body {
   padding: 20px 0;
   font-size: 13px;
 }
+
 /* --- Right Panel (Encoder Settings) --- */
 .right-panel {
   flex: 1;
@@ -314,6 +315,7 @@ body {
   transform: translate(-50%, -50%) scale(0.95);
   background: #333; color: #fff; padding: 8px 14px;
   border-radius: 6px; border: 1px solid #505050;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.7);
   font-size: 13px; font-weight: 500; white-space: nowrap;
   opacity: 0; pointer-events: none;
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -777,14 +779,6 @@ input[type="range"].custom-slider::-moz-range-thumb:hover { transform: scale(1.1
 }
 
 /* --- Simulated File Explorer --- */
-.empty-list-text {
-  color: #666;
-  font-style: italic;
-  text-align: center;
-  padding: 20px 0;
-  font-size: 13px;
-}
-
 .file-explorer-modal {
   width: 500px;
 }
