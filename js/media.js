@@ -98,6 +98,14 @@ function generateHUD(file) {
   const stats = file.stats;
   const getStat = (label) => stats.find(s => s.label === label)?.value || 'N/A';
 
+  // Helper to clean up and format bitrate
+  const formatBitrate = (str) => {
+    if (!str || str === 'N/A' || str === 'None') return str;
+    const num = str.replace(/[^0-9]/g, '');
+    if (!num) return 'N/A';
+    return `~${num} kbps`;
+  };
+
   if (isVid) {
     // Extract Resolution
     const wStr = file.details?.video?.find(d => d[0] === 'Width:')?.[1] || '';
@@ -109,7 +117,8 @@ function generateHUD(file) {
     // Extract Audio Codec & Avg Bitrate
     const audioStr = getStat('Audio');
     const audioCodec = file.hasAudio ? audioStr.split('/')[0].trim() : 'None';
-    const avgBitrate = file.hasAudio ? (audioStr.split('/')[1]?.trim() || 'N/A') : 'None';
+    const rawAvgBitrate = file.hasAudio ? (audioStr.split('/')[1]?.trim() || 'N/A') : 'None';
+    const avgBitrate = formatBitrate(rawAvgBitrate);
 
     return `
       <div class="tt-grid">
@@ -117,14 +126,15 @@ function generateHUD(file) {
         <div class="tt-item"><span class="tt-key">Res</span><span class="tt-val">${resVal}</span></div>
         <div class="tt-item"><span class="tt-key">FPS</span><span class="tt-val">${getStat('FPS')} fps</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${audioCodec}</span></div>
-        <div class="tt-item"><span class="tt-key">Avg Bitrate</span><span class="tt-val">${avgBitrate}</span></div>
+        <div class="tt-item"><span class="tt-key">Bitrate</span><span class="tt-val">${avgBitrate}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
       </div>
     `;
   } else {
     // Audio Only HUD
     const codec = getStat('Codec') || 'N/A';
-    const overallBitrate = file.details?.general?.find(d => d[0] === 'Overall bit rate:')?.[1] || 'N/A';
+    const rawOverallBitrate = file.details?.general?.find(d => d[0] === 'Overall bit rate:')?.[1] || 'N/A';
+    const overallBitrate = formatBitrate(rawOverallBitrate);
     
     const audioFormat = (getStat('Audio Format') || '').split(' / ');
     const depth = audioFormat[0] || 'N/A';
@@ -134,7 +144,7 @@ function generateHUD(file) {
       <div class="tt-grid">
         <div class="tt-item"><span class="tt-key">Container</span><span class="tt-val">${file.name.split('.').pop().toUpperCase()}</span></div>
         <div class="tt-item"><span class="tt-key">Audio</span><span class="tt-val">${codec}</span></div>
-        <div class="tt-item"><span class="tt-key">Avg Bitrate</span><span class="tt-val">${overallBitrate}</span></div>
+        <div class="tt-item"><span class="tt-key">Bitrate</span><span class="tt-val">${overallBitrate}</span></div>
         <div class="tt-item"><span class="tt-key">Depth</span><span class="tt-val">${depth}</span></div>
         <div class="tt-item"><span class="tt-key">Rate</span><span class="tt-val">${rate}</span></div>
         <div class="tt-item"><span class="tt-key">Length</span><span class="tt-val">${getStat('Length')}</span></div>
