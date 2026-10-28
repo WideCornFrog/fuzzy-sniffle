@@ -133,10 +133,21 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Blur native selects when clicking outside them to remove highlight
-  document.addEventListener('click', (e) => {
-    if (e.target.tagName !== 'SELECT' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-      if (document.activeElement && (document.activeElement.tagName === 'SELECT' || document.activeElement.tagName === 'INPUT')) {
+  let lastActiveSelect = null;
+
+  // Force blur on native selects if clicked twice (closing without picking) or clicking outside
+  document.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'SELECT') {
+      if (lastActiveSelect === e.target) {
+        lastActiveSelect = null;
+        // Let the native toggle occur, then remove focus
+        setTimeout(() => { e.target.blur(); }, 10);
+      } else {
+        lastActiveSelect = e.target;
+      }
+    } else if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      lastActiveSelect = null;
+      if (document.activeElement && document.activeElement.tagName === 'SELECT') {
         document.activeElement.blur();
       }
     }
