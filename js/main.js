@@ -165,4 +165,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   void state; void updateOutputFormatOptions;
+
+  // FINAL STEP: Reveal the fully initialized UI to eliminate layout shifts
+  document.querySelector('.app-container').classList.add('loaded');
 });
