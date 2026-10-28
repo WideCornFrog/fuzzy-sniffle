@@ -10,12 +10,15 @@ import {
 } from './state.js';
 
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability } from './output.js';
-import { refreshSelect } from './custom-select.js';
+import { refreshSelect, initCustomSelect } from './custom-select.js';
 import { scheduleRefresh } from './ffmpeg.js';
 import { captureAudioState, restoreAudioState } from './audio.js';
 import { showPrompt, showConfirm, showResetConfirm } from './ui-utils.js';
 
 const SKIP_KEYS = ['quality','preset','tune','profile','level','colorRange','fastDecode'];
+
+// Dynamic custom-select controls inside #video-dynamic-controls (rebuilt on every codec change)
+let dynamicCtrls = [];
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c =>
@@ -203,6 +206,7 @@ export function updateVideoOptions() {
     html += `<option value="__create__">+ Create New Preset…</option>`;
     presetSelect.innerHTML = html;
     presetSelect.value = activePreset;
+    refreshSelect('video-preset');
 
     const isCustom = activePreset.startsWith('custom');
     document.getElementById('btn-rename-video-preset').style.display = isCustom ? 'flex' : 'none';
@@ -218,12 +222,16 @@ export function updateVideoOptions() {
   if (fpsCustom) fpsCustom.value = basic.fpsCustom || '';
   if (resSelect) resSelect.value = basic.resSelect || 'Same as source';
   if (resCustom) resCustom.value = basic.resCustom || '';
+  refreshSelect('fps-select');
+  refreshSelect('res-select');
 
   const isVbr = ['vbr','vbr_peak','vbr_latency'].includes(adv.rateControl);
   const isCbr = adv.rateControl === 'cbr';
   const isBitrateMode = isVbr || isCbr;
 
   const container = document.getElementById('video-dynamic-controls');
+  dynamicCtrls.forEach(c => c.destroy && c.destroy());
+  dynamicCtrls = [];
   container.innerHTML = '';
   if (!caps) {
     state.currentRenderedVideoCodec = codec;
@@ -280,6 +288,10 @@ export function updateVideoOptions() {
       }
     }
     container.appendChild(row);
+    if (q.type === 'select') {
+      const dynQualityEl = row.querySelector('#dyn-quality');
+      if (dynQualityEl) dynamicCtrls.push(initCustomSelect(dynQualityEl));
+    }
   }
 
   if (caps.preset) {
@@ -310,6 +322,10 @@ export function updateVideoOptions() {
       });
     }
     container.appendChild(row);
+    if (p.type === 'select') {
+      const dynPresetEl = row.querySelector('#dyn-preset');
+      if (dynPresetEl) dynamicCtrls.push(initCustomSelect(dynPresetEl));
+    }
   }
 
   state.currentRenderedVideoCodec = codec;
