@@ -102,8 +102,14 @@ export function initCustomSelect(selectEl) {
       top = rect.top - panelMaxH - 4;
     }
     
-    // Expand panel width to fit content if needed (min 320px for layout), and prevent overflow
-    const width = Math.max(rect.width, 320);
+    // Measure natural content width and clamp it
+    panel.style.width = 'max-content';
+    panel.style.minWidth = rect.width + 'px';
+    
+    let width = panel.offsetWidth;
+    const maxAvailable = window.innerWidth - 20;
+    width = Math.min(width, maxAvailable, 480); 
+    
     let left = rect.left;
     if (left + width > window.innerWidth - 10) {
       left = Math.max(10, window.innerWidth - width - 10);
@@ -137,23 +143,25 @@ export function initCustomSelect(selectEl) {
       right.appendChild(s);
     }
 
-    const tagsDiv = document.createElement('div');
-    tagsDiv.style.cssText = 'display:flex;align-items:center;gap:6px;width:130px;justify-content:flex-end;flex-shrink:0;';
-
     const { basic, advanced } = editedChecker(selectEl.id, opt.value);
-    if (basic) {
-      const t = document.createElement('span');
-      t.className = 'cselect-edited-tag';
-      t.textContent = 'EDITED';
-      tagsDiv.appendChild(t);
+    if (basic || advanced) {
+      const tagsDiv = document.createElement('div');
+      tagsDiv.style.cssText = 'display:flex;align-items:center;gap:6px;width:130px;justify-content:flex-end;flex-shrink:0;';
+      
+      if (basic) {
+        const t = document.createElement('span');
+        t.className = 'cselect-edited-tag';
+        t.textContent = 'EDITED';
+        tagsDiv.appendChild(t);
+      }
+      if (advanced) {
+        const t = document.createElement('span');
+        t.className = 'cselect-edited-tag cselect-edited-tag-red';
+        t.textContent = 'ADVANCED';
+        tagsDiv.appendChild(t);
+      }
+      right.appendChild(tagsDiv);
     }
-    if (advanced) {
-      const t = document.createElement('span');
-      t.className = 'cselect-edited-tag cselect-edited-tag-red';
-      t.textContent = 'ADVANCED';
-      tagsDiv.appendChild(t);
-    }
-    right.appendChild(tagsDiv);
 
     const checkDiv = document.createElement('div');
     checkDiv.style.cssText = 'width:16px;display:flex;justify-content:center;flex-shrink:0;';
