@@ -88,6 +88,9 @@ export function initCustomSelect(selectEl) {
   wrapper.appendChild(selectEl);
   selectEl.style.display = 'none';
 
+  const controller = new AbortController();
+  const { signal } = controller;
+
   let isOpen = false;
   let ctrl = null;
 
@@ -178,6 +181,8 @@ export function initCustomSelect(selectEl) {
   }
 
   function render() {
+    trigger.disabled = !!selectEl.disabled;
+
     const selOpt = selectEl.selectedOptions[0];
     trigger.innerHTML = `<span class="cselect-label"></span>
       <svg class="cselect-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -212,6 +217,7 @@ export function initCustomSelect(selectEl) {
   }
 
   function open() {
+    if (selectEl.disabled) return;
     hideTooltip();
     render();
     Object.values(customSelects).forEach(cs => { if (cs && cs !== ctrl) cs.close(); });
@@ -225,7 +231,7 @@ export function initCustomSelect(selectEl) {
     wrapper.classList.remove('open');
     hideTooltip();
     render();
-    trigger.blur(); // Remove focus highlight when closing
+    trigger.blur();
   }
 
   trigger.addEventListener('click', (e) => {
@@ -233,16 +239,20 @@ export function initCustomSelect(selectEl) {
     if (isOpen) close(); else open();
   });
 
-  document.addEventListener('click', () => { if (isOpen) close(); });
-  window.addEventListener('resize', () => { if (isOpen) positionPanel(); });
+  document.addEventListener('click', () => { if (isOpen) close(); }, { signal });
+  window.addEventListener('resize', () => { if (isOpen) positionPanel(); }, { signal });
 
   render();
-  ctrl = { refresh: render, close, wrapper };
+  ctrl = { refresh: render, close, wrapper, destroy: () => controller.abort() };
   return ctrl;
 }
 
 export function initAllCustomSelects() {
-  ['video-codec', 'audio-codec', 'output-format'].forEach(id => {
+  [
+    'video-codec', 'audio-codec', 'output-format',
+    'video-preset', 'audio-preset',
+    'fps-select', 'res-select', 'sample-rate-select', 'audio-channels'
+  ].forEach(id => {
     const sel = document.getElementById(id);
     if (sel) customSelects[id] = initCustomSelect(sel);
   });
