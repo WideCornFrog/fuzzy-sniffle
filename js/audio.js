@@ -10,11 +10,18 @@ import {
 } from './state.js';
 
 import { updatePanelTags, updateContainerAvailability, updateAudioCodecAvailability, isTreatAsAudioOnly, updateOutputFormatOptions } from './output.js';
-import { refreshSelect } from './custom-select.js';
+import { refreshSelect, initCustomSelect } from './custom-select.js';
 import { scheduleRefresh } from './ffmpeg.js';
 import { showPrompt, showConfirm, showResetConfirm } from './ui-utils.js';
 
 let skipSaveAudioState = false;
+
+// Dynamic custom-select controls inside #audio-dynamic-controls (rebuilt on every codec change)
+let dynamicAudioCtrls = [];
+function clearDynamicAudioCtrls() {
+  dynamicAudioCtrls.forEach(c => c.destroy && c.destroy());
+  dynamicAudioCtrls = [];
+}
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c =>
@@ -466,6 +473,11 @@ export function updateAudioOptions() {
 
   restoreAudioStateUI(codec);
 
+  refreshSelect('sample-rate-select');
+  refreshSelect('audio-channels');
+  refreshSelect('audio-preset');
+  dynamicAudioCtrls.forEach(c => c.refresh());
+
   if (isTreatAsAudioOnly()) updateOutputFormatOptions();
   updatePanelTags();
   scheduleRefresh();
@@ -539,6 +551,7 @@ function restoreAudioStateUI(codec) {
 }
 
 function renderAudioDynamicUI(codec) {
+  clearDynamicAudioCtrls();
   const c = document.getElementById('audio-dynamic-controls');
   c.innerHTML = '';
 
@@ -690,6 +703,8 @@ function renderAudioDynamicUI(codec) {
         onAudioPanelChange();
       });
     }
+    const bdEl = document.getElementById('audio-bit-depth');
+    if (bdEl) dynamicAudioCtrls.push(initCustomSelect(bdEl));
   }
 }
 
