@@ -90,7 +90,32 @@
             </optgroup>
           </select>
         </div>
-        <div id="video-dynamic-controls"></div>
+        
+        <!-- Pre-rendered Dynamic Controls for h264_nvenc -->
+        <div id="video-dynamic-controls">
+          <div class="setting-row">
+            <label>Quality (CQ)</label>
+            <div class="combo-group" style="grid-template-columns:1fr;">
+              <div class="slider-group">
+                <input type="range" class="custom-slider" id="dyn-quality" min="0" max="51" value="23" step="1">
+                <span class="slider-value" id="dyn-quality-val">23</span>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <label>Preset</label>
+            <select id="dyn-preset">
+              <option value="p1">p1</option>
+              <option value="p2">p2</option>
+              <option value="p3">p3</option>
+              <option value="p4">p4</option>
+              <option value="p5" selected>p5</option>
+              <option value="p6">p6</option>
+              <option value="p7">p7</option>
+            </select>
+          </div>
+        </div>
+
         <div class="setting-row">
           <label>Framerate</label>
           <div class="combo-group">
@@ -171,7 +196,33 @@
           </select>
         </div>
         
-        <div id="audio-dynamic-controls"></div>
+        <!-- Pre-rendered Dynamic Controls for libopus -->
+        <div id="audio-dynamic-controls">
+          <div class="setting-row">
+            <label>VBR Target Bitrate</label>
+            <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
+              <div class="slider-group">
+                <input type="range" class="custom-slider" id="opus-vbr-target" min="6" max="510" step="2" value="128">
+                <span class="slider-value" id="opus-vbr-target-value">128k</span>
+              </div>
+              <label class="custom-checkbox-label" style="white-space: nowrap;">
+                <input type="checkbox" id="chk-opus-vbr" checked onchange="onAudioModeChange('opus', 'vbr')"> <span>VBR</span>
+              </label>
+            </div>
+          </div>
+          <div class="setting-row">
+            <label>CBR Bitrate</label>
+            <div class="combo-group" style="grid-template-columns: 1fr auto; align-items: center;">
+              <div class="slider-group">
+                <input type="range" class="custom-slider" id="opus-cbr-slider" min="6" max="510" step="2" value="128">
+                <span class="slider-value" id="opus-cbr-slider-value">128k</span>
+              </div>
+              <label class="custom-checkbox-label" style="white-space: nowrap;">
+                <input type="checkbox" id="chk-opus-cbr" onchange="onAudioModeChange('opus', 'cbr')"> <span>CBR</span>
+              </label>
+            </div>
+          </div>
+        </div>
         
         <div class="setting-row">
           <label>Sample Rate</label>
