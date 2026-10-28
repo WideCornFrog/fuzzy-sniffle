@@ -414,6 +414,7 @@ body {
   -webkit-appearance: none;
   -moz-appearance: none;
   min-width: 0;
+  cursor: pointer;
 }
 
 /* Hover & Focus states for inputs */
