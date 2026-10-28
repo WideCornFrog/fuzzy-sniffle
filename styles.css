@@ -6,6 +6,10 @@
   font-family: "Source Sans 3", sans-serif;
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
   background: #000;
   display: flex;
@@ -300,8 +304,8 @@ body {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.3s;
   min-width: 0;
+  /* Removed transition to prevent initial border animation flash */
 }
 
 /* --- Unified Greyed-Out States --- */
