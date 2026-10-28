@@ -125,13 +125,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('input', () => refreshFfmpegCommand());
   
-  // Handle change events and remove focus from native selects and inputs
   document.addEventListener('change', (e) => {
     refreshFfmpegCommand();
-    
     // Remove focus highlight from native dropdowns after selection
     if (e.target.tagName === 'SELECT') {
       e.target.blur();
+    }
+  });
+
+  // Blur native selects when clicking outside them to remove highlight
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'SELECT' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      if (document.activeElement && (document.activeElement.tagName === 'SELECT' || document.activeElement.tagName === 'INPUT')) {
+        document.activeElement.blur();
+      }
     }
   });
 
