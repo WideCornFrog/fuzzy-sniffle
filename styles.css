@@ -43,7 +43,7 @@ body {
   
   /* Hide initially to prevent FOUC and layout shifts */
   opacity: 0;
-  transition: opacity 0.15s ease-out;
+  /* Transition removed to make it appear instantly when loaded */
 }
 
 .app-container.loaded {
@@ -305,7 +305,6 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* Removed transition to prevent initial border animation flash */
 }
 
 /* --- Unified Greyed-Out States --- */
