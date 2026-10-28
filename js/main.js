@@ -107,7 +107,7 @@ Object.assign(window, {
   cancelTurbo: () => document.getElementById('turboModal').classList.remove('active')
 });
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
   initAllCustomSelects();
   
   // Force UI to an empty, unchecked state immediately on boot before other UI updates
@@ -166,16 +166,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   void state; void updateOutputFormatOptions;
 
-  // Wait for the font to be fully loaded before revealing the app.
-  // This prevents the layout shift/size jump when the fallback font swaps to Source Sans 3.
-  if (document.fonts) {
-    try {
-      await document.fonts.ready;
-    } catch (e) {
-      // Proceed even if font fails
-    }
-  }
-
-  // FINAL STEP: Reveal the fully initialized UI
+  // FINAL STEP: Reveal the fully initialized UI instantly
   document.querySelector('.app-container').classList.add('loaded');
 });
