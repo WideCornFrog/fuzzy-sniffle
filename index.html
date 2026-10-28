@@ -7,6 +7,16 @@
 <link rel="icon" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<style>
+  /* Critical inline CSS to prevent FOUC and white border flashes */
+  html { color-scheme: dark; }
+  .app-container { opacity: 0; }
+  #video-codec, #audio-codec, #output-format,
+  #video-preset, #audio-preset,
+  #fps-select, #res-select, #sample-rate-select, #audio-channels {
+    display: none;
+  }
+</style>
 </head>
 <body>
 
@@ -42,7 +52,6 @@
       <div class="settings-box video-settings no-file" id="box-video">
         <div class="box-header">
           <div class="box-header-left">
-            <!-- Starts disabled and unchecked -->
             <input type="checkbox" class="toggle-enable" id="enable-video" disabled onchange="onVideoEnableChange(this)">
             <div class="box-title">Video settings</div>
             <div id="video-panel-tags" style="display:flex; gap:4px;"></div>
@@ -50,7 +59,7 @@
           <div class="header-buttons" style="display:flex; align-items:center; gap:6px;">
             <button id="btn-delete-video-preset" class="btn-preset-save btn-preset-danger" onclick="deleteVideoPreset()" style="display:none;" title="Delete This Preset">Delete</button>
             <button id="btn-save-video-preset" class="btn-preset-save" onclick="saveVideoPresetSettings()" style="display:none;" title="Save Current Settings as This Preset's Default">Save</button>
-            <select id="video-preset" class="preset-select" onchange="applyVideoPreset(this.value)">
+            <select id="video-preset" class="preset-select" onchange="applyVideoPreset(this.value)" style="display:none;">
               <option value="standard">Standard</option>
               <option value="__create__">+ Create New Preset…</option>
             </select>
@@ -61,7 +70,7 @@
         </div>
         <div class="setting-row">
           <label>Codec</label>
-          <select id="video-codec" onchange="onVideoCodecChange()">
+          <select id="video-codec" onchange="onVideoCodecChange()" style="display:none;">
             <optgroup label="NVIDIA (NVENC)">
               <option value="h264_nvenc">H.264 (h264_nvenc)</option>
               <option value="hevc_nvenc">H.265 (hevc_nvenc)</option>
@@ -104,7 +113,7 @@
           </div>
           <div class="setting-row">
             <label>Preset</label>
-            <select id="dyn-preset">
+            <select id="dyn-preset" style="display:none;">
               <option value="p1">p1</option>
               <option value="p2">p2</option>
               <option value="p3">p3</option>
@@ -119,7 +128,7 @@
         <div class="setting-row">
           <label>Framerate</label>
           <div class="combo-group">
-            <select id="fps-select" onchange="onVideoPanelChange()">
+            <select id="fps-select" onchange="onVideoPanelChange()" style="display:none;">
               <option value="Same as source" selected>Same as source</option>
               <option value="23.976">23.976 fps</option>
               <option value="24">24 fps</option>
@@ -135,7 +144,7 @@
         <div class="setting-row">
           <label>Resolution</label>
           <div class="combo-group">
-            <select id="res-select" onchange="onVideoPanelChange()">
+            <select id="res-select" onchange="onVideoPanelChange()" style="display:none;">
               <option value="Same as source" selected>Same as source</option>
               <option value="3840x2160">4K (2160p)</option>
               <option value="2560x1440">1440p</option>
@@ -156,7 +165,6 @@
       <div class="settings-box audio-settings no-file" id="box-audio">
         <div class="box-header">
           <div class="box-header-left">
-            <!-- Starts disabled and unchecked -->
             <input type="checkbox" class="toggle-enable" id="enable-audio" disabled onchange="onAudioEnableChange(this)">
             <div class="box-title">Audio settings</div>
             <div id="audio-panel-tags" style="display:flex; gap:4px;"></div>
@@ -164,7 +172,7 @@
           <div class="header-buttons" style="display:flex; align-items:center; gap:6px;">
             <button id="btn-delete-audio-preset" class="btn-preset-save btn-preset-danger" onclick="deleteAudioPreset()" style="display:none;" title="Delete This Preset">Delete</button>
             <button id="btn-save-audio-preset" class="btn-preset-save" onclick="saveAudioPresetSettings()" style="display:none;" title="Save Current Settings as This Preset's Default">Save</button>
-            <select id="audio-preset" class="preset-select" onchange="applyAudioPreset(this.value)">
+            <select id="audio-preset" class="preset-select" onchange="applyAudioPreset(this.value)" style="display:none;">
               <option value="standard">Standard</option>
               <option value="high">High Quality</option>
               <option value="__create__">+ Create New Preset…</option>
@@ -176,7 +184,7 @@
         </div>
         <div class="setting-row">
           <label>Codec</label>
-          <select id="audio-codec" onchange="onAudioCodecChange()">
+          <select id="audio-codec" onchange="onAudioCodecChange()" style="display:none;">
             <optgroup label="Lossy">
               <option value="libopus">Opus (libopus)</option>
               <option value="libfdk_aac">AAC (libfdk_aac)</option>
@@ -228,7 +236,7 @@
           <label>Sample Rate</label>
           <div class="tooltip-container" id="sample-rate-tooltip">
             <span class="tooltip-text">Opus always resamples to 48kHz internally</span>
-            <select id="sample-rate-select" onchange="onAudioPanelChange()">
+            <select id="sample-rate-select" onchange="onAudioPanelChange()" style="display:none;">
               <option value="Same as source" selected>Same as source</option>
               <option value="8000">8 kHz</option>
               <option value="11025">11.025 kHz</option>
@@ -251,7 +259,7 @@
         </div>
         <div class="setting-row">
           <label>Channels</label>
-          <select id="audio-channels" onchange="onAudioPanelChange()">
+          <select id="audio-channels" onchange="onAudioPanelChange()" style="display:none;">
             <option value="Same as source" selected>Same as source</option>
             <option value="Mono (1.0)">Mono</option>
             <option value="Stereo (2.0)">Stereo</option>
@@ -275,7 +283,7 @@
         </div>
         <div class="setting-row">
           <label>Format</label>
-          <select id="output-format" onchange="onContainerChange()">
+          <select id="output-format" onchange="onContainerChange()" style="display:none;">
             <option>MKV (Matroska)</option>
             <option>MP4</option>
             <option>WebM</option>
@@ -297,13 +305,11 @@
 
   <!-- Bottom Bar (FFmpeg Command & Encode) -->
   <div class="bottom-bar">
-    <!-- Starts with disabled-ui -->
     <input type="text" class="ffmpeg-input disabled-ui" id="ffmpeg-cmd" readonly
            placeholder="Select a file to see the FFmpeg command"
            title="Click to copy"
            onclick="copyFfmpegCommand()">
     
-    <!-- Starts with disabled-ui -->
     <div class="btn-encode-wrapper disabled-ui" id="encode-wrapper">
       <div class="btn-encode-group">
         <div class="btn-encode-main" id="btn-encode-text" onclick="triggerEncode()">Encode selected files</div>
