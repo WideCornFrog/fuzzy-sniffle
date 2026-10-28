@@ -166,14 +166,12 @@ export function initCustomSelect(selectEl) {
       e.stopPropagation();
       if (opt.disabled) return;
       
-      // Only fire change if the value actually changed
       if (opt.value !== selectEl.value) {
         selectEl.value = opt.value;
         selectEl.dispatchEvent(new Event('change', { bubbles: true }));
       }
       
       close();
-      trigger.blur(); // Remove focus so it's no longer highlighted
     });
 
     return el;
@@ -227,6 +225,7 @@ export function initCustomSelect(selectEl) {
     wrapper.classList.remove('open');
     hideTooltip();
     render();
+    trigger.blur(); // Remove focus highlight when closing
   }
 
   trigger.addEventListener('click', (e) => {
