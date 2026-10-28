@@ -15,6 +15,13 @@ body {
   color: #f5f5f5;
 }
 
+/* Hide native selects before custom ones are initialized to prevent flash */
+#video-codec, #audio-codec, #output-format,
+#video-preset, #audio-preset,
+#fps-select, #res-select, #sample-rate-select, #audio-channels {
+  display: none;
+}
+
 /* --- Main Container --- */
 .app-container {
   position: relative;
