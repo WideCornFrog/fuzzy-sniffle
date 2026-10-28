@@ -109,6 +109,10 @@ Object.assign(window, {
 
 window.addEventListener('DOMContentLoaded', () => {
   initAllCustomSelects();
+  
+  // Force UI to an empty, unchecked state immediately on boot before other UI updates
+  clearSettings(); 
+
   updateVideoOptions();
   updateAudioOptions();
   updateVideoCodecAvailability();
@@ -116,9 +120,6 @@ window.addEventListener('DOMContentLoaded', () => {
   updateContainerAvailability();
   updatePanelTags();
   refreshFfmpegCommand();
-  
-  // Force UI to an empty, unchecked state on boot
-  clearSettings(); 
 
   ['video-codec', 'audio-codec', 'output-format'].forEach(id =>
     document.getElementById(id).addEventListener('change', () => refreshSelect(id)));
