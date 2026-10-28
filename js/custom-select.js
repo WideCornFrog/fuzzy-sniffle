@@ -101,9 +101,17 @@ export function initCustomSelect(selectEl) {
     if (top + panelMaxH > window.innerHeight && rect.top > panelMaxH) {
       top = rect.top - panelMaxH - 4;
     }
+    
+    // Expand panel width to fit content if needed (min 320px for layout), and prevent overflow
+    const width = Math.max(rect.width, 320);
+    let left = rect.left;
+    if (left + width > window.innerWidth - 10) {
+      left = Math.max(10, window.innerWidth - width - 10);
+    }
+
     panel.style.top = top + 'px';
-    panel.style.left = rect.left + 'px';
-    panel.style.width = rect.width + 'px';
+    panel.style.left = left + 'px';
+    panel.style.width = width + 'px';
   }
 
   function buildOption(opt) {
@@ -119,35 +127,44 @@ export function initCustomSelect(selectEl) {
     el.appendChild(span);
 
     const right = document.createElement('div');
-    right.style.cssText = 'display:flex;align-items:center;gap:6px;margin-left:auto;';
+    right.style.cssText = 'display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;';
 
     const suffix = labelSuffixProvider(selectEl.id, opt.value);
     if (suffix) {
       const s = document.createElement('span');
       s.textContent = suffix;
-      s.style.cssText = 'color:#888;font-size:11px;font-style:italic;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;margin-left:auto;padding-right:8px;flex-shrink:0;';
-      el.appendChild(s);
+      s.style.cssText = 'color:#888;font-size:11px;font-style:italic;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;';
+      right.appendChild(s);
     }
+
+    const tagsDiv = document.createElement('div');
+    tagsDiv.style.cssText = 'display:flex;align-items:center;gap:6px;width:130px;justify-content:flex-end;flex-shrink:0;';
 
     const { basic, advanced } = editedChecker(selectEl.id, opt.value);
     if (basic) {
       const t = document.createElement('span');
       t.className = 'cselect-edited-tag';
       t.textContent = 'EDITED';
-      right.appendChild(t);
+      tagsDiv.appendChild(t);
     }
     if (advanced) {
       const t = document.createElement('span');
       t.className = 'cselect-edited-tag cselect-edited-tag-red';
       t.textContent = 'ADVANCED';
-      right.appendChild(t);
+      tagsDiv.appendChild(t);
     }
+    right.appendChild(tagsDiv);
+
+    const checkDiv = document.createElement('div');
+    checkDiv.style.cssText = 'width:16px;display:flex;justify-content:center;flex-shrink:0;';
     if (opt.selected) {
       const c = document.createElement('span');
       c.textContent = '✓';
       c.style.cssText = 'color:#2563eb;font-size:12px;';
-      right.appendChild(c);
+      checkDiv.appendChild(c);
     }
+    right.appendChild(checkDiv);
+
     el.appendChild(right);
 
     if (opt.disabled && opt.title) {
